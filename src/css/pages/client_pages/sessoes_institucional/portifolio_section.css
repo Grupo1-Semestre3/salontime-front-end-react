@@ -1,0 +1,15 @@
+.portifolio_section_pai{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+
+    height: 982px;
+}
+
+.portifolio_section_title{
+    display: flex;
+    width: 1280px;
+    text-align: start;
+}
