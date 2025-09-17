@@ -1,8 +1,56 @@
 import { useNavigate } from "react-router-dom";
+import MenuDash from "../../components/MenuDash"
+import NavCalendario from "../../components/NavCalendario"
+import Calendario from "../../components/Calendario";
 
-export default function Calendario_visao_geral() {
-  return <div>Calendario visao geral</div>;
+export default function CalendarioVisaoGeral() {
+  const navigate = useNavigate();
+
+  return (
+    <div className="dash_section_pai">
+      {/* NAVBAR LATERAL */}
+      <MenuDash />
+
+      {/* SEÇÃO PRINCIPAL */}
+      <div className="dash_section_filho">
+        {/* MINI NAV */}
+        <NavCalendario />
+        <div className="dash_section_container">
+          <h1 className="supertitulo-1">Próximos atendimentos</h1>
+        </div>
+
+        {/* CARD DE ATENDIMENTO */}
+        <div className="calendario_card_proximo_atendimento card">
+          <div className="calendario_info_box_card_proximo_atendimento">
+            <p className="titulo-1 semibold">Nome da Cliente</p>
+            <p className="subtitulo">
+              <span className="semibold">Serviço:</span> Luzes morena iluminada
+            </p>
+            <p className="subtitulo semibold info">
+              <img src="/src/assets/svg/time-sharp.svg" alt="icone tempo" style={{ width: "38px", height: "38px" }} />
+              dd/mm/yy 00:00
+            </p>
+          </div>
+          <div className="calendario_buttons_box_card_proximo_atendimento">
+            <button className="btn-rosa" style={{ height: "60px" }}>Reagendar</button>
+            <button className="btn-branco" style={{ height: "60px" }}>Cancelar</button>
+          </div>
+        </div>
+
+        {/* CALENDÁRIO */}
+        {/* <div className="div_section_calendar card"></div> */}
+        <Calendario />
+
+        {/* BOTÕES FINAIS */}
+        <div className="btn-juntos" style={{ flexDirection: "row", width: "100%" }}>
+          <button className="btn-rosa" style={{ width: "100%" }}>Criar Agendamento</button>
+          <button className="btn-branco" style={{ width: "100%" }}>Criar Compromisso</button>
+        </div>
+      </div>
+    </div>
+  );
 }
+
 
 
 // <!DOCTYPE html>
