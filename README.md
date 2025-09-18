@@ -35,6 +35,14 @@ npm install
 
 
 ```
+npm install chart.js react-chartjs-2
+```
+
+-------------------------
+
+
+
+```
 npm install react-big-calendar moment
 ```
 

@@ -3,17 +3,66 @@ import MenuDash from "/src/components/MenuDash.jsx";
 import NavCalendario from "/src/components/NavCalendario.jsx";
 
 export default function Calendario_atendimentos() {
-  return(
-<>
-<MenuDash>
-<NavCalendario/>
+  const navigate = useNavigate();
 
-</MenuDash>
-</>
+  return (
+    <MenuDash>
+     
+ <NavCalendario />
+     
+        {/* MINI NAV */}
+      
 
+        {/* TÍTULO */}
+        <div className="dash_section_container">
+          <h1 className="supertitulo-1">Atendimentos Passados:</h1>
+        </div>
+
+        {/* CARD DE ATENDIMENTO */}
+        <div className="dash_section_container">
+          <div className="atendimento_passados_card_box card">
+            <div className="info_box_atendimento_passados_card_box">
+              <p className="paragrafo-1 semibold info">
+                <img
+                  src="/assets/svg/perfil_foto.svg"
+                  alt="foto cliente"
+                  style={{ height: "45px" }}
+                />
+                <a>Nome da Cliente</a>
+              </p>
+              <p className="paragrafo-1 semibold">
+                Serviço: Luzes morena iluminada
+              </p>
+              <p className="paragrafo-2 info">
+                <img
+                  src="/assets/svg/time-sharp.svg"
+                  alt="icone hora"
+                  style={{ height: "24px" }}
+                />
+                dd/mm/yy 00:00
+              </p>
+
+              <div className="atendimentos_passados_infos">
+                <p className="paragrafo-2">
+                  <a className="semibold">Status:</a>{" "}
+                  <i>Pagamento em Aberto</i>
+                </p>
+                <p className="paragrafo-2">
+                  <a className="semibold">Valor:</a> <i>R$000,00</i>
+                </p>
+              </div>
+            </div>
+
+            <div className="buttons_box_atendimento_passados_card_box">
+              <button className="btn-rosa">Concluir</button>
+              <button className="btn-branco">Detalhes</button>
+            </div>
+          </div>
+        </div>
+   
+    </MenuDash>
   );
 }
-
 
 // <!DOCTYPE html>
 // <html lang="pt-br">
