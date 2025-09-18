@@ -5,18 +5,10 @@ import NavCalendario from "/src/components/NavCalendario.jsx";
 export default function Calendario_atendimentos() {
   return(
 <>
-<div className="dash_section_pai">
-<MenuDash />
-
-<div class="dash_section_filho">
-
+<MenuDash>
 <NavCalendario/>
 
-</div>
-
-</div>
-
-<div>Calendario atendimentos</div>
+</MenuDash>
 </>
 
   );

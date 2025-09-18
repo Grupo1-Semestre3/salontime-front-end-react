@@ -7,12 +7,11 @@ export default function CalendarioVisaoGeral() {
   const navigate = useNavigate();
 
   return (
-    <div className="dash_section_pai">
+    // <div className="dash_section_pai">
+    <>
       {/* NAVBAR LATERAL */}
-      <MenuDash />
+      <MenuDash>
 
-      {/* SEÇÃO PRINCIPAL */}
-      <div className="dash_section_filho">
         {/* MINI NAV */}
         <NavCalendario />
         <div className="dash_section_container">
@@ -46,8 +45,9 @@ export default function CalendarioVisaoGeral() {
           <button className="btn-rosa" style={{ width: "100%" }}>Criar Agendamento</button>
           <button className="btn-branco" style={{ width: "100%" }}>Criar Compromisso</button>
         </div>
-      </div>
-    </div>
+  
+    </MenuDash>
+    </>
   );
 }
 
