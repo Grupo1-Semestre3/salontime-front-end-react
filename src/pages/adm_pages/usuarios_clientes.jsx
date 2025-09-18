@@ -1,10 +1,13 @@
-
 import { useNavigate } from "react-router-dom";
+import MenuDash from "../../components/MenuDash";
 
 export default function Usuarios_clientes() {
-  return <div>Usuarios clientes</div>;
+  return (
+    <>
+    <MenuDash/>
+    </>
+  );
 }
-
 
 // <!DOCTYPE html>
 // <html lang="pt-br">

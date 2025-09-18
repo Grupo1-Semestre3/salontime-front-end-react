@@ -1,8 +1,12 @@
-
 import { useNavigate } from "react-router-dom";
+import MenuDash from "../../components/MenuDash";
 
 export default function Perfil() {
-  return <div>perfil</div>;
+  return (
+    <>
+    <MenuDash/>
+    </>
+  );
 }
 
 // <!DOCTYPE html>

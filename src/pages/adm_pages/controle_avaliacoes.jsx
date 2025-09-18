@@ -1,7 +1,12 @@
 import { useNavigate } from "react-router-dom";
+import MenuDash from "../../components/MenuDash";
 
 export default function Controle_avaliacoes() {
-  return <div>Controle de avaliações</div>;
+  return (
+    <>
+    <MenuDash/>
+    </>
+  );
 }
 
 // <!DOCTYPE html>

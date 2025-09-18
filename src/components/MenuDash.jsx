@@ -11,6 +11,9 @@ export default function MenuDash() {
     console.log("Logout");
   };
 
+  // Função para determinar se a rota está ativa
+  const isActive = (path) => location.pathname === path;
+
   return (
     <div className="dash_navbar_pai">
       <div className="dash_navbar_filho">
@@ -22,8 +25,8 @@ export default function MenuDash() {
         <p className="paragrafo-e bold">Bem vinda Marina!</p>
         <div className="dash_navbar_column">
           <button
-            className="btn-navbar-ativo"
-            onClick={() => navigate("/calendario_visao_geral")}
+            className={isActive("/adm/calendario-atendimentos") ? "btn-navbar-ativo" : "btn-navbar"}
+            onClick={() => navigate("/adm/calendario-atendimentos")}
           >
             <img
               style={{ maxWidth: "24px" }}
@@ -33,8 +36,8 @@ export default function MenuDash() {
             Calendário
           </button>
           <button
-            className="btn-navbar"
-            onClick={() => navigate("/servicos_servicos")}
+            className={isActive("/adm/servicos-servicos") ? "btn-navbar-ativo" : "btn-navbar"}
+            onClick={() => navigate("/adm/servicos-servicos")}
           >
             <img
               style={{ maxWidth: "24px" }}
@@ -44,8 +47,8 @@ export default function MenuDash() {
             Serviços
           </button>
           <button
-            className="btn-navbar"
-            onClick={() => navigate("/usuarios_clientes")}
+            className={isActive("/adm/usuarios-clientes") ? "btn-navbar-ativo" : "btn-navbar"}
+            onClick={() => navigate("/adm/usuarios-clientes")}
           >
             <img
               style={{ maxWidth: "24px" }}
@@ -55,8 +58,8 @@ export default function MenuDash() {
             Usuários
           </button>
           <button
-            className="btn-navbar"
-            onClick={() => navigate("/controlem_servicos")}
+            className={isActive("/adm/controle-servicos") ? "btn-navbar-ativo" : "btn-navbar"}
+            onClick={() => navigate("/adm/controle-servicos")}
           >
             <img
               style={{ maxWidth: "24px" }}
@@ -66,8 +69,8 @@ export default function MenuDash() {
             Controle Mensal
           </button>
           <button
-            className="btn-navbar"
-            onClick={() => navigate("/perfil")}
+            className={isActive("/adm/perfil") ? "btn-navbar-ativo" : "btn-navbar"}
+            onClick={() => navigate("/adm/perfil")}
           >
             <img
               style={{ maxWidth: "24px" }}

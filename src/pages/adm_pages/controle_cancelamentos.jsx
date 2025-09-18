@@ -1,8 +1,12 @@
-
 import { useNavigate } from "react-router-dom";
+import MenuDash from "../../components/MenuDash";
 
 export default function Controle_cancelamentos() {
-  return <div>Controle cancelamentos</div>;
+  return (
+    <>
+    <MenuDash/>
+    </>
+  );
 }
 
 // <!DOCTYPE html>

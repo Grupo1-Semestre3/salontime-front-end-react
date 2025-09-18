@@ -1,9 +1,13 @@
 import { useNavigate } from "react-router-dom";
+import MenuDash from "../../components/MenuDash";
 
 export default function Servicos_servicos() {
-  return <div>Servicos servicos</div>;
+  return (
+    <>
+    <MenuDash/>
+    </>
+  );
 }
-
 
 // <!DOCTYPE html>
 // <html lang="pt-br">

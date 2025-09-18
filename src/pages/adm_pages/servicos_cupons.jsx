@@ -1,8 +1,12 @@
-
 import { useNavigate } from "react-router-dom";
+import MenuDash from "../../components/MenuDash";
 
 export default function Servicos_cupons() {
-  return <div>Servicos cupons</div>;
+  return (
+    <>
+    <MenuDash/>
+    </>
+  );
 }
 
 // <!DOCTYPE html>
