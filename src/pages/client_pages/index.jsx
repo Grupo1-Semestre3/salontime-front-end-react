@@ -1,7 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import Nav from "/src/components/Nav.jsx";
+import NavbarLandingPage from "/src/components/NavbarLandingPage.jsx";
 import Footer from "/src/components/Footer.jsx";
+
 
 // --- COMPONENTE ESPECIALIDADE ---
 function EspecialidadeCard({ icon, titulo, descricao }) {
@@ -42,7 +43,6 @@ function AvaliacaoCard({ nome, data, estrelas, servico, comentario, imagem }) {
     </div>
   );
 }
-
 
 // --- PÁGINA PRINCIPAL ---
 export default function Index() {
@@ -96,7 +96,7 @@ export default function Index() {
 
   return (
     <>
-      <Nav />
+      <NavbarLandingPage />
 
       {/* Home */}
       <section className="home_section_pai">
@@ -129,12 +129,11 @@ export default function Index() {
         </div>
       </section>
 
-
-{/* Portifolio */}
+      {/* Portifólio] */}
       <section className="portifolio_section_pai">
         <p className="paragrafo-2 italic portifolio_section_title">Um pouco do meu trabalho!</p>
         <img src="/src/assets/img/portifolio_teste.png" alt="portifolio" />
-        <a href="https://www.instagram.com/marinamotahair/" target="_blank">
+        <a href="https://www.instagram.com/marinamotahair/" target="_blank" rel="noopener noreferrer">
           <button className="btn-rosa bold" style={{ height: "50px" }}>
             <img src="/src/assets/svg/icon_instagram.svg" alt="" style={{ height: "30px" }} />
             Veja mais!
@@ -143,6 +142,36 @@ export default function Index() {
       </section>
 
 
+      {/* Sobre mim */}
+      <section className="sobre_section_pai">
+        <img src="/src/assets/img/marina_sobre_mim.png" alt="sobre-mim" style={{ height: "576px" }} />
+        <div className="sobre_section_container">
+          <p className="titulo-1" style={{ fontFamily: "Georgia" }}>Sobre Mim</p>
+          <p className="paragrafo-2" style={{ maxWidth: "424px" }}>
+            Texto com uma breve descrição da Marina<br />
+            Texto com uma breve descrição da Marina<br />
+            Texto com uma breve descrição da Marina<br />
+            Texto com uma breve descrição da Marina
+          </p>
+          <p className="paragrafo-2 italic sobre_section_social">
+            <img src="/src/assets/svg/icon_whatsapp 1.svg" alt="icon-zap" />
+            (11) 96555-8010
+          </p>
+          <p className="paragrafo-2 italic sobre_section_social">
+            <img src="/src/assets/svg/icon_instagram2.svg" alt="icon-insta" />
+            @marinamotahair
+          </p>
+          <button
+            className="btn-rosa"
+            onClick={() => navigate("/servicos")}
+          >
+            <img src="/src/assets/vector/icon_sum/jam-icons/outline & logos/Vector.svg" alt="" />
+            Agendar
+          </button>
+        </div>
+      </section>
+
+      {/* Localizacao */}
       <section className="section_local_pai">
         <div className="section_local_title">
           <p className="titulo-1" style={{ color: "var(--rosa-3)", fontFamily: "Georgia" }}>
@@ -187,10 +216,14 @@ export default function Index() {
               <AvaliacaoCard key={idx} {...av} />
             ))}
           </div>
+          <div className="group">
+            {avaliacoes.map((av, idx) => (
+              <AvaliacaoCard key={idx} {...av} />
+            ))}
+          </div>
         </div>
       </section>
 
-      
       {/* Footer */}
       <Footer />
     </>

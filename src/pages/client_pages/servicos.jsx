@@ -1,24 +1,25 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Nav from "/src/components/Nav.jsx";
+import NavbarLandingPage from "/src/components/NavbarLandingPage.jsx";
+import Footer from "/src/components/Footer.jsx";
 
 export default function Servicos() {
+  const navigate = useNavigate();
   const [usuario, setUsuario] = useState(null);
-const [servicos, setServicos] = useState([]); 
-const navigate = useNavigate();
+  const [servicos, setServicos] = useState([]); 
   useEffect(() => {
-  // Recupera usuário
-  const user = JSON.parse(localStorage.getItem("usuario"));
-  setUsuario(user);
+    // Recupera usuário
+    const user = JSON.parse(localStorage.getItem("usuario"));
+    setUsuario(user);
 
-  // Buscar serviços
-  fetch("http://localhost:8080/servicos")
-    .then((res) => res.json())
-    .then((dados) => setServicos(dados))
-    .catch((err) => console.error("Erro ao buscar serviços:", err));
+    // Buscar serviços
+    fetch("http://localhost:8080/servicos")
+      .then((res) => res.json())
+      .then((dados) => setServicos(dados))
+      .catch((err) => console.error("Erro ao buscar serviços:", err));
 
-  verificarLoginServicos();
-}, []);
+    verificarLoginServicos();
+  }, []);
 
   const listar = () => {
     console.log("Listar serviços...");
@@ -32,12 +33,18 @@ const navigate = useNavigate();
     window.location.href = url;
   };
 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  useEffect(() => {
+    setIsLoggedIn(localStorage.getItem("isLoggedIn") === "1");
+  }, []);
+
   return (
-    <div>
+    <>
       {/* NAV */}
-     <Nav/>
+     <NavbarLandingPage />
 
       {/* HOME */}
+      {!isLoggedIn && (
       <section className="home_section_pai" id="section_home_servicos">
         <div className="home_section_title">
           <div className="home_section_title_desc">
@@ -49,21 +56,19 @@ const navigate = useNavigate();
             </p>
           </div>
           <div className="btn-juntos">
-            <button className="btn-branco" onClick={() => navigate("/")}>
-              Saiba Mais
-            </button>
-            <button className="btn-rosa" onClick={() => navigate("/servicos")}>
-              Serviços
-            </button>
+            <button className="btn-branco" onClick={() => navigate("/")}>Saiba Mais</button>
+            <button className="btn-rosa" onClick={() => navigate("/servicos")}>Serviços</button>
           </div>
         </div>
         <div className="home_section_img">
           <img src="/src/assets/img/Group 51.png" alt="imagem de fundo" />
         </div>
       </section>
+      )}
 
       {/* PRÓXIMOS ATENDIMENTOS */}
-      <section className="principal_section" id="section_proximos_atendimentos" style={{ display: "none" }}>
+      {isLoggedIn && (
+      <section className="principal_section" id="section_proximos_atendimentos">
         <div className="home_session_pai">
           <h2 id="nomeDinamico" className="super-titulo">
             {usuario ? `Bem vinda de volta ${usuario.nome}!` : ""}
@@ -96,59 +101,63 @@ const navigate = useNavigate();
           </p>
         </div>
       </section>
+      )}
 
+    {/* MARINA POINTS */}
+    {isLoggedIn && (
+    <section className="marina_points_section" id="section_marina_points">
+        <div className="marina_points_title"> 
+          <p className="titulo-1" style={{ color: "var(--rosa-2)" }}>Marina Points!</p>
+          <div className="marina_points_dec">
+            <p className="paragrafo-1 bold" style={{ color: "var(--rosa-2)" }}>Complete a trilha para receber um cupom de desconto!
+            </p>
+            <p className="paragrafo-2" style={{ color: "var(--rosa-2)" }}>A cada agendamento realizado 1 ponto é registrado.</p>
+          </div>
+        </div>
+        <div className="marina_points_bar">
+          <div className="marina_points_etapas">
+            
+            <div className="marina_points_etapa_ativa">
+              <div className="marina_points_circle">
+                <p className="subtitulo bold" style={{ color: "var(--rosa-4)" }}>1</p>
+              </div>
+              <div className="marina_points_conexao"></div>
+            </div>
+            
+            <div className="marina_points_etapa_ativa">
+              <div className="marina_points_circle">
+                <p className="subtitulo bold" style={{ color: "var(--rosa-4)" }}>2</p>
+              </div>
+              <div className="marina_points_conexao"></div>
+            </div>
+            
+            <div className="marina_points_etapa_inativa">
+              <div className="marina_points_circle">
+                <p className="subtitulo bold" style={{ color: "var(--rosa-1)" }}>3</p>
+              </div>
+              <div className="marina_points_conexao"></div>
+            </div>
+            
+            <div className="marina_points_etapa_inativa">
+              <div className="marina_points_circle">
+                <p className="subtitulo bold" style={{ color: "var(--rosa-1)" }}>4</p>
+              </div>
+              <div className="marina_points_conexao"></div>
+            </div>
+            
+            <div className="marina_points_etapa_inativa">
+              <div className="marina_points_circle">
+                <p className="subtitulo bold" style={{ color: "var(--rosa-1)" }}>5</p>
+              </div>
+              <div className="marina_points_conexao"></div>
+            </div>
+          </div>
+          <img src="/src/assets/vector/icon_cupom/bootstrap/filled/tags-fill.svg" alt="icon-cupom"/>
+        </div>
+      </section>
+    )}
 
-<section className="marina_points_section" id="section_marina_points" style={{ display: "none" }}>
-    <div className="marina_points_title"> 
-      <p className="titulo-1" style={{ color: "var(--rosa-2)" }}>Marina Points!</p>
-      <div className="marina_points_dec">
-        <p className="paragrafo-1 bold" style={{ color: "var(--rosa-2)" }}>Complete a trilha para receber um cupom de desconto!
-        </p>
-        <p className="paragrafo-2" style={{ color: "var(--rosa-2)" }}>A cada agendamento realizado 1 ponto é registrado.</p>
-      </div>
-    </div>
-    <div className="marina_points_bar">
-      <div className="marina_points_etapas">
-        
-        <div className="marina_points_etapa_ativa">
-          <div className="marina_points_circle">
-            <p className="subtitulo bold" style={{ color: "var(--rosa-4)" }}>1</p>
-          </div>
-          <div className="marina_points_conexao"></div>
-        </div>
-        
-        <div className="marina_points_etapa_ativa">
-          <div className="marina_points_circle">
-            <p className="subtitulo bold" style={{ color: "var(--rosa-4)" }}>2</p>
-          </div>
-          <div className="marina_points_conexao"></div>
-        </div>
-        
-        <div className="marina_points_etapa_inativa">
-          <div className="marina_points_circle">
-            <p className="subtitulo bold" style={{ color: "var(--rosa-1)" }}>3</p>
-          </div>
-          <div className="marina_points_conexao"></div>
-        </div>
-        
-        <div className="marina_points_etapa_inativa">
-          <div className="marina_points_circle">
-            <p className="subtitulo bold" style={{ color: "var(--rosa-1)" }}>4</p>
-          </div>
-          <div className="marina_points_conexao"></div>
-        </div>
-        
-        <div className="marina_points_etapa_inativa">
-          <div className="marina_points_circle">
-            <p className="subtitulo bold" style={{ color: "var(--rosa-1)" }}>5</p>
-          </div>
-          <div className="marina_points_conexao"></div>
-        </div>
-      </div>
-      <img src="/src/assets/vector/icon_cupom/bootstrap/filled/tags-fill.svg" alt="icon-cupom"/>
-    </div>
-  </section>
-
+      {/* CATÁLOGO DE SERVIÇOS */}
 <section className="catalogo_section_pai">
   <p className="titulo-1">Agende um serviço!</p>
   <div className="catalogo_section_lista">
@@ -213,21 +222,8 @@ const navigate = useNavigate();
 
 
       {/* FOOTER */}
-      <footer className="footer_pai">
-        <div className="footer_linha1">
-          <img src="/src/assets/svg/logo_white.svg" alt="logo" style={{ height: "45px" }} />
-          <div className="footer_linha1_social">
-            <img src="/src/assets/svg/icon_facebook.svg" alt="icon-social" />
-            <img src="/src/assets/svg/icon_instagram3.svg" alt="icon-social" />
-            <img src="/src/assets/svg/icon_linkedin.svg" alt="icon-social" />
-          </div>
-        </div>
-        <div className="footer_linha2"></div>
-        <p className="paragrafo-2" style={{ color: "var(--rosa-4)" }}>
-          @Copyright2025 Todos os direitos reservados.
-        </p>
-      </footer>
-    </div>
+      <Footer></Footer>
+    </>
   );
 }
 

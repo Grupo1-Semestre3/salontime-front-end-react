@@ -1,7 +1,9 @@
+import React from "react";
 
+// --- COMPONENTE FOOTER ---
 export default function Footer() {
   return (
-   <footer className="footer_pai">
+    <footer className="footer_pai">
       <div className="footer_linha1">
         <img src="/src/assets/svg/logo_white.svg" alt="logo" style={{ height: "45px" }} />
         <div className="footer_linha1_social">
