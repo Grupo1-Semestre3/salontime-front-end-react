@@ -1,16 +1,59 @@
 import { useNavigate } from "react-router-dom";
-import MenuDash from "/src/components/MenuDash.jsx";
+import MenuConfig from "/src/components/MenuConfig.jsx";
 
 
 export default function Config_perfil() {
   return (
-  <>
-  
-  <MenuDash/>
-
-  <div>Config perfil</div>;
-  
-  </>
+    <>
+      <MenuConfig>
+        <div className="config_section_container">
+          <p className="titulo-1">Dados pessoais:</p>
+          {/* COMPONENTE DE INPUTS */}
+          <div className="input_pai">
+            <p className="paragrafo-2">Nome Completo</p>
+            <input type="text" className="input" placeholder="Digite seu nome" />
+          </div>
+          <div className="input_pai">
+            <p className="paragrafo-2">Endereço de e-mail</p>
+            <input type="text" className="input" placeholder="Digite seu e-mail" />
+          </div>
+          <div className="input_pai">
+            <p className="paragrafo-2">Número de telefone</p>
+            <input type="text" className="input" placeholder="Digite seu número de telefone" />
+          </div>
+          <div className="input_pai">
+            <p className="paragrafo-2">CPF</p>
+            <input type="text" className="input" placeholder="Digite seu CPF" />
+          </div>
+          <div className="input_pai">
+            <p className="paragrafo-2">Data de nascimento</p>
+            <input type="text" className="input" placeholder="Digite sua data de nascimento" />
+          </div>
+          <button className="btn-rosa" style={{ width: "100%" }}>
+            Atualizar
+          </button>
+        </div>
+        <div className="config_section_divisor"></div>
+        <div className="config_section_container">
+          <p className="titulo-1">Alterar senha:</p>
+          <div className="input_pai">
+            <p className="paragrafo-2">Senha atual</p>
+            <input type="text" className="input" placeholder="Digite aqui" />
+          </div>
+          <div className="input_pai">
+            <p className="paragrafo-2">Nova senha</p>
+            <input type="text" className="input" placeholder="Digite aqui" />
+          </div>
+          <div className="input_pai">
+            <p className="paragrafo-2">Confirmar nova senha</p>
+            <input type="text" className="input" placeholder="Digite aqui" />
+          </div>
+          <button className="btn-rosa" style={{ width: "100%" }}>
+            Atualizar
+          </button>
+        </div>
+      </MenuConfig>
+    </>
   );
 }
 

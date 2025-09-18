@@ -1,7 +1,15 @@
 import { useNavigate } from "react-router-dom";
+import MenuConfig from "/src/components/MenuConfig.jsx";
+
 
 export default function Config_cupons() {
-  return <div>Config cupons</div>;
+  return (
+    <>
+      <MenuConfig>
+
+      </MenuConfig>
+    </>
+  );
 }
 
 // <!DOCTYPE html>

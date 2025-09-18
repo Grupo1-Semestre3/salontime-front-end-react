@@ -61,6 +61,11 @@ export default function Login() {
 
             <div className="linha-horizontal"></div>
           </form>
+          <div>
+            <p className="paragrafo-2">Não tem uma conta?
+              <button className="login__cadastro" onClick={() => navigate('/cadastro')}>Cadastre-se</button>
+            </p>
+          </div>
         </div>
       </div>
     </>
