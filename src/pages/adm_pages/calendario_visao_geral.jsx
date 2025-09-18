@@ -7,7 +7,6 @@ export default function CalendarioVisaoGeral() {
   const navigate = useNavigate();
 
   return (
-    // <div className="dash_section_pai">
     <>
       {/* NAVBAR LATERAL */}
       <MenuDash>

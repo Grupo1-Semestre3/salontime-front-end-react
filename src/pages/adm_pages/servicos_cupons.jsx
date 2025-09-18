@@ -1,10 +1,71 @@
 import { useNavigate } from "react-router-dom";
 import MenuDash from "../../components/MenuDash";
+import NavServicos from "../../components/NavServicos";
+
+function CupomCard({ cupom }) {
+  return (
+    <>
+      <div className="dash_servico_servico">
+        <div className="dash_servico_servico_nome">
+          <h1 className="paragrafo-1 branco semibold">Nome do CUPOM</h1>
+        </div>
+        <div className="dash_servico_servico_util">
+          <div className="dash_servico_servico_descricao">
+            <p>Descrição do CUPOM</p>
+            <p>Descrição do CUPOM</p>
+            <p>Descrição do CUPOM</p>
+          </div>
+          <div className="dash_servico_cupom">
+            <div className="dash_servico_input_pai">
+              <p>Data de Início</p>
+              <input type="date" className="dash_servico_input_cupom" />
+            </div>
+            <div className="dash_servico_input_pai">
+              <p>Data de Fim</p>
+              <input type="date" className="dash_servico_input_cupom" />
+            </div>
+          </div>
+          <div className="dash_servico_servico_info_filho">
+            <img src="/src/assets/svg/key.svg" alt="" />
+            <p>Código: EXEMPLO 10</p>
+          </div>
+          <div className="dash_servico_servico_info_filho">
+            <img src="/src/assets/svg/cash-sharp.svg" alt="" />
+            <p>Desconto: 10%</p>
+          </div>
+          <div className="dash_servico_servico_button btn-juntos">
+            <button className="btn-rosa" style={{ width: "120px"}}>Editar</button>
+            <button className="btn-branco" style={{ width: "120px"}}>Desativar</button>
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}
+
 
 export default function Servicos_cupons() {
   return (
     <>
-    <MenuDash/>
+      <MenuDash>
+        {/* COMPONENTE - MINI */}
+        <NavServicos />
+        <div className="dash_section_container">
+          <div className="dash_servico_section_2">
+            <h1>Gerenciar CUPONS</h1>
+            <button className="btn-rosa">
+              <img
+                src="/src/assets/vector/icon_sum/jam-icons/Vector.svg"
+                alt=""
+              />
+              Criar CUPOM
+            </button>
+          </div>
+          <div className="dash_servico_servico_pai">
+            <CupomCard />
+          </div>
+        </div>
+      </MenuDash>
     </>
   );
 }

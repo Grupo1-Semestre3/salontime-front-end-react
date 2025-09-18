@@ -27,8 +27,8 @@ export default function MenuDash({ children }) {
             <p className="paragrafo-e bold">Bem vinda Marina!</p>
             <div className="dash_navbar_column">
               <button
-                className={isActive("/adm/calendario-atendimentos") ? "btn-navbar-ativo" : "btn-navbar"}
-                onClick={() => navigate("/adm/calendario-atendimentos")}
+                className={isActive("/adm/calendario-visao-geral") ? "btn-navbar-ativo" : "btn-navbar"}
+                onClick={() => navigate("/adm/calendario-visao-geral")}
               >
                 <img
                   style={{ maxWidth: "24px" }}
