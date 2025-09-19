@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../../js/api/cliente/cliente";
+// import { login } from "../../js/api/cliente/cliente";
 
 
 
@@ -10,10 +10,10 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault(); // impede o comportamento padrão do form
-    login(email, senha, navigate); // chama a função que você implementou
-  };
+  // const handleSubmit = (e) => {
+  //   e.preventDefault(); // impede o comportamento padrão do form
+  //   login(email, senha, navigate); // chama a função que você implementou
+  // };
 
   return (
     <>
@@ -28,7 +28,9 @@ export default function Login() {
           <div className="login__title">
             <h1 className="titulo-1">Bem vinda(o) de volta!</h1>
           </div>
-          <form onSubmit={handleSubmit} className="login__formulario ">
+          {/* <form onSubmit={handleSubmit} className="login__formulario "> */}
+          <form className="login__formulario ">
+
             <div className="input_pai">
               <label htmlFor="email">Endereço de e-mail</label>
               <input

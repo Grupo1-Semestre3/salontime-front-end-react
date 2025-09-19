@@ -12,10 +12,10 @@
 
 .cards_pai{
     width: 100%;
-    height: 100vh;
+    height: auto;
     display: flex;
     flex-direction: column;
-    gap: 2%;
+    gap: 16px;
     margin-top: -25px;
 
     .card_cupom{

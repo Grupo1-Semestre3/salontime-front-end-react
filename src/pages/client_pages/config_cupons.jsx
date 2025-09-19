@@ -1,14 +1,62 @@
-import { useNavigate } from "react-router-dom";
+
 import MenuConfig from "/src/components/MenuConfig.jsx";
+
+function CardCupom({ titulo, descricao, codigo, desconto, usos }) {
+  return (
+    <div className="card_cupom">
+      <div className="superiro">
+        <p className="titulo paragrafo-2">{titulo}</p>
+        <p className="descricao">{descricao}</p>
+        <hr />
+      </div>
+      <div className="inferior">
+        <div className="info_cupom_box">
+          <p className="paragrafo-2">
+            <img src="/src/assets/svg/key.svg" alt="" /> Código: {codigo}
+          </p>
+          <p className="paragrafo-2">
+            <img src="/src/assets/svg/cash-sharp.svg" alt="" /> Desconto: {desconto}
+          </p>
+          <p className="">
+            <img src="/src/assets/svg/refresh-cw.svg" alt="" />Usos disponíveis: {usos}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 
 export default function Config_cupons() {
-  return (
-    <>
-      <MenuConfig>
+  const lista = [
+    {
+      titulo: "Primeira compra!",
+      descricao: "Bem vinda a Salon Time! Esse é o nosso presentinho por ter se cadastrado no site :)",
+      codigo: "EXEMPLO10",
+      desconto: "10%",
+      usos: 1,
+    },
+    {
+      titulo: "Indique uma amiga!",
+      descricao: "Ganhe desconto indicando uma amiga para a Salon Time.",
+      codigo: "AMIGA20",
+      desconto: "20%",
+      usos: 2,
+    },
+  ];
 
-      </MenuConfig>
-    </>
+  return (
+    <MenuConfig>
+      <h1>CUPONS Disponíveis:</h1>
+      <p className="paragrafo-1 desc_principal">
+        Lembre-se de manter os dados de perfil sempre atualizados! Assim você tem mais chances de receber um desconto!
+      </p>
+      <div className="cards_pai">
+        {lista.map((item, idx) => (
+          <CardCupom key={idx} {...item} />
+        ))}
+      </div>
+    </MenuConfig>
   );
 }
 

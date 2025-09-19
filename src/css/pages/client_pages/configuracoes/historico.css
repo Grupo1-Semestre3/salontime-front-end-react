@@ -3,16 +3,21 @@
     flex-direction: row;
     max-width: 734px;
     max-height: 168px;
+    min-height: 170px;
+    justify-content: space-between;
+    padding: 32px 32px;
     width: 100%;
     height: auto;
     background-color: #FFF0F6;
     border-radius: 16px;
 
     & .esquerda{
-        padding: 30px;
+        /* padding: 30px; */
         gap: 15px;
         display: flex;
         flex-direction: column;
+        align-items: start;
+        justify-content: center;
     }
 
     & .campos{

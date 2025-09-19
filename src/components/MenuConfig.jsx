@@ -79,6 +79,7 @@ export default function MenuConfig({ children }) {
 
                 <div className="config_section_filho">
                     {children}
+                    <div className="config_section_divisor"></div>
                 </div>
             </div>
 
