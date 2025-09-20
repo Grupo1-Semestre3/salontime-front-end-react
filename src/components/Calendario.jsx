@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
+import "moment/locale/pt-br"; // Adicionado para tradução
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
+moment.locale("pt-br"); // Define o idioma global
 const localizer = momentLocalizer(moment);
-
+const usuario = JSON.parse(localStorage.getItem("usuario"));
 const Calendario = () => {
   const [events, setEvents] = useState([]);
   const [view, setView] = useState("month");
@@ -24,19 +26,14 @@ const Calendario = () => {
     });
   };
 
-  // Busca os dados da API ao montar o componente
   useEffect(() => {
-    fetch("http://localhost:8080/agendamento/calendario")
+    fetch(`http://localhost:8080/agendamento/calendario/${Number(usuario.id)}`)
       .then((res) => {
-        if (!res.ok) {
-          throw new Error(`Erro na resposta da API: ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`Erro na resposta da API: ${res.status}`);
         return res.json();
       })
       .then((data) => {
-        console.log("Dados recebidos da API:", data); // 👈 Log dos dados crus
         const eventosConvertidos = converterEventos(data);
-        console.log("Eventos convertidos:", eventosConvertidos); // 👈 Log após conversão
         setEvents(eventosConvertidos);
       })
       .catch((err) => {
@@ -45,21 +42,22 @@ const Calendario = () => {
   }, []);
 
   return (
-    <div style={{ height: "100vh", padding: 20 }}>
-      <Calendar
-        localizer={localizer}
-        events={events}
-        startAccessor="start"
-        endAccessor="end"
-        views={["month", "week", "day", "agenda"]}
-        view={view}
-        onView={(novaView) => setView(novaView)}
-        defaultDate={new Date(2025, 5, 27)}
-        onSelectEvent={(event) =>
-          alert(`Evento: ${event.title}\nInício: ${event.start.toLocaleString()}\nFim: ${event.end.toLocaleString()}`)
-        }
-      />
-    </div>
+     <div style={{ width: "100%", height: "100vh", padding: 20 }}>
+    <Calendar
+      localizer={localizer}
+      events={events}
+      startAccessor="start"
+      endAccessor="end"
+      views={["month", "week", "day", "agenda"]}
+      view={view}
+      onView={(novaView) => setView(novaView)}
+      defaultDate={new Date()}
+      style={{ height: "100%" }}  // Faz o calendário ocupar toda a altura do container
+      onSelectEvent={(event) =>
+        alert(`Evento: ${event.title}\nInício: ${event.start.toLocaleString()}\nFim: ${event.end.toLocaleString()}`)
+      }
+    />
+  </div>
   );
 };
 

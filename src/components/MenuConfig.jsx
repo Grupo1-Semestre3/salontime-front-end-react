@@ -2,6 +2,7 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Footer from "./Footer.jsx";
+import {logout} from "../js/api/usuario.js"
 
 export default function MenuConfig({ children }) {
 
@@ -70,7 +71,7 @@ export default function MenuConfig({ children }) {
                                 CUPONS
                             </button>
                         </div>
-                        <button className="btn-sair">
+                        <button className="btn-sair" onClick={() => logout(navigate)}>
                             <img style={{ maxWidth: 24 }} src="src/assets/svg/nav_config/icon_exit.svg" alt="" />
                             Sair
                         </button>

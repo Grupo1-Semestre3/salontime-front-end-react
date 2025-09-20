@@ -1,42 +1,66 @@
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import MenuDash from "../../components/MenuDash"
-import NavCalendario from "../../components/NavCalendario"
+import MenuDash from "../../components/MenuDash";
+import NavCalendario from "../../components/NavCalendario";
 import Calendario from "../../components/Calendario";
+import { buscarProximosAgendamentosFuncionario } from "../../js/api/agendamento";
 
 export default function CalendarioVisaoGeral() {
   const navigate = useNavigate();
+  const [agendamentos, setAgendamentos] = useState([]);
+
+  useEffect(() => {
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+    if (usuario && usuario.id) {
+      buscarProximosAgendamentosFuncionario(usuario.id)
+        .then(data => {
+          setAgendamentos(data);
+        })
+        .catch(error => {
+          console.error("Erro ao carregar agendamentos:", error);
+        });
+    }
+  }, []); // 👈 useEffect fechado corretamente
 
   return (
     <>
       {/* NAVBAR LATERAL */}
       <MenuDash>
-
         {/* MINI NAV */}
         <NavCalendario />
         <div className="dash_section_container">
           <h1 className="supertitulo-1">Próximos atendimentos</h1>
         </div>
 
-        {/* CARD DE ATENDIMENTO */}
-        <div className="calendario_card_proximo_atendimento card">
-          <div className="calendario_info_box_card_proximo_atendimento">
-            <p className="titulo-1 semibold">Nome da Cliente</p>
-            <p className="subtitulo">
-              <span className="semibold">Serviço:</span> Luzes morena iluminada
-            </p>
-            <p className="subtitulo semibold info">
-              <img src="/src/assets/svg/time-sharp.svg" alt="icone tempo" style={{ width: "38px", height: "38px" }} />
-              dd/mm/yy 00:00
-            </p>
-          </div>
-          <div className="calendario_buttons_box_card_proximo_atendimento">
-            <button className="btn-rosa" style={{ height: "60px" }}>Reagendar</button>
-            <button className="btn-branco" style={{ height: "60px" }}>Cancelar</button>
-          </div>
-        </div>
+        {/* CARDS DE AGENDAMENTO */}
+        {agendamentos.length > 0 ? (
+          agendamentos.map((agendamento, index) => (
+            <div key={index} className="calendario_card_proximo_atendimento card">
+              <div className="calendario_info_box_card_proximo_atendimento">
+                <p className="titulo-1 semibold">{agendamento.usuario.nome}</p>
+                <p className="subtitulo">
+                  <span className="semibold">Serviço:</span> {agendamento.servico.nome}
+                </p>
+                <p className="subtitulo semibold info">
+                  <img
+                    src="/src/assets/svg/time-sharp.svg"
+                    alt="icone tempo"
+                    style={{ width: "38px", height: "38px" }}
+                  />
+                  {agendamento.data} - incio {agendamento.inicio} até {agendamento.fim}
+                </p>
+              </div>
+              <div className="calendario_buttons_box_card_proximo_atendimento">
+                <button className="btn-rosa" style={{ height: "60px" }}>Reagendar</button>
+                <button className="btn-branco" style={{ height: "60px" }}>Cancelar</button>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p>Sem agendamentos próximos.</p>
+        )}
 
         {/* CALENDÁRIO */}
-        {/* <div className="div_section_calendar card"></div> */}
         <Calendario />
 
         {/* BOTÕES FINAIS */}
@@ -44,8 +68,7 @@ export default function CalendarioVisaoGeral() {
           <button className="btn-rosa" style={{ width: "100%" }}>Criar Agendamento</button>
           <button className="btn-branco" style={{ width: "100%" }}>Criar Compromisso</button>
         </div>
-  
-    </MenuDash>
+      </MenuDash>
     </>
   );
 }

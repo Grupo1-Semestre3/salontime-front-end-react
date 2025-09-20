@@ -42,7 +42,7 @@ export default function NavSemLogin() {
           </>
         )}
         {isLoggedIn && (
-          <button id="btn_perfil" className="btn-rosa" onClick={() => navigate("/config_perfil")}>Configurações</button>
+          <button id="btn_perfil" className="btn-rosa" onClick={() => navigate("/config-perfil")}>Configurações</button>
         )}
       </div>
     </nav>

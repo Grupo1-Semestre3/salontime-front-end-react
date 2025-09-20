@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-// import { logout } from "../js/api/cliente/cliente";
+import { logout } from "../js/api/usuario";
 
 export default function MenuDash({ children }) {
   const navigate = useNavigate();
