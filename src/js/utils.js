@@ -1,6 +1,8 @@
 
+import Swal from 'sweetalert2';
+
 // Util - 1 - Redirecionar para página do botão.
-export function navegar(path) {
+function navegar(path) {
   window.location.href = path;
 }
 
@@ -157,4 +159,17 @@ function mensagemSucesso(mensagem) {
     showConfirmButton: false,
     timer: 1500
   });
+}
+
+export {
+  navegar,
+  formatarNomeInput,
+  validarSenha,
+  abrirPopUp,
+  formatarCPFInput,
+  validarCamposCadastro,
+  verificarLoginIndex,
+  verificarLoginServicos,
+  mensagemErro,
+  mensagemSucesso
 }

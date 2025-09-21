@@ -1,9 +1,14 @@
-// ADICIONAR NO ARQUIVO HTML 
-// <script type="module" src="../js/main.js"></script>
-import {
-
-} from './utils/utils_cliente_pages.js';
-
-// navegar(path)
+// import {
+// 	navegar,
+// 	formatarNomeInput,
+// 	validarSenha,
+// 	abrirPopUp,
+// 	formatarCPFInput,
+// 	validarCamposCadastro,
+// 	verificarLoginIndex,
+// 	verificarLoginServicos,
+// 	mensagemErro,
+// 	mensagemSucesso
+// } from '.utils.js';
 
 
