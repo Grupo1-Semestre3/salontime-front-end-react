@@ -30,29 +30,20 @@ cd seu-repositorio
 ```
 npm install
 ```
-
--------------------------
 ```
 npm install axios
 ```
-------------------------
-
 ```
 npm install moment
 ```
-------------------------
-
-
 ```
 npm install chart.js react-chartjs-2
 ```
-
--------------------------
-
-
-
 ```
 npm install react-big-calendar moment
+```
+```
+npm install sweetalert2
 ```
 
 3. Rodar projeto:
