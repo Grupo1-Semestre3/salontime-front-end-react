@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
 import NavbarLandingPage from "/src/components/NavbarLandingPage.jsx";
 import Footer from "/src/components/Footer.jsx";
-import RealizarAgendamento from "../../popups/RealizarAgendamento"
+import Popup from "../../components/Popup.jsx";
 
 export default function Servicos() {
   const navigate = useNavigate();
@@ -250,218 +250,39 @@ const handleAgendarClick = (idServico) => {
       })}
     </div>
   </section>
-
-
-
       {/* FOOTER */}
       <Footer></Footer>
     </>
   );
 }
+function RealizarAgendamento({ servico, onClose }) {
+  return(
+    <Popup>
+    <>
+    <div className="nome_servico_box">
+          <p className="paragrafo-1">{servico?.nome || "Serviço"}</p>
+        </div>
 
+        <div className="data_box">
+          <label htmlFor="data">Selecione a data que preferir</label>
+          <input type="date" name="data" id="data" />
+        </div>
 
+        <div className="horarios_box">
+          <p>Horários disponíveis</p>
+          <div className="grid_horarios">
+            {Array(12).fill("9:00").map((hora, i) => (
+              <div key={i}>{hora}</div>
+            ))}
+          </div>
+        </div>
 
+        <div className="button_box">
+          <button className="btn-rosa">Confirmar</button>
+          <button className="btn-branco" onClick={onClose}>Cancelar</button>
+        </div>
+    </>
+    </Popup>
+  );
 
-
-
-// <!DOCTYPE html>
-// <html lang="pt-br">
-
-// <head> <!-- UTILIZAR ESSSA HEAD COMO PADRAO PARA AS OUTRAS TELAS -->
-//   <meta charset="UTF-8" />
-//   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-//   <link rel="stylesheet" href="/src/css/main.css" />
-//   <script src="/src/js/utils/utils_cliente_pages.js"></script>
-//   <script src="/src/js/api/cliente/cliente.js"></script>
-//   <link rel="shortcut icon" href="/src/assets/svg/logo_rosa.svg" type="image/x-icon" />
-//   <title>Salon Time | Serviços</title>
-// </head>
-
-// <body onload="listar(), verificarLoginServicos()">
-
-//   <nav className="nav_institucional_pai">
-//     <div class="nav_institucional_coluna">
-//       <p class="paragrafo-2 underline-hover" onclick="navegar('./index.html')">Página Inicial</p>
-//       <p class="paragrafo-2 underline" onclick="navegar('./servicos.html')">Serviços</p>
-//     </div>
-//     <div class="nav_institucional_coluna">
-//       <img src="/src/assets/svg/logo_black.svg" alt="logo" style="height: 50px;">
-//     </div>
-//     <div class="nav_institucional_coluna">
-//       <button id="btn_entrar" class="btn-branco" onclick="navegar('./login.html')">Entrar</button>
-//       <button id="btn_cadastrar" class="btn-rosa" onclick="navegar('./cadastro.html')">Cadastre-se</button>
-//       <button id="btn_perfil" class="btn-rosa" onclick="navegar('./config_perfil.html')" style="display: none;">Configurações</button>
-//     </div>
-//   </nav>
-
-//   <!-- COMPONENTE - HOME -->
-//   <section class="home_section_pai" id="section_home_servicos">
-//     <div class="home_section_title">
-//       <div class="home_section_title_desc">
-//         <p class="super-titulo">Marina Mota Hair</p>
-//         <p class="paragrafo-2">Quando o assunto é auto cuidado, a Salon Time e Marina Motta são suas melhores amigas!
-//           Cadastre-se e agende seus serviços de beleza a qualquer hora, com praticidade e exclusividade, além de
-//           promoções temporárias imperdíveis!</p>
-//       </div>
-//       <div class="btn-juntos">
-//         <button class="btn-branco" onclick="navegar('./index.html')">Saiba Mais</button>
-//         <button class="btn-rosa" onclick="navegar('./servicos.html')">Serviços</button>
-//       </div>
-//     </div>
-//     <div class="home_section_img">
-//       <img src="/src/assets/img/Group 51.png" alt="imgem de fundo">
-//     </div>
-//   </section>
-
-//   <section class="principal_section" id="section_proximos_atendimentos" style="display: none;">
-//     <div class="home_session_pai">
-//       <h2 id="nomeDinamico" class="super-titulo"></h2>
-
-//       <div class="conteudo_proximo_agendamento">
-//         <span class="paragrafo-1">Você tem 1 horário marcado:</span>
-
-//         <div class="card_proximo_agendamento shadow">
-//           <div class="conteudo">
-//             <p class="paragrafo-1 bold">Nome do serviço</p>
-//             <p class="paragrafo-1 bold" style="display: flex; align-items: end;">
-//               <img src="/src/assets/vector/icon_horariio/ionicons/sharp/time-sharp.svg" alt="">
-//               01/01/2000 00:00pm
-//             </p>
-//             <p class="paragrafo-1"> <b>Status:</b> Confirmado</p>
-//           </div>
-//           <div class="btn-juntos" style="flex-direction: column;">
-//             <button class="btn-rosa paragrafo-1"">Reagendar</button>
-//             <button class=" btn-branco paragrafo-1"">Cancelar</button>
-//           </div>
-//         </div>
-
-//       </div>
-
-//       <p class="hist_agendamento paragrafo-2">
-//         <img src="/src/assets/svg/arrow-back.svg" alt="">
-//         Histórico de Agendamentos
-//       </p>
-//     </div>
-//   </section>
-
-//   <section class="marina_points_section" id="section_marina_points" style="display: none;">
-//     <div class="marina_points_title"> 
-//       <p class="titulo-1" style={{ color: "var(--rosa-2)" }}>Marina Points!</p>
-//       <div class="marina_points_dec">
-//         <p class="paragrafo-1 bold" style={{ color: "var(--rosa-2)" }}>Complete a trilha para receber um cupom de desconto!
-//         </p>
-//         <p class="paragrafo-2" style={{ color: "var(--rosa-2)" }}>A cada agendamento realizado 1 ponto é registrado.</p>
-//       </div>
-//     </div>
-//     <div class="marina_points_bar">
-//       <div class="marina_points_etapas">
-//         
-//         <div class="marina_points_etapa_ativa">
-//           <div class="marina_points_circle">
-//             <p class="subtitulo bold" style={{ color: "var(--rosa-2)" }}>1</p>
-//           </div>
-//           <div class="marina_points_conexao"></div>
-//         </div>
-//         
-//         <div class="marina_points_etapa_ativa">
-//           <div class="marina_points_circle">
-//             <p class="subtitulo bold" style={{ color: "var(--rosa-2)" }}>2</p>
-//           </div>
-//           <div class="marina_points_conexao"></div>
-//         </div>
-//         
-//         <div class="marina_points_etapa_inativa">
-//           <div class="marina_points_circle">
-//             <p class="subtitulo bold" style={{ color: "var(--rosa-2)" }}>3</p>
-//           </div>
-//           <div class="marina_points_conexao"></div>
-//         </div>
-//         
-//         <div class="marina_points_etapa_inativa">
-//           <div class="marina_points_circle">
-//             <p class="subtitulo bold" style={{ color: "var(--rosa-2)" }}>4</p>
-//           </div>
-//           <div class="marina_points_conexao"></div>
-//         </div>
-//         
-//         <div class="marina_points_etapa_inativa">
-//           <div class="marina_points_circle">
-//             <p class="subtitulo bold" style={{ color: "var(--rosa-2)" }}>5</p>
-//           </div>
-//           <div class="marina_points_conexao"></div>
-//         </div>
-//       </div>
-//       <img src="/src/assets/vector/icon_cupom/bootstrap/filled/tags-fill.svg" alt="icon-cupom">
-//     </div>
-//   </section>
-
-
-
-//   <section class="catalogo_section_pai">
-//     <p class="titulo-1">Agende um serviço!</p>
-//     <div id="catalogo_section_lista" class="catalogo_section_lista">
-//       <!-- COMPONENTE CARD
-      
-//       <div class="catalogo_section_card shadow">
-//         <div class="catalogo_section_title">
-//           <p class="paragrafo-1 bold" style={{ color: "var(--rosa-2)" }}">Nome do Serviço</p>
-//         </div>
-//         <div class="catalogo_section_conteudo">
-//           <p class="paragrafo-2">
-//             Breve descrição do serviço <br>
-//             Breve descrição do serviço <br>
-//             Breve descrição do serviço <br>
-//             Breve descrição do serviço <br>
-//           </p>
-//           <div class="catalogo_section_infos">
-            
-//             <div class="estrelas">
-//               <img src="/src/assets/svg/icon_star_outline.svg" alt="star-preenchida">
-//               <img src="/src/assets/svg/icon_star_outline.svg" alt="star-preenchida">
-//               <img src="/src/assets/svg/icon_star_outline.svg" alt="star-preenchida">
-//               <img src="/src/assets/svg/icon_star_outline.svg" alt="star-preenchida">
-//               <img src="/src/assets/svg/icon_star_filled.svg" alt="star-preenchida">
-//             </div>
-
-//             <div class="info">
-//               <img src="/src/assets/vector/icon_horariio/ionicons/sharp/time-sharp.svg" alt="icon-horario">
-//               <p class="paragrafo-2">Tempo de atendimento: 10min</p>
-//             </div>
-//             <div class="info">
-//               <img src="/src/assets/vector/icon_dinheiro/ionicons/sharp/cash-sharp.svg" alt="icon-dinheiro">
-//               <p class="paragrafo-2">A partir de R$000,00</p>
-//             </div>
-//             <button class="btn-rosa"><img src="/src/assets/vector/icon_sum/jam-icons/outline & logos/Vector.svg" alt=" icon-sum">Agendar</button>
-//           </div>
-//         </div>
-//       </div>
-
-//     </div>
-//     -->
-
-//   </section>
-//   <!-- COMPONENTE FOOTER -->
-//   <footer class="footer_pai">
-//     <div class="footer_linha1">
-//       <img src="/src/assets/svg/logo_white.svg" alt="logo" style="height: 45px;">
-//       <div class="footer_linha1_social">
-//         <img src="/src/assets/svg/icon_facebook.svg" alt="icon-social">
-//         <img src="/src/assets/svg/icon_instagram3.svg" alt="icon-social">
-//         <img src="/src/assets/svg/icon_linkedin.svg" alt="icon-social">
-//       </div>
-//     </div>
-//     <div class="footer_linha2"></div>
-//     <p class="paragrafo-2" style={{ color: "var(--rosa-2)" }}>@Copyright2025 Todos os direitos reservados.</p>
-//   </footer>
-
-// </body>
-// </html>
-// <script>
-
-// const usuario = JSON.parse(localStorage.getItem("usuario"));
-
-// const elementoNomeDinamico = document.getElementById("nomeDinamico")
-
-// elementoNomeDinamico.innerHTML = `Bem vinda de volta ${usuario.nome}!`
-
-// </script>
+}
