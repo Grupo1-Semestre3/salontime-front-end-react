@@ -1,9 +1,27 @@
 import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 import MenuDash from "/src/components/MenuDash.jsx";
 import NavCalendario from "/src/components/NavCalendario.jsx";
 
+import { buscarAtendimentosPassadosPorIdFuncionario } from "../../js/api/agendamento";
+
 export default function Calendario_atendimentos() {
   const navigate = useNavigate();
+
+    const [agendamentos, setAgendamentos] = useState([]);
+  
+    useEffect(() => {
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
+      if (usuario && usuario.id) {
+        buscarAtendimentosPassadosPorIdFuncionario(usuario.id)
+          .then(data => {
+            setAgendamentos(data);
+          })
+          .catch(error => {
+            console.error("Erro ao carregar agendamentos passados:", error);
+          });
+      }
+    }, []); // 👈 useEffect fechado corretamente
 
   return (
     <MenuDash>
@@ -19,36 +37,38 @@ export default function Calendario_atendimentos() {
         </div>
 
         {/* CARD DE ATENDIMENTO */}
-        <div className="dash_section_container">
+        {agendamentos.length > 0 ? (
+          agendamentos.map((agendamento, index) => (
+        <div key={index} className="dash_section_container">
           <div className="atendimento_passados_card_box card">
             <div className="info_box_atendimento_passados_card_box">
               <p className="paragrafo-1 semibold info">
                 <img
-                  src="/assets/svg/perfil_foto.svg"
+                  src="/src/assets/svg/perfil_foto.svg"
                   alt="foto cliente"
                   style={{ height: "45px" }}
                 />
-                <a>Nome da Cliente</a>
+                <a>{agendamento.usuario.nome}</a>
               </p>
               <p className="paragrafo-1 semibold">
-                Serviço: Luzes morena iluminada
+                Serviço: {agendamento.servico.nome}
               </p>
               <p className="paragrafo-2 info">
                 <img
-                  src="/assets/svg/time-sharp.svg"
+                  src="/src/assets/svg/time-sharp.svg"
                   alt="icone hora"
                   style={{ height: "24px" }}
                 />
-                dd/mm/yy 00:00
+                {agendamento.data} {agendamento.inicio}
               </p>
 
               <div className="atendimentos_passados_infos">
                 <p className="paragrafo-2">
                   <a className="semibold">Status:</a>{" "}
-                  <i>Pagamento em Aberto</i>
+                  <i> {agendamento.statusAgendamento.status}</i>
                 </p>
                 <p className="paragrafo-2">
-                  <a className="semibold">Valor:</a> <i>R$000,00</i>
+                  <a className="semibold">Valor:</a> <i>R${agendamento.preco}</i>
                 </p>
               </div>
             </div>
@@ -59,7 +79,10 @@ export default function Calendario_atendimentos() {
             </div>
           </div>
         </div>
-   
+          ))
+        ):(
+          <p>Sem agendamentos passados</p>
+        )}
     </MenuDash>
   );
 }
