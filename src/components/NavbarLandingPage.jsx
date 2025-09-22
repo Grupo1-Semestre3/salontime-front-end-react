@@ -6,6 +6,8 @@ export default function NavSemLogin() {
 
   const navigate = useNavigate();
 
+  const usuario = JSON.parse(localStorage.getItem("usuario"));
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   useEffect(() => {
     setIsLoggedIn(localStorage.getItem("usuarioLogado") === "1");
@@ -42,7 +44,25 @@ export default function NavSemLogin() {
           </>
         )}
         {isLoggedIn && (
-          <button id="btn_perfil" className="btn-rosa" onClick={() => navigate("/config-perfil")}>Configurações</button>
+
+          <button
+            id="btn_perfil"
+            className="btn-rosa"
+            onClick={() => {
+              if (
+                usuario?.tipoUsuario?.descricao === "ADMINISTRADOR" ||
+                usuario?.tipoUsuario?.descricao === "FUNCIONARIO"
+              ) {
+                navigate("/adm/calendario-visao-geral");
+              } else {
+                navigate("/config-cupons");
+              }
+            }}
+          >
+            Configurações
+          </button>
+
+
         )}
       </div>
     </nav>

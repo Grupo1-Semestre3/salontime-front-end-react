@@ -127,7 +127,7 @@ export function login(email, senha, navigate) {
         ) {
           // mensagemSucesso("Login realizado com sucesso!");
           setTimeout(() => {
-            navigate("/adm/calendario-atendimentos"); // <- navega para a rota do admin
+            navigate("/adm/calendario-visao-geral"); // <- navega para a rota do admin
           }, 1000);
         }
 
