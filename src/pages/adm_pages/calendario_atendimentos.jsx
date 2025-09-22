@@ -74,8 +74,17 @@ export default function Calendario_atendimentos() {
             </div>
 
             <div className="buttons_box_atendimento_passados_card_box">
-              <button className="btn-rosa">Concluir</button>
-              <button className="btn-branco">Detalhes</button>
+
+             
+            {agendamento.statusAgendamento.status !== "AGENDADO" && (
+              <>
+                <button className="btn-rosa">Concluir</button>
+                <button className="btn-branco">Detalhes</button>
+              </>
+            )}
+
+
+              
             </div>
           </div>
         </div>
