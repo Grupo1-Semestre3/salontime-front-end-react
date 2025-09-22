@@ -1,109 +1,103 @@
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import MenuDash from "../../components/MenuDash";
 
 export default function Controle_avaliacoes() {
+  const navigate = useNavigate();
+  const [mesSelecionado] = useState("fev");
+
+  // Mock data - substituir por API quando disponível
+  const avaliacoes = [
+    {
+      id: 1,
+      clienteNome: "Nome da Cliente",
+      servicoNome: "xxxx",
+      dataHoraISO: "2025-02-14T15:00:00.000Z",
+      descricao:
+        "Mensagem de avaliação da cliente Mensagem de avaliação da cliente Mensagem de avaliação da cliente Mensagem de avaliação da cliente",
+      fotoUrl: "/src/assets/img/foto_perfil.png",
+      estrelas: 1,
+      mes: "fev",
+    },
+  ];
+
+  const itensFiltrados = avaliacoes.filter((a) => a.mes === mesSelecionado);
+
+  const formatarDataHora = (iso) => {
+    try {
+      const d = new Date(iso);
+      const dd = String(d.getDate()).padStart(2, "0");
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const yy = String(d.getFullYear()).slice(2);
+      const hh = d.getHours();
+      const min = String(d.getMinutes()).padStart(2, "0");
+      const sufixo = hh >= 12 ? "pm" : "am";
+      const hh12 = ((hh + 11) % 12) + 1;
+      return `${dd}/${mm}/${yy} ${String(hh12).padStart(2, "0")}:${min}${sufixo}`;
+    } catch {
+      return iso;
+    }
+  };
+
+  // Componente de estrelas de avaliação
+  const Estrelas = ({ quantidade }) => {
+    const estrelas = [];
+    for (let i = 1; i <= 5; i++) {
+      const isFilled = i <= quantidade;
+      const iconSrc = isFilled
+        ? "/src/assets/svg/icon_star_filled.svg"
+        : "/src/assets/svg/icon_star_outline.svg";
+      estrelas.push(
+        <img key={i} src={iconSrc} alt={`estrela ${isFilled ? 'preenchida' : 'vazia'}`} />
+      );
+    }
+    return <div className="estrelas">{estrelas}</div>;
+  };
+
   return (
-    <>
-    <MenuDash/>
-    </>
+    <MenuDash>
+      <div className="section_controle_servico_title">
+        <p className="titulo-1">Mês Selecionado</p>
+        <select className="paragrafo-1 select semibold" name="mes" id="mes_select" defaultValue="fev">
+          <option value="fev">Fevereiro</option>
+        </select>
+      </div>
+
+      <div className="mini_nav_pai">
+        <p className="paragrafo-2 mini_nav_filho" onClick={() => navigate("/adm/controle-servicos")}>
+          Serviços
+        </p>
+        <p className="paragrafo-2 mini_nav_filho" onClick={() => navigate("/adm/controle-cancelamentos")}>
+          Cancelamentos
+        </p>
+        <p className="paragrafo-2 mini_nav_filho_ativo" onClick={() => navigate("/adm/controle-avaliacoes")}>
+          Avaliações
+        </p>
+      </div>
+
+      <div className="dash_lista_itens">
+        {itensFiltrados.map((a) => (
+          <div key={a.id} className="section_controle_avaliacao_card card">
+            <div className="section_controle_avaliacao_card_line" style={{ alignItems: "center" }}>
+              <img src={a.fotoUrl} alt="icon_perfil" />
+              <p className="paragrafo-1 semibold">{a.clienteNome}</p>
+              <Estrelas quantidade={a.estrelas} />
+            </div>
+            <div className="section_controle_avaliacao_card_line" style={{ gap: "24px" }}>
+              <p className="paragrafo-2">
+                <a className="semibold">Serviço:</a> {a.servicoNome}
+              </p>
+              <p className="paragrafo-2 italic">
+                <a className="semibold">Data:</a> {formatarDataHora(a.dataHoraISO)}
+              </p>
+            </div>
+            <div className="section_controle_avaliacao_card_line" style={{ flexDirection: "column", gap: 0 }}>
+              <p className="paragrafo-2 semibold">Descrição:</p>
+              <p className="paragrafo-2">{a.descricao}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </MenuDash>
   );
 }
-
-// <!DOCTYPE html>
-// <html lang="pt-br">
-
-// <head> <!-- UTILIZAR ESSSA HEAD COMO PADRAO PARA AS OUTRAS TELAS -->
-//     <meta charset="UTF-8" />
-//     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-//     <link rel="stylesheet" href="../../css/main.css" />
-//     <script src="../../js/utils/utils_cliente_pages.js"></script>
-//     <script src="../../js/api/cliente/cliente.js"></script>
-//     <link rel="shortcut icon" href="../../assets/svg/logo_rosa.svg" type="image/x-icon" />
-//     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-//     <title>Salon Time | Controle Mensal</title>
-// </head>
-
-// <body>
-//     <div class="dash_section_pai">
-//         <!-- COMPONENTE - NAVBAR LATERAL -->
-//         <div class="dash_navbar_pai">
-//             <div class="dash_navbar_filho">
-//                 <img src="../../assets/svg/logo_black.svg" alt="icone" style="max-width: 169px;">
-//                 <p class="paragrafo-e bold">Bem vinda Marina!</p>
-//                 <div class="dash_navbar_column">
-//                     <button class="btn-navbar" onclick="navegar('./calendario_visao_geral.html')"><img
-//                             style="max-width: 24px;" src="../../assets/svg/nav_dash/icon_house_outline.svg"
-//                             alt="">Calendário</button>
-//                     <button class="btn-navbar" onclick="navegar('./servicos_servicos.html')"><img
-//                             style="max-width: 24px;" src="../../assets/svg/nav_dash/icon_tesoura_outline.svg"
-//                             alt="">Serviços</button>
-//                     <button class="btn-navbar" onclick="navegar('./usuarios_clientes.html')"><img
-//                             style="max-width: 24px;" src="../../assets/svg/nav_dash/icon_user_outline.svg"
-//                             alt="">Usuários</button>
-//                     <button class="btn-navbar-ativo" onclick="navegar('./controlem_servicos.html')"><img
-//                             style="max-width: 24px;" src="../../assets/svg/nav_dash/icon_doc_filled.svg" alt="">Controle
-//                         Mensal</button>
-//                     <button class="btn-navbar" onclick="navegar('./perfil.html')"><img style="max-width: 24px;"
-//                             src="../../assets/svg/nav_dash/icon_smile_outline.svg" alt="">Perfil</button>
-//                 </div>
-//                 <button onclick="logout()" class="btn-sair"><img style="max-width: 24px;"
-//                         src="../../assets/svg/nav_config/icon_exit.svg" alt="">Sair</button>
-//             </div>
-//         </div>
-//         <div class="dash_section_filho">
-
-//             <div class="section_controle_servico_title">
-//                 <p class="titulo-1">Mês Selecionado</p>
-//                 <!-- COMPONENTE - SELECT MÊS -->
-//                 <select class="paragrafo-1 select semibold" name="mes" id="mes_select">
-//                     <option value="fev">Fevereiro</option>
-//                 </select>
-//             </div>
-
-//             <!-- COMPONENTE - MINI -->
-//             <div class="mini_nav_pai">
-//                 <p class="paragrafo-2 mini_nav_filho" onclick="navegar('./controlem_servicos.html')">Serviços</p>
-//                 <p class="paragrafo-2 mini_nav_filho" onclick="navegar('./controlem_cancelamentos.html')">Cancelamentos
-//                 </p>
-//                 <p class="paragrafo-2 mini_nav_filho_ativo" onclick="navegar('./controlem_avaliacoes.html')">Avaliações
-//                 </p>
-//             </div>
-
-//             <div class="dash_lista_itens">
-
-//                 <!-- COMPONENTE - CARD AVALIACAO -->
-//                 <div class="section_controle_avaliacao_card card">
-//                     <div class="section_controle_avaliacao_card_line" style="align-items: center;">
-//                         <img src="../../assets/img/foto_perfil.png" alt="icon_perfil">
-//                         <p class="paragrafo-1 semibold">Nome da Cliente</p>
-//                         <!-- COMPONENTE - ESTRELAS -->
-//                         <div class="estrelas">
-//                             <img src="../../assets/svg/icon_star_outline.svg" alt="star-preenchida">
-//                             <img src="../../assets/svg/icon_star_outline.svg" alt="star-preenchida">
-//                             <img src="../../assets/svg/icon_star_outline.svg" alt="star-preenchida">
-//                             <img src="../../assets/svg/icon_star_outline.svg" alt="star-preenchida">
-//                             <img src="../../assets/svg/icon_star_filled.svg" alt="star-preenchida">
-//                         </div>
-//                     </div>
-//                     <div class="section_controle_avaliacao_card_line" style="gap: 24px;">
-//                         <p class="paragrafo-2"><a class="semibold">Serviço:</a> xxxx</p>
-//                         <p class="paragrafo-2 italic"><a class="semibold">Data:</a> dd/mm/yy 00:00pm</p>
-//                     </div>
-//                     <div class="section_controle_avaliacao_card_line" style="flex-direction: column; gap: 0px;">
-//                         <p class="paragrafo-2 semibold">Descrição:</p>
-//                         <p class="paragrafo-2">
-//                             Mensagem de avaliação da cliente
-//                             Mensagem de avaliação da cliente
-//                             Mensagem de avaliação da cliente
-//                             Mensagem de avaliação da cliente
-//                         </p>
-//                     </div>
-//                 </div>
-
-//             </div>
-//         </div>
-//     </div>
-// </body>
-
-// </html>
