@@ -1,12 +1,34 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Swal from 'sweetalert2';
 import NavbarLandingPage from "/src/components/NavbarLandingPage.jsx";
 import Footer from "/src/components/Footer.jsx";
+import RealizarAgendamento from "../../popups/RealizarAgendamento"
 
 export default function Servicos() {
   const navigate = useNavigate();
   const [usuario, setUsuario] = useState(null);
   const [servicos, setServicos] = useState([]); 
+  const [modalAberto, setModalAberto] = useState(false);
+  const [servicoSelecionado, setServicoSelecionado] = useState(null);
+
+
+const handleAgendarClick = (idServico) => {
+  if (!isLoggedIn) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Você precisa estar logado!',
+      text: 'Faça login para agendar um serviço.',
+      confirmButtonText: 'Ok'
+    });
+  } else {
+    const servico = servicos.find(s => s.id === idServico);
+    setServicoSelecionado(servico);
+    setModalAberto(true);
+  }
+};
+
+
   useEffect(() => {
     // Recupera usuário
     const user = JSON.parse(localStorage.getItem("usuario"));
@@ -21,10 +43,6 @@ export default function Servicos() {
     verificarLoginServicos();
   }, []);
 
-  const listar = () => {
-    console.log("Listar serviços...");
-  };
-
   const verificarLoginServicos = () => {
     console.log("Verificando login para serviços...");
   };
@@ -35,11 +53,21 @@ export default function Servicos() {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   useEffect(() => {
-    setIsLoggedIn(localStorage.getItem("isLoggedIn") === "1");
+    setIsLoggedIn(localStorage.getItem("usuarioLogado") === "1");
   }, []);
 
   return (
     <>
+
+    {/* Pop up */}
+    {modalAberto && servicoSelecionado && (
+      <RealizarAgendamento 
+        servico={servicoSelecionado}
+        onClose={() => setModalAberto(false)}
+      />
+    )}
+
+
       {/* NAV */}
      <NavbarLandingPage />
 
@@ -158,66 +186,70 @@ export default function Servicos() {
     )}
 
       {/* CATÁLOGO DE SERVIÇOS */}
-<section className="catalogo_section_pai">
-  <p className="titulo-1">Agende um serviço!</p>
-  <div className="catalogo_section_lista">
-    {servicos.map((dado) => {
-      const estrelaQtd = Math.round(dado.mediaAvaliacao);
-      const estrelas = [];
+  <section className="catalogo_section_pai">
+    <p className="titulo-1">Agende um serviço!</p>
+    <div className="catalogo_section_lista">
+      {servicos.map((dado) => {
+        const estrelaQtd = Math.round(dado.mediaAvaliacao);
+        const estrelas = [];
 
-      for (let i = 1; i <= 5; i++) {
-        estrelas.push(
-          <img
-            key={i}
-            src={
-              i <= estrelaQtd
-                ? "/src/assets/svg/icon_star_outline.svg"
-                : "/src/assets/svg/icon_star_filled.svg"
-            }
-            alt="star"
-          />
-        );
-      }
+        for (let i = 1; i <= 5; i++) {
+          estrelas.push(
+            <img
+              key={i}
+              src={
+                i <= estrelaQtd
+                  ? "/src/assets/svg/icon_star_outline.svg"
+                  : "/src/assets/svg/icon_star_filled.svg"
+              }
+              alt="star"
+            />
+          );
+        }
 
-      return (
-        <div key={dado.id} className="catalogo_section_card shadow">
-          <div className="catalogo_section_title">
-            <p className="paragrafo-1 bold" style={{ color: "var(--rosa-4)" }}>
-              {dado.nome}
-            </p>
-          </div>
-          <div className="catalogo_section_conteudo">
-            <p className="paragrafo-2">{dado.descricao}</p>
-            <div className="catalogo_section_infos">
-              <div className="estrelas">{estrelas}</div>
-              <div className="info">
-                <img
-                  src="/src/assets/vector/icon_horariio/ionicons/sharp/time-sharp.svg"
-                  alt="icon-horario"
-                />
-                <p className="paragrafo-2">{dado.tempo}</p>
+        return (
+          <div key={dado.id} className="catalogo_section_card shadow">
+            <div className="catalogo_section_title">
+              <p className="paragrafo-1 bold" style={{ color: "var(--rosa-4)" }}>
+                {dado.nome}
+              </p>
+            </div>
+            <div className="catalogo_section_conteudo">
+              <p className="paragrafo-2">{dado.descricao}</p>
+              <div className="catalogo_section_infos">
+                <div className="estrelas">{estrelas}</div>
+                <div className="info">
+                  <img
+                    src="/src/assets/vector/icon_horariio/ionicons/sharp/time-sharp.svg"
+                    alt="icon-horario"
+                  />
+                  <p className="paragrafo-2">{dado.tempo}</p>
+                </div>
+                <div className="info">
+                  <img
+                    src="/src/assets/vector/icon_dinheiro/ionicons/sharp/cash-sharp.svg"
+                    alt="icon-dinheiro"
+                  />
+                  <p className="paragrafo-2">A partir de R${dado.preco}</p>
+                </div>
+                <button
+                  className="btn-rosa"
+                  value={dado.id}
+                  onClick={() => handleAgendarClick(dado.id)}
+                >
+                  <img
+                    src="/src/assets/vector/icon_sum/jam-icons//Vector.svg"
+                    alt="icon-sum"
+                  />
+                  Agendar
+                </button>
               </div>
-              <div className="info">
-                <img
-                  src="/src/assets/vector/icon_dinheiro/ionicons/sharp/cash-sharp.svg"
-                  alt="icon-dinheiro"
-                />
-                <p className="paragrafo-2">A partir de R${dado.preco}</p>
-              </div>
-              <button className="btn-rosa" value={dado.id}>
-                <img
-                  src="/src/assets/vector/icon_sum/jam-icons/outline & logos/Vector.svg"
-                  alt="icon-sum"
-                />
-                Agendar
-              </button>
             </div>
           </div>
-        </div>
-      );
-    })}
-  </div>
-</section>
+        );
+      })}
+    </div>
+  </section>
 
 
 
