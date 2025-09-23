@@ -2,13 +2,16 @@ import { useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import MenuDash from "/src/components/MenuDash.jsx";
 import NavCalendario from "/src/components/NavCalendario.jsx";
+import Popup from "../../components/Popup.jsx";
 
-import { buscarAtendimentosPassadosPorIdFuncionario } from "../../js/api/agendamento";
+import { buscarAtendimentosPassadosPorIdFuncionario, concluirAgendamento, buscarDetalhesAgendamento } from "../../js/api/agendamento";
 
 export default function Calendario_atendimentos() {
   const navigate = useNavigate();
 
     const [agendamentos, setAgendamentos] = useState([]);
+    const [modalConcluir, setModalConcluir] = useState(false);
+
   
     useEffect(() => {
       const usuario = JSON.parse(localStorage.getItem("usuario"));
@@ -28,7 +31,12 @@ export default function Calendario_atendimentos() {
      
  <NavCalendario />
      
-        {/* MINI NAV */}
+         {/* Pop up */}
+      {modalConcluir && (
+        <ConcluirAgendamento
+          onClose={() => setModalConcluir(false)}
+        />
+      )}
       
 
         {/* TÍTULO */}
@@ -76,12 +84,19 @@ export default function Calendario_atendimentos() {
             <div className="buttons_box_atendimento_passados_card_box">
 
              
-            {agendamento.statusAgendamento.status !== "AGENDADO" && (
-              <>
-                <button className="btn-rosa">Concluir</button>
-                <button className="btn-branco">Detalhes</button>
-              </>
+           {agendamento.statusAgendamento.status === "PAGAMENTO_PENDENTE" && (
+              <button className="btn-rosa" onClick={() => setModalConcluir(true)}>
+                Concluir
+              </button>
             )}
+
+            {["CONCLUIDO", "PAGAMENTO_PENDENTE"].includes(agendamento.statusAgendamento.status) && (
+              <button className="btn-branco" onClick={() => navigate(`/detalhes/${agendamento.id}`)}>
+                Detalhes
+              </button>
+            )}
+
+
 
 
               
@@ -96,6 +111,37 @@ export default function Calendario_atendimentos() {
   );
 }
 
+
+function ConcluirAgendamento({onClose}){
+
+  <Popup>
+        <>
+          <div className="nome_servico_box">
+            <p className="paragrafo-1">{servico?.nome || "Serviço"}</p>
+          </div>
+  
+          <div className="data_box">
+            <label htmlFor="data">Selecione a data que preferir</label>
+            <input type="date" name="data" id="data" />
+          </div>
+  
+          <div className="horarios_box">
+            <p>Horários disponíveis</p>
+            <div className="grid_horarios">
+              {Array(12).fill("9:00").map((hora, i) => (
+                <div key={i}>{hora}</div>
+              ))}
+            </div>
+          </div>
+  
+          <div className="button_box">
+            <button className="btn-rosa">Confirmar</button>
+            <button className="btn-branco" onClick={onClose}>Cancelar</button>
+          </div>
+        </>
+      </Popup>
+
+}
 // <!DOCTYPE html>
 // <html lang="pt-br">
 
