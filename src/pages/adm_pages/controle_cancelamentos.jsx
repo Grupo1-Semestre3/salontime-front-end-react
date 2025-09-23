@@ -1,11 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MenuDash from "../../components/MenuDash";
+import ControleMensalLayout from "../../components/ControleMensalLayout";
+import ControleItemCard from "../../components/ControleItemCard";
 
 export default function Controle_cancelamentos() {
   const navigate = useNavigate();
-  const [mesSelecionado] = useState("fev");
+  const [mesSelecionado, setMesSelecionado] = useState("fev");
 
+  // ...existing code...
+
+  // Mock/fonte de dados (substitua por API/estado real se já houver)
   const cancelamentos = [
     {
       id: 1,
@@ -13,14 +18,16 @@ export default function Controle_cancelamentos() {
       servicoNome: "xxxx",
       dataHoraISO: "2025-02-14T15:00:00.000Z",
       descricao:
-        "Descrição do motivo Descrição do motivo Descrição do motivo Descrição do motivo Descrição do motivo Descrição do motivo Descrição do motivo Descrição do motivo",
+        "Descrição do motivo Descrição do motivo Descrição do motivo...",
       fotoUrl: "/src/assets/img/foto_perfil.png",
       mes: "fev",
     },
   ];
 
+  // Filtro por mês selecionado
   const itensFiltrados = cancelamentos.filter((c) => c.mes === mesSelecionado);
 
+  // Formatação de data/hora
   const formatarDataHora = (iso) => {
     try {
       const d = new Date(iso);
@@ -39,47 +46,26 @@ export default function Controle_cancelamentos() {
 
   return (
     <MenuDash>
-      <div className="section_controle_servico_title">
-        <p className="titulo-1">Mês Selecionado</p>
-        <select className="paragrafo-1 select semibold" name="mes" id="mes_select" defaultValue="fev">
-          <option value="fev">Fevereiro</option>
-        </select>
-      </div>
-
-      <div className="mini_nav_pai">
-        <p className="paragrafo-2 mini_nav_filho" onClick={() => navigate("/adm/controle-servicos")}>
-          Serviços
-        </p>
-        <p className="paragrafo-2 mini_nav_filho_ativo" onClick={() => navigate("/adm/controle-cancelamentos")}>
-          Cancelamentos
-        </p>
-        <p className="paragrafo-2 mini_nav_filho" onClick={() => navigate("/adm/controle-avaliacoes")}>
-          Avaliações
-        </p>
-      </div>
-
-      <div className="dash_lista_itens">
-        {itensFiltrados.map((c) => (
-          <div key={c.id} className="section_controle_cancelamento_card card">
-            <div className="section_controle_cancelamento_card_line" style={{ alignItems: "center" }}>
-              <img src={c.fotoUrl} alt="icon_perfil" />
-              <p className="paragrafo-1 semibold">{c.clienteNome}</p>
-            </div>
-            <div className="section_controle_cancelamento_card_line" style={{ gap: "24px" }}>
-              <p className="paragrafo-2">
-                <a className="semibold">Serviço:</a> {c.servicoNome}
-              </p>
-              <p className="paragrafo-2 italic">
-                <a className="semibold">Data:</a> {formatarDataHora(c.dataHoraISO)}
-              </p>
-            </div>
-            <div className="section_controle_cancelamento_card_line" style={{ flexDirection: "column", gap: 0 }}>
-              <p className="paragrafo-2 semibold">Descrição:</p>
-              <p className="paragrafo-2">{c.descricao}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+      <ControleMensalLayout
+        active="cancelamentos"
+        mes={mesSelecionado}
+        onMesChange={setMesSelecionado}
+      >
+        <div className="dash_lista_itens">
+          {itensFiltrados.map((c) => (
+            <ControleItemCard
+              key={c.id}
+              tipo="cancelamento"
+              fotoUrl={c.fotoUrl}
+              clienteNome={c.clienteNome}
+              servicoNome={c.servicoNome}
+              dataHoraISO={c.dataHoraISO}
+              descricao={c.descricao}
+              formatarDataHora={formatarDataHora}
+            />
+          ))}
+        </div>
+      </ControleMensalLayout>
     </MenuDash>
   );
 }
