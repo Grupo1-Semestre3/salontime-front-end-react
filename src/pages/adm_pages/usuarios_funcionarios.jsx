@@ -1,11 +1,47 @@
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import MenuDash from "../../components/MenuDash";
+import UsuariosHeader from "../../components/UsuariosHeader";
+import CardCliente from "../../components/CardCliente";
+import "../../css/pages/adm_pages/usuarios/clientes.css";
 
 export default function Usuarios_funcionarios() {
+  const [funcionarios] = useState([
+    { id: 1, nome: "Nome do Funcionário", email: "email@email.com", telefone: "123123-12312", foto: "/src/assets/img/foto_perfil.png" },
+    { id: 2, nome: "João Silva",          email: "joao@email.com",  telefone: "98765-4321",   foto: "/src/assets/img/foto_perfil.png" },
+    { id: 3, nome: "Ana Souza",           email: "ana@email.com",   telefone: "11111-2222",   foto: "/src/assets/img/foto_perfil.png" },
+  ]);
+
+  const handleEditar = (id) => {
+    console.log("Editar funcionário:", id);
+  };
+
+  const handleDetalhes = (id) => {
+    console.log("Ver detalhes do funcionário:", id);
+  };
+
   return (
-    <>
-    <MenuDash/>
-    </>
+    <MenuDash>
+      <UsuariosHeader
+        tipo="funcionarios"
+        onButtonClick={() => console.log("Cadastrar Funcionário")}
+        iconSrc="/src/assets/icons/plus-icon.svg"
+      />
+
+      <div className="dash_section_container" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+        {funcionarios.map((f) => (
+          <CardCliente
+            key={f.id}
+            nome={f.nome}
+            email={f.email}
+            telefone={f.telefone}
+            foto={f.foto}
+            exibirPendencias={false}   // ocultar “Pendências” para funcionários
+            onEditar={() => handleEditar(f.id)}
+            onDetalhes={() => handleDetalhes(f.id)}
+          />
+        ))}
+      </div>
+    </MenuDash>
   );
 }
 

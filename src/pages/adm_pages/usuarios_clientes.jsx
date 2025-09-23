@@ -1,107 +1,72 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MenuDash from "../../components/MenuDash";
+import CardCliente from "../../components/CardCliente";
+import UsuariosHeader from "../../components/UsuariosHeader";
+
 
 export default function Usuarios_clientes() {
+  const navigate = useNavigate();
+  const [clientes, setClientes] = useState([
+    {
+      id: 1,
+      nome: "Nome do Cliente",
+      email: "email@email.com",
+      telefone: "123123-12312",
+      foto: "/src/assets/img/foto_perfil.png",
+      pendencias: 10
+    },
+    {
+      id: 2,
+      nome: "Maria Silva",
+      email: "maria@email.com",
+      telefone: "98765-4321",
+      foto: "/src/assets/img/foto_perfil.png",
+      pendencias: 3
+    },{
+      id: 2,
+      nome: "Maria Silva",
+      email: "maria@email.com",
+      telefone: "98765-4321",
+      foto: "/src/assets/img/foto_perfil.png",
+      pendencias: 3
+    }
+  ]);
+
+  const handleEditar = (id) => {
+    console.log("Editar cliente:", id);
+    // Implementar lógica de edição
+  };
+
+  const handleDetalhes = (id) => {
+    console.log("Ver detalhes do cliente:", id);
+    // Implementar lógica para mostrar detalhes
+  };
+
   return (
-    <>
-    <MenuDash/>
-    </>
+    <MenuDash>
+      
+
+      <UsuariosHeader
+        tipo="clientes"
+        onButtonClick={() => console.log("Cadastrar Cliente")}
+        iconSrc="src\assets\svg\plus.svg"
+      ></UsuariosHeader>
+
+      <div className="dash_section_container" style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', flexDirection: 'row' }}>
+        {clientes.map(cliente => (
+          <CardCliente
+            key={cliente.id}
+            nome={cliente.nome}
+            email={cliente.email}
+            telefone={cliente.telefone}
+            foto={cliente.foto}
+            pendencias={cliente.pendencias}
+            onEditar={() => handleEditar(cliente.id)}
+            onDetalhes={() => handleDetalhes(cliente.id)}
+          />
+        ))}
+      </div>
+    </MenuDash>
   );
 }
-
-// <!DOCTYPE html>
-// <html lang="pt-br">
-
-// <head> <!-- UTILIZAR ESSSA HEAD COMO PADRAO PARA AS OUTRAS TELAS -->
-//         <meta charset="UTF-8" />
-//         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-//         <link rel="stylesheet" href="../../css/main.css" />
-//         <script src="../../js/utils/utils_cliente_pages.js"></script>
-//         <script src="../../js/api/cliente/cliente.js"></script>
-//         <link rel="shortcut icon" href="../../assets/svg/logo_rosa.svg" type="image/x-icon" />
-//         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-//         <title>Salon Time | Gerenciar Clientes</title>
-// </head>
-
-// <body class="pagina_usuarios_clientes">
-//         <div class="dash_section_pai">
-//                 <!-- COMPONENTE - NAVBAR LATERAL -->
-//                 <div class="dash_navbar_pai">
-//                         <div class="dash_navbar_filho">
-//                                 <img src="../../assets/svg/logo_black.svg" alt="icone" style="max-width: 169px;">
-//                                 <p class="paragrafo-e bold">Bem vinda Marina!</p>
-//                                 <div class="dash_navbar_column">
-//                                         <button class="btn-navbar"
-//                                                 onclick="navegar('./calendario_visao_geral.html')"><img
-//                                                         style="max-width: 24px;"
-//                                                         src="../../assets/svg/nav_dash/icon_house_outline.svg"
-//                                                         alt="">Calendário</button>
-//                                         <button class="btn-navbar" onclick="navegar('./servicos_servicos.html')"><img
-//                                                         style="max-width: 24px;"
-//                                                         src="../../assets/svg/nav_dash/icon_tesoura_outline.svg"
-//                                                         alt="">Serviços</button>
-//                                         <button class="btn-navbar-ativo"
-//                                                 onclick="navegar('./usuarios_clientes.html')"><img
-//                                                         style="max-width: 24px;"
-//                                                         src="../../assets/svg/nav_dash/Icon_user_filled.svg"
-//                                                         alt="">Usuários</button>
-//                                         <button class="btn-navbar" onclick="navegar('./controlem_servicos.html')"><img
-//                                                         style="max-width: 24px;"
-//                                                         src="../../assets/svg/nav_dash/icon_doc_outline.svg"
-//                                                         alt="">Controle Mensal</button>
-//                                         <button class="btn-navbar" onclick="navegar('./perfil.html')"><img
-//                                                         style="max-width: 24px;"
-//                                                         src="../../assets/svg/nav_dash/icon_smile_outline.svg"
-//                                                         alt="">Perfil</button>
-//                                 </div>
-//                                 <button onclick="logout()" class="btn-sair"><img style="max-width: 24px;"
-//                                                 src="../../assets/svg/nav_config/icon_exit.svg" alt="">Sair</button>
-//                         </div>
-//                 </div>
-//                 <div class="dash_section_filho">
-
-//                         <!-- COMPONENTE - MINI -->
-//                         <div class="mini_nav_pai">
-//                                 <p class="paragrafo-2 mini_nav_filho_ativo"
-//                                         onclick="navegar('./usuarios_clientes.html')">Clientes</p>
-//                                 <p class="paragrafo-2 mini_nav_filho" onclick="navegar('./usuarios_funcionarios.html')">
-//                                         Funcionários</p>
-//                         </div>
-
-//                         <div class="dash_section_container usuarios_clientes_titulo_box">
-//                                 <h1 class="titulo-1">Gerenciar Clientes</h1>
-//                                 <button class="btn-rosa"><img
-//                                                 src="../../assets/vector/icon_sum/jam-icons/outline & logos/Vector.svg"
-//                                                 alt="">Cadastrar Cliente</button>
-//                         </div>
-
-//                         <div class="dash_section_container">
-//                                 <div class="card usuarios_card">
-//                                         <img 
-//                                         class="card-foto-cliente" 
-//                                         src="../../assets/img/foto_perfil.png"
-//                                         alt="Foto do Cliente"
-//                                         style="width: 90px; height: 90px;">
-//                                         <div class="card-info">
-//                                                 <p class="paragrafo-1 semibold">Nome do Cliente</p>
-//                                                 <div class="info-item">
-//                                                         <img src="../../assets/svg/icon_mail.svg" alt="Ícone Email"
-//                                                                 class="icon-small">
-//                                                         email@email.com
-//                                                 </div>
-
-//                                                 <div class="info-item">
-//                                                         <img src="../../assets/svg/icon_phone.svg" alt="Ícone Telefone"
-//                                                                 class="icon-small">
-//                                                         123123-12312
-//                                                 </div>
-//                                         </div>
-//                                         <div class="card-buttons">
-//                                                 <button class="btn-rosa">Editar</button>
-//                                                 <button class="btn-branco">Detalhes</button>
-//                                                 <p class="paragrafo-2">Pendências: 10</p>
-//                                         </div>
-//                                 </div>
-//                         </div>
-//                 </div>
