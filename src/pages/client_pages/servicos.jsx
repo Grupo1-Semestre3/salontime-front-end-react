@@ -252,7 +252,28 @@ function RealizarAgendamento({ servico, onClose }) {
   return (
     <Popup>
       <>
-       {/* A fazer */}
+        <div className="nome_servico_box">
+          <p className="paragrafo-1">{servico?.nome || "Serviço"}</p>
+        </div>
+
+        <div className="data_box">
+          <label htmlFor="data">Selecione a data que preferir</label>
+          <input type="date" name="data" id="data" />
+        </div>
+
+        <div className="horarios_box">
+          <p>Horários disponíveis</p>
+          <div className="grid_horarios">
+            {Array(12).fill("9:00").map((hora, i) => (
+              <div key={i}>{hora}</div>
+            ))}
+          </div>
+        </div>
+
+        <div className="button_box">
+          <button className="btn-rosa">Confirmar</button>
+          <button className="btn-branco" onClick={onClose}>Cancelar</button>
+        </div>
       </>
     </Popup>
   );
