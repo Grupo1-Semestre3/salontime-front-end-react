@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "../../css/popup/realizarAgendamento.css";
 import Swal from 'sweetalert2';
 import NavbarLandingPage from "/src/components/NavbarLandingPage.jsx";
 import Footer from "/src/components/Footer.jsx";

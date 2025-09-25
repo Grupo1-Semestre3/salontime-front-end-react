@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import "../css/popup/realizarAgendamento.css";
 import "../css/popup/padraoPopup.css";
 
 export default function Popup({children}) {
