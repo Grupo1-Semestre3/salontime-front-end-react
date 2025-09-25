@@ -10,3 +10,13 @@ export async function buscarCancelamentosDashboard() {
     throw error;
   }
 }
+
+export async function buscarAvaliacoes() {
+  try {
+    const response = await axios.get("http://localhost:8080/avaliacao");
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar avaliações:", error);
+    throw error;
+  }
+}

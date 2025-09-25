@@ -1,27 +1,58 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import MenuDash from "../../components/MenuDash";
 import ControleMensalLayout from "../../components/ControleMensalLayout";
 import ControleItemCard from "../../components/ControleItemCard";
+import { buscarAvaliacoes } from "../../js/api/elerson.js";
+
 export default function Controle_avaliacoes() {
-  const [mesSelecionado, setMesSelecionado] = useState("fev");
+  const navigate = useNavigate();
+  const [mesSelecionado, setMesSelecionado] = useState("jan");
+  const [avaliacoes, setAvaliacoes] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock/fonte de dados (substitua por API/estado real)
-  const avaliacoes = [
-    {
-      id: 1,
-      clienteNome: "Nome da Cliente",
-      servicoNome: "xxxx",
-      dataHoraISO: "2025-02-14T15:00:00.000Z",
-      descricao:
-        "Mensagem de avaliação da cliente Mensagem de avaliação...",
-      fotoUrl: "/src/assets/img/foto_perfil.png",
-      estrelas: 4,
-      mes: "fev",
-    },
-  ];
+  // Carregar dados da API quando a página é carregada
+  useEffect(() => {
+    const carregarAvaliacoes = async () => {
+      try {
+        setLoading(true);
+        const dados = await buscarAvaliacoes();
+        
+        // Transformar os dados da API para o formato esperado pelo componente
+        const avaliacoesFormatadas = dados.map((item) => ({
+          id: item.id,
+          clienteNome: item.nomeUsuario,
+          servicoNome: item.nomeServico,
+          dataHoraISO: item.dataHorario, // Já está no formato ISO
+          descricao: item.descricaoServico,
+          fotoUrl: "/src/assets/img/foto_perfil.png", // Foto padrão
+          estrelas: item.notaServico,
+          mes: obterMesAbreviado(item.dataHorario), // Extrair mês da data
+        }));
+        
+        setAvaliacoes(avaliacoesFormatadas);
+      } catch (error) {
+        console.error("Erro ao carregar avaliações:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    carregarAvaliacoes();
+  }, []);
+
+  // Função para obter mês abreviado da data
+  const obterMesAbreviado = (dataString) => {
+    const meses = ["jan", "fev", "mar", "abr", "mai", "jun", 
+                   "jul", "ago", "set", "out", "nov", "dez"];
+    const data = new Date(dataString);
+    return meses[data.getMonth()];
+  };
+
+  // Filtro por mês selecionado
   const itensFiltrados = avaliacoes.filter((a) => a.mes === mesSelecionado);
 
+  // Formatação de data/hora
   const formatarDataHora = (iso) => {
     try {
       const d = new Date(iso);
@@ -38,21 +69,6 @@ export default function Controle_avaliacoes() {
     }
   };
 
-  const Estrelas = ({ quantidade }) => {
-    const arr = [];
-    for (let i = 1; i <= 5; i++) {
-      const filled = i <= quantidade;
-      arr.push(
-        <img
-          key={i}
-          src={filled ? "/src/assets/svg/icon_star_filled.svg" : "/src/assets/svg/icon_star_outline.svg"}
-          alt={filled ? "estrela preenchida" : "estrela vazia"}
-        />
-      );
-    }
-    return <div className="estrelas">{arr}</div>;
-  };
-
   return (
     <MenuDash>
       <ControleMensalLayout
@@ -61,19 +77,25 @@ export default function Controle_avaliacoes() {
         onMesChange={setMesSelecionado}
       >
         <div className="dash_lista_itens">
-          {itensFiltrados.map((a) => (
-            <ControleItemCard
-              key={a.id}
-              tipo="avaliacao"
-              fotoUrl={a.fotoUrl}
-              clienteNome={a.clienteNome}
-              servicoNome={a.servicoNome}
-              dataHoraISO={a.dataHoraISO}
-              descricao={a.descricao}
-              estrelas={a.estrelas}
-              formatarDataHora={formatarDataHora}
-            />
-          ))}
+          {loading ? (
+            <p>Carregando avaliações...</p>
+          ) : itensFiltrados.length > 0 ? (
+            itensFiltrados.map((a) => (
+              <ControleItemCard
+                key={a.id}
+                tipo="avaliacao"
+                fotoUrl={a.fotoUrl}
+                clienteNome={a.clienteNome}
+                servicoNome={a.servicoNome}
+                dataHoraISO={a.dataHoraISO}
+                descricao={a.descricao}
+                estrelas={a.estrelas}
+                formatarDataHora={formatarDataHora}
+              />
+            ))
+          ) : (
+            <p>Nenhuma avaliação encontrada para este mês.</p>
+          )}
         </div>
       </ControleMensalLayout>
     </MenuDash>
