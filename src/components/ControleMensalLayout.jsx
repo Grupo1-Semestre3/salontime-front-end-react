@@ -4,7 +4,19 @@ export default function ControleMensalLayout({
   active,                  // "servicos" | "cancelamentos" | "avaliacoes"
   mes,
   onMesChange,
-  mesOptions = [{ value: "fev", label: "Fevereiro" }],
+  mesOptions = [
+    { value: "jan", label: "Janeiro" },
+    { value: "fev", label: "Fevereiro" },
+    { value: "mar", label: "Março" },
+    { value: "abr", label: "Abril" },
+    { value: "mai", label: "Maio" },
+    { value: "jun", label: "Junho" },
+    { value: "jul", label: "Julho" },
+    { value: "ago", label: "Agosto" },
+    { value: "set", label: "Setembro" },
+    { value: "out", label: "Outubro" },
+    { value: "nov", label: "Novembro" },
+    { value: "dez", label: "Dezembro" }],
   children,
 }) {
   const navigate = useNavigate();

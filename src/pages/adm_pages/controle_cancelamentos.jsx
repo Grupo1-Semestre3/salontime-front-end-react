@@ -1,28 +1,52 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import MenuDash from "../../components/MenuDash";
 import ControleMensalLayout from "../../components/ControleMensalLayout";
 import ControleItemCard from "../../components/ControleItemCard";
+import { buscarCancelamentosDashboard } from "../../js/api/elerson.js";
 
 export default function Controle_cancelamentos() {
   const navigate = useNavigate();
-  const [mesSelecionado, setMesSelecionado] = useState("fev");
+  const [mesSelecionado, setMesSelecionado] = useState("jan");
+  const [cancelamentos, setCancelamentos] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // ...existing code...
+  // Carregar dados do endpoint quando a página for carregada
+  useEffect(() => {
+    const carregarCancelamentos = async () => {
+      try {
+        setLoading(true);
+        const dados = await buscarCancelamentosDashboard();
+        
+        // Transformar os dados da API para o formato esperado pelo componente
+        const cancelamentosFormatados = dados.map((item) => ({
+          id: item.id,
+          clienteNome: item.nomeCliente,
+          servicoNome: item.nomeServico,
+          dataHoraISO: `${item.dataServico}T00:00:00.000Z`, // Converter data para ISO
+          descricao: item.descricao,
+          fotoUrl: "/src/assets/img/foto_perfil.png", // Foto padrão
+          mes: obterMesAbreviado(item.dataServico), // Extrair mês da data
+        }));
+        
+        setCancelamentos(cancelamentosFormatados);
+      } catch (error) {
+        console.error("Erro ao carregar cancelamentos:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Mock/fonte de dados (substitua por API/estado real se já houver)
-  const cancelamentos = [
-    {
-      id: 1,
-      clienteNome: "Nome da Cliente",
-      servicoNome: "xxxx",
-      dataHoraISO: "2025-02-14T15:00:00.000Z",
-      descricao:
-        "Descrição do motivo Descrição do motivo Descrição do motivo...",
-      fotoUrl: "/src/assets/img/foto_perfil.png",
-      mes: "fev",
-    },
-  ];
+    carregarCancelamentos();
+  }, []);
+
+  // Função para obter mês abreviado da data
+  const obterMesAbreviado = (dataString) => {
+    const meses = ["jan", "fev", "mar", "abr", "mai", "jun", 
+                   "jul", "ago", "set", "out", "nov", "dez"];
+    const data = new Date(dataString);
+    return meses[data.getMonth()];
+  };
 
   // Filtro por mês selecionado
   const itensFiltrados = cancelamentos.filter((c) => c.mes === mesSelecionado);
@@ -52,18 +76,24 @@ export default function Controle_cancelamentos() {
         onMesChange={setMesSelecionado}
       >
         <div className="dash_lista_itens">
-          {itensFiltrados.map((c) => (
-            <ControleItemCard
-              key={c.id}
-              tipo="cancelamento"
-              fotoUrl={c.fotoUrl}
-              clienteNome={c.clienteNome}
-              servicoNome={c.servicoNome}
-              dataHoraISO={c.dataHoraISO}
-              descricao={c.descricao}
-              formatarDataHora={formatarDataHora}
-            />
-          ))}
+          {loading ? (
+            <p>Carregando cancelamentos...</p>
+          ) : itensFiltrados.length > 0 ? (
+            itensFiltrados.map((c) => (
+              <ControleItemCard
+                key={c.id}
+                tipo="cancelamento"
+                fotoUrl={c.fotoUrl}
+                clienteNome={c.clienteNome}
+                servicoNome={c.servicoNome}
+                dataHoraISO={c.dataHoraISO}
+                descricao={c.descricao}
+                formatarDataHora={formatarDataHora}
+              />
+            ))
+          ) : (
+            <p>Nenhum cancelamento encontrado para este mês.</p>
+          )}
         </div>
       </ControleMensalLayout>
     </MenuDash>
