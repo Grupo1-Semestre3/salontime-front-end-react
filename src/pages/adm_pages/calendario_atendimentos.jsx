@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
+import "../../css/popup/concluirAgendamento.css"
 import React, { useEffect, useState } from "react";
 import MenuDash from "/src/components/MenuDash.jsx";
 import NavCalendario from "/src/components/NavCalendario.jsx";
 import Popup from "../../components/Popup.jsx";
+import Swal from 'sweetalert2';
 
 import { buscarAtendimentosPassadosPorIdFuncionario, concluirAgendamento, buscarDetalhesAgendamento } from "../../js/api/agendamento";
 
@@ -11,20 +13,20 @@ export default function Calendario_atendimentos() {
 
     const [agendamentos, setAgendamentos] = useState([]);
     const [modalConcluir, setModalConcluir] = useState(false);
+    const [agendamentoSelecionado, setAgendamentoSelecionado] = useState(null);
 
-  
-    useEffect(() => {
+    const carregarAgendamentos = () => {
       const usuario = JSON.parse(localStorage.getItem("usuario"));
-      if (usuario && usuario.id) {
+      if (usuario?.id) {
         buscarAtendimentosPassadosPorIdFuncionario(usuario.id)
-          .then(data => {
-            setAgendamentos(data);
-          })
-          .catch(error => {
-            console.error("Erro ao carregar agendamentos passados:", error);
-          });
+          .then(data => setAgendamentos(data))
+          .catch(error => console.error("Erro ao carregar agendamentos:", error));
       }
-    }, []); // 👈 useEffect fechado corretamente
+    };
+
+    useEffect(() => {
+      carregarAgendamentos();
+    }, []);
 
   return (
     <MenuDash>
@@ -32,11 +34,16 @@ export default function Calendario_atendimentos() {
  <NavCalendario />
      
          {/* Pop up */}
-      {modalConcluir && (
-        <ConcluirAgendamento
-          onClose={() => setModalConcluir(false)}
-        />
-      )}
+      <ConcluirAgendamentoPop
+        dados={agendamentoSelecionado}
+        onClose={() => {
+          setModalConcluir(false);
+          setAgendamentoSelecionado(null);
+        }}
+        atualizarAgendamentos={carregarAgendamentos} // 👈 aqui
+      />
+
+
       
 
         {/* TÍTULO */}
@@ -46,16 +53,18 @@ export default function Calendario_atendimentos() {
 
         {/* CARD DE ATENDIMENTO */}
         {agendamentos.length > 0 ? (
+          
           agendamentos.map((agendamento, index) => (
         <div key={index} className="dash_section_container">
           <div className="atendimento_passados_card_box card">
             <div className="info_box_atendimento_passados_card_box">
               <p className="paragrafo-1 semibold info">
                 <img
-                  src="/src/assets/svg/perfil_foto.svg"
+                  src={``}
                   alt="foto cliente"
-                  style={{ height: "45px" }}
+                  style={{ height: "45px", borderRadius: "50%" }}
                 />
+
                 <a>{agendamento.usuario.nome}</a>
               </p>
               <p className="paragrafo-1 semibold">
@@ -85,9 +94,16 @@ export default function Calendario_atendimentos() {
 
              
            {agendamento.statusAgendamento.status === "PAGAMENTO_PENDENTE" && (
-              <button className="btn-rosa" onClick={() => setModalConcluir(true)}>
+             <button
+                className="btn-rosa"
+                onClick={() => {
+                  setAgendamentoSelecionado(agendamento);
+                  setModalConcluir(true);
+                }}
+              >
                 Concluir
               </button>
+
             )}
 
             {["CONCLUIDO", "PAGAMENTO_PENDENTE"].includes(agendamento.statusAgendamento.status) && (
@@ -112,36 +128,86 @@ export default function Calendario_atendimentos() {
 }
 
 
-function ConcluirAgendamento({onClose}){
-
-  <Popup>
-        <>
-          <div className="nome_servico_box">
-            <p className="paragrafo-1">{servico?.nome || "Serviço"}</p>
-          </div>
-  
-          <div className="data_box">
-            <label htmlFor="data">Selecione a data que preferir</label>
-            <input type="date" name="data" id="data" />
-          </div>
-  
-          <div className="horarios_box">
-            <p>Horários disponíveis</p>
-            <div className="grid_horarios">
-              {Array(12).fill("9:00").map((hora, i) => (
-                <div key={i}>{hora}</div>
-              ))}
-            </div>
-          </div>
-  
-          <div className="button_box">
-            <button className="btn-rosa">Confirmar</button>
-            <button className="btn-branco" onClick={onClose}>Cancelar</button>
-          </div>
-        </>
-      </Popup>
-
+//Colocar na utils
+function formatarDataBR(dataISO) {
+  const [ano, mes, dia] = dataISO.split("-");
+  return `${dia}/${mes}/${ano}`;
 }
+
+
+function ConcluirAgendamentoPop({ dados, onClose, atualizarAgendamentos  }) {
+  if (!dados) return null;
+  const [valorPago, setValorPago] = useState(""); 
+   
+  // const dataFormatada = new Date(dados.data).toLocaleDateString('pt-BR');
+  const dataFormatada = formatarDataBR(dados.data); 
+  console.log("ID DO AGENDAMENTO -> " + dados.id)
+  return (
+    <Popup>
+      <>
+        <div className="calendario_box_popup_concluir_agendamento">
+          <div className="calendario_nome_cliente_box">
+            <p className="paragrafo-1">{dados.usuario?.nome}</p>
+          </div>
+          <div className="calendario_box_info_concluir_agendamento">
+            <p><strong>Servico:</strong> {dados.servico.nome}</p>
+            <p><img src="/src/assets/svg/time-sharp.svg" alt="" />: {dataFormatada} {dados.inicio} horas</p>  
+            <p><strong>Valor:</strong> R${dados.preco}</p>
+            <p><strong>Cupom:</strong> {dados.cupom.descricao || "Sem cupom"}</p>
+          </div>
+
+          <div className="calendario_box_input_confirmar_agendamento">
+            <label htmlFor="">Confirmar valor pago:</label>
+            <input
+              type="number"
+              placeholder="Digite o valor"
+              value={valorPago}
+              onChange={(e) => setValorPago(e.target.value)}
+              
+
+
+            />
+
+          </div>
+
+          <div className="button_box">
+            <button
+              className="btn-rosa"
+              onClick={async () => {
+                try {
+                  await concluirAgendamento(dados.id, valorPago);
+                  // alert("Agendamento concluído com sucesso!");
+                  Swal.fire({
+                    title: 'Sucesso!',
+                    text: 'Agendamento concluído com sucesso.',
+                    icon: 'success',
+                    confirmButtonText: 'Fechar',
+                    customClass: {
+                      confirmButton: 'btn-rosa' // você pode estilizar via CSS se quiser
+                    },
+                  });
+
+                  
+                  onClose(); // fecha o modal
+                  atualizarAgendamentos(); // atualiza a lista no pai
+                } catch (err) {
+                  alert("Erro ao concluir agendamento");
+                }
+              }}
+            >
+              Concluir
+            </button>
+
+            <button className="btn-branco" onClick={onClose}>
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </>
+    </Popup>
+  );
+}
+
 // <!DOCTYPE html>
 // <html lang="pt-br">
 
