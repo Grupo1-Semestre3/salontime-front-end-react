@@ -4,6 +4,7 @@ import { useNavigate} from "react-router-dom";
 import NavbarLandingPage from "/src/components/NavbarLandingPage.jsx";
 import Footer from "/src/components/Footer.jsx";
 import { buscarAvaliacoes } from "../../js/api/avaliacao.js"
+import { buscarInfoSalao } from "../../js/api/info_salao.js"
 
 // --- COMPONENTE ESPECIALIDADE ---
 function EspecialidadeCard({ icon, titulo, descricao }) {
@@ -49,7 +50,6 @@ function AvaliacaoCard({ nome, data, estrelas, servico, comentario, imagem }) {
 export default function Index() {
   const navigate = useNavigate();
 
-  // dados mockados (poderiam vir de API futuramente)
   const especialidades = [
     {
       icon: "/src/assets/svg/icon_cores.svg",
@@ -68,33 +68,6 @@ export default function Index() {
     }
   ];
 
-  // const avaliacoes = [
-  //   {
-  //     nome: "Juliana Silva",
-  //     data: "12 jun",
-  //     estrelas: 4,
-  //     servico: "Corte",
-  //     comentario: "Experiência incrível! Fui super bem atendida e o resultado ficou sensacional! Recomendo",
-  //     imagem: "/src/assets/img/mock_avaliacao/Team-member.png"
-  //   },
-  //   {
-  //     nome: "Daniela Almeida",
-  //     data: "03 ago",
-  //     estrelas: 5,
-  //     servico: "Luzes",
-  //     comentario: "Experiência incrível! Fui super bem atendida e o resultado ficou sensacional! Recomendo",
-  //     imagem: "/src/assets/img/mock_avaliacao/img-avaliacao-2.png"
-  //   },
-  //   {
-  //     nome: "Thais Silva",
-  //     data: "12 jun",
-  //     estrelas: 4,
-  //     servico: "Corte",
-  //     comentario: "Experiência incrível! Fui super bem atendida e o resultado ficou sensacional! Recomendo",
-  //     imagem: "/src/assets/img/mock_avaliacao/img-avaliacao-4.png"
-  //   }
-  // ];
-
   const [avaliacoes, setAvaliacoes] = useState([]);
 
   useEffect(() => {
@@ -104,6 +77,18 @@ export default function Index() {
       })
       .catch(error => {
         console.error("Erro ao carregar avaliações:", error);
+      });
+  }, []);
+
+  const [infoSalao, setInfoSalao] = useState({});
+
+  useEffect(() => {
+    buscarInfoSalao()
+      .then(data => {
+        setInfoSalao(Array.isArray(data) ? data[0] || {} : data);
+      })
+      .catch(error => {
+        console.error("Erro ao carregar informações do salão:", error);
       });
   }, []);
 
@@ -168,7 +153,7 @@ export default function Index() {
           </p>
           <p className="paragrafo-2 italic sobre_section_social">
             <img src="/src/assets/svg/icon_whatsapp 1.svg" alt="icon-zap" />
-            (11) 96555-8010
+            {infoSalao.telefone || '(11) 98765-4321'}
           </p>
           <p className="paragrafo-2 italic sobre_section_social">
             <img src="/src/assets/svg/icon_instagram2.svg" alt="icon-insta" />
@@ -178,7 +163,7 @@ export default function Index() {
             className="btn-rosa"
             onClick={() => navigate("/servicos")}
           >
-            <img src="/src/assets/vector/icon_sum/jam-icons/outline & logos/Vector.svg" alt="" />
+            <img src="/src/assets/vector/icon_sum/jam-icons/Vector.svg" alt="" />
             Agendar
           </button>
         </div>
@@ -192,10 +177,10 @@ export default function Index() {
           </p>
           <div className="section_local_ender">
             <p className="paragrafo-2" style={{ color: "var(--rosa-3)" }}>
-              R. Adamantina, 34 - 3 - Baeta Neves
+              {infoSalao.logradouro || 'R. Adamantina'}, {infoSalao.numero || '34'} - {infoSalao.complemento || 'apto 3'}
             </p>
             <p className="paragrafo-2 italic" style={{ color: "var(--rosa-2)" }}>
-              São Bernardo do Campo - SP, 09760-340
+              {infoSalao.cidade || 'São Bernardo do Campo'} - {infoSalao.estado || 'SP'}
             </p>
           </div>
         </div>
@@ -250,11 +235,6 @@ export default function Index() {
               />
             ))}
           </div>
-          {/* <div className="group">
-            {avaliacoes.map((av, idx) => (
-              <AvaliacaoCard key={idx} {...av} />
-            ))}
-          </div> */}
         </div>
       </section>
 
