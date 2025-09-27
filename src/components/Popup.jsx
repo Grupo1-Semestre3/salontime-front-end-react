@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import "../css/popup/padraoPopup.css";
+import "../css/main.css";
 
-export default function Popup({children}) {
+export default function Popup({ children }) {
   const [animar, setAnimar] = useState(false);
 
   useEffect(() => {
@@ -18,3 +18,23 @@ export default function Popup({children}) {
     </div>
   );
 }
+
+export function PopupAlerta({ mensagem, funcao, onClose }) {
+
+  return (
+    <Popup>
+      <>
+        <div className="popup_alerta_titulo">
+          <img src="/src/assets/svg/icon_alert.svg" alt="icon-alert" />
+          <p className="subtitulo semibold">Atenção!</p>
+        </div>
+          <p className="paragrafo-2" style={{ textAlign: "center" }}>{mensagem}</p>
+        <div style={{ display: "flex", gap: "10px", flexDirection: "row", justifyContent: "center" }}>
+          <button className="btn-rosa" onClick={funcao}>Sim</button>
+          <button className="btn-branco" onClick={onClose}>Não</button>
+        </div>
+      </>
+    </Popup>
+  );
+}
+

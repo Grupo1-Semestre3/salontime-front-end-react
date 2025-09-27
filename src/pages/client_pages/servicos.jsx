@@ -1,19 +1,37 @@
-import { useEffect, useState } from "react";
+// import "../../css/popup/realizarAgendamento.css";
+// FUNCOES 
+import { use, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../../css/popup/realizarAgendamento.css";
 import Swal from 'sweetalert2';
+
+// COMPONENTES
 import NavbarLandingPage from "/src/components/NavbarLandingPage.jsx";
 import Footer from "/src/components/Footer.jsx";
-import Popup from "../../components/Popup.jsx";
+import Popup, {PopupAlerta} from "../../components/Popup.jsx";
+
+// JS 
+import { mensagemSucesso, mensagemErro } from "../../js/utils.js";
 import { buscarServicos } from "../../js/api/servico.js"
+import { buscarProximoAgendamento, cancelarAgendamentoJS } from "../../js/api/caio.js"
+
+import "../../css/popup/padraoPopup.css";
+
 
 export default function Servicos() {
   const navigate = useNavigate();
   const [usuario, setUsuario] = useState(null);
   const [servicos, setServicos] = useState([]);
   const [modalAberto, setModalAberto] = useState(false);
+  const [popupAlertaAberto, setPopupAlertaAberto] = useState(false);
   const [servicoSelecionado, setServicoSelecionado] = useState(null);
+  const [proximoAgendamento, setProximoAgendamento] = useState({});
 
+  useEffect(() => {
+    const usuario = localStorage.getItem("usuario");
+    if (usuario) {
+      setUsuario(JSON.parse(usuario));
+    }
+  }, []);
 
   useEffect(() => {
     buscarServicos()
@@ -25,6 +43,18 @@ export default function Servicos() {
       });
 
   }, []); // 👈 useEffect fechado corretamente
+
+  useEffect(() => {
+    if (usuario && usuario.id) {
+      buscarProximoAgendamento(usuario.id)
+        .then(data => {
+          setProximoAgendamento(data);
+        })
+        .catch(error => {
+          console.error("Erro ao carregar próximo agendamento:", error);
+        });
+    }
+  }, [usuario]);
 
   const handleAgendarClick = (idServico) => {
     if (!isLoggedIn) {
@@ -41,8 +71,20 @@ export default function Servicos() {
     }
   };
 
-  const navegar = (url) => {
-    window.location.href = url;
+  const handleCancelarClick = () => {
+    setPopupAlertaAberto(true);
+  };
+
+  const confirmarCancelamento = () => {
+    try {
+      cancelarAgendamentoJS(proximoAgendamento.id);
+      mensagemSucesso(`Agendamento cancelado com sucesso!`)
+    } catch (error) {
+      mensagemErro("Erro ao cancelar agendamento. Tente novamente mais tarde.");
+      return
+    }
+    setPopupAlertaAberto(false);
+    // Aqui você pode atualizar a lista de agendamentos, mostrar mensagem, etc.
   };
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -93,31 +135,39 @@ export default function Servicos() {
         <section className="principal_section" id="section_proximos_atendimentos">
           <div className="home_session_pai">
             <h2 id="nomeDinamico" className="super-titulo">
-              {usuario ? `Bem vinda de volta ${usuario.nome}!` : ""}
+              Bem vinda de volta{usuario ? ` ${usuario.nome}` : ""}!
             </h2>
 
             <div className="conteudo_proximo_agendamento">
-              <span className="paragrafo-1">Você tem 1 horário marcado:</span>
+              <span className="paragrafo-1">{proximoAgendamento ? `Você tem 1 horário marcado:` : "Você não tem horários marcados 😢"}</span>
 
-              <div className="card_proximo_agendamento shadow">
+              <div className="card_proximo_agendamento shadow" style={{ display: proximoAgendamento ? "flex" : "none" }}>
                 <div className="conteudo">
-                  <p className="paragrafo-1 bold">Nome do serviço</p>
+                  <p className="paragrafo-1 bold">{proximoAgendamento.usuario?.nome}</p>
                   <p className="paragrafo-1 bold" style={{ display: "flex", alignItems: "end" }}>
                     <img src="/src/assets/vector/icon_horariio/ionicons/sharp/time-sharp.svg" alt="" />
-                    01/01/2000 00:00pm
+                    {/* 01/01/2000 00:00pm */}
+                    {proximoAgendamento.data || "--/--/----"} {proximoAgendamento.inicio || "--:--"}
                   </p>
                   <p className="paragrafo-1">
-                    <b>Status:</b> Confirmado
+                    <b>Status:</b> {proximoAgendamento.statusAgendamento?.status || "Sem status"}
                   </p>
                 </div>
                 <div className="btn-juntos" style={{ flexDirection: "column" }}>
                   <button className="btn-rosa paragrafo-1">Reagendar</button>
-                  <button className="btn-branco paragrafo-1">Cancelar</button>
+                  <button className="btn-branco paragrafo-1" onClick={handleCancelarClick}>Cancelar</button>
+                  {popupAlertaAberto && (
+                    <PopupAlerta
+                      mensagem="Tem certeza que deseja cancelar o agendamento?"
+                      funcao={confirmarCancelamento}
+                      onClose={() => setPopupAlertaAberto(false)}
+                    />
+                  )}
                 </div>
               </div>
             </div>
 
-            <p className="hist_agendamento paragrafo-2">
+            <p className="hist_agendamento paragrafo-2" onClick={() => navigate("/config-historico")}>
               <img src="/src/assets/svg/arrow-back.svg" alt="" />
               Histórico de Agendamentos
             </p>
@@ -278,5 +328,20 @@ function RealizarAgendamento({ servico, onClose }) {
       </>
     </Popup>
   );
-
 }
+
+// function PopupAlerta({mensagem, funcao, onClose}) {
+//   return (
+//     <Popup>
+//       <>
+//         <img src="/src/assets/svg/icon_alert.svg" alt="icon-alert" />
+//         <p className="paragrafo-2">{mensagem}</p>
+//         <div>
+//           <button className="btn-rosa" onClick={funcao}>Sim</button>
+//           <button className="btn-branco" onClick={onClose}>Não</button>
+//         </div>
+//       </>
+//     </Popup>
+//   );
+// }
+

@@ -4,7 +4,10 @@
 @import url(./partials/buttons.css);
 @import url(./partials/utils.css);
 
-
+/* --- IMPORTANDO PADRÕES DE POPUP--- */
+@import url(./popup/padraoPopup.css);
+@import url(./popup/concluirAgendamento.css);
+@import url(./popup/realizarAgendamento.css);
 
 /* --- IMPORTANDO AS PÁGINAS CLIENTE --- */
 /* Configurações */
