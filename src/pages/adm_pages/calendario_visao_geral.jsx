@@ -3,11 +3,35 @@ import { useNavigate } from "react-router-dom";
 import MenuDash from "../../components/MenuDash";
 import NavCalendario from "../../components/NavCalendario";
 import Calendario from "../../components/Calendario";
+import "../../css/popup/realizarAgendamentoADM.css"
+import Popup from "../../components/Popup.jsx";
+import { mensagemErro, mensagemSucesso } from "../../js/utils.js"
 import { buscarProximosAgendamentosFuncionario } from "../../js/api/agendamento";
+import { listarServicos, listarClientes, listarPagamento, exibirHorariosDisponiveis, salvarAgendamento } from "../../js/api/maikon.js"
 
 export default function CalendarioVisaoGeral() {
   const navigate = useNavigate();
   const [agendamentos, setAgendamentos] = useState([]);
+  const [modalRealizarAgendamento, setModalRealizarAgendamento] = useState(false);
+
+
+  // 👉 Função reutilizável para buscar agendamentos
+  const carregarAgendamentos = async () => {
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+    if (usuario && usuario.id) {
+      try {
+        const data = await buscarProximosAgendamentosFuncionario(usuario.id);
+        setAgendamentos(data);
+      } catch (error) {
+        console.error("Erro ao carregar agendamentos:", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    carregarAgendamentos();
+  }, []);
+
 
   useEffect(() => {
     const usuario = JSON.parse(localStorage.getItem("usuario"));
@@ -31,6 +55,13 @@ export default function CalendarioVisaoGeral() {
         <div className="dash_section_container">
           <h1 className="supertitulo-1">Próximos atendimentos</h1>
         </div>
+
+        {modalRealizarAgendamento && (
+          <RealizarAgendamento
+            onClose={() => setModalRealizarAgendamento(false)}
+            onAgendamentoSalvo={carregarAgendamentos} // 👈 aqui
+          />
+        )}
 
         {/* CARDS DE AGENDAMENTO */}
         {agendamentos.length > 0 ? (
@@ -65,7 +96,16 @@ export default function CalendarioVisaoGeral() {
 
         {/* BOTÕES FINAIS */}
         <div className="btn-juntos" style={{ flexDirection: "row", width: "100%" }}>
-          <button className="btn-rosa" style={{ width: "100%" }}>Criar Agendamento</button>
+
+          <button
+            className="btn-rosa"
+            style={{ width: "100%" }}
+            onClick={() => setModalRealizarAgendamento(true)}
+          >
+            Criar Agendamento
+          </button>
+
+
           <button className="btn-branco" style={{ width: "100%" }}>Criar Compromisso</button>
         </div>
       </MenuDash>
@@ -75,80 +115,146 @@ export default function CalendarioVisaoGeral() {
 
 
 
-// <!DOCTYPE html>
-// <html lang="pt-br">
+function RealizarAgendamento({ onClose, onAgendamentoSalvo }) {
+  const [servicos, setServicos] = useState([]);
+  const [clientes, setClientes] = useState([]);
+  const [horarios, setHorarios] = useState([]);
+  const [pagamentos, setPagamento] = useState([]);
 
-// <head> <!-- UTILIZAR ESSSA HEAD COMO PADRAO PARA AS OUTRAS TELAS -->
-//     <meta charset="UTF-8" />
-//     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-//     <link rel="stylesheet" href="../../css/main.css" />
-//     <script src="../../js/utils/utils_cliente_pages.js"></script>
-//     <script src="../../js/api/cliente/cliente.js"></script>
-//     <link rel="shortcut icon" href="../../assets/svg/logo_rosa.svg" type="image/x-icon" />
-//     <title>Salon Time | Visão Geral</title>
-// </head>
+  const [dataSelecionada, setDataSelecionada] = useState("");
+  const [servicoSelecionado, setServicoSelecionado] = useState("");
+  const [clienteSelecionado, setClienteSelecionado] = useState("");
+  const [horarioSelecionado, setHorarioSelecionado] = useState("");
+  const [pagamentoSelecionado, setPagamentoSelecionado] = useState("");
 
-// <body>
-//     <dev class="dash_section_pai">
-//         <!-- COMPONENTE - NAVBAR LATERAL -->
-//         <div class="dash_navbar_pai">
-//             <div class="dash_navbar_filho">
-//                 <img src="../../assets/svg/logo_black.svg" alt="icone" style="max-width: 169px;">
-//                 <p class="paragrafo-e bold">Bem vinda Marina!</p>
-//                 <div class="dash_navbar_column">
-//                     <button class="btn-navbar-ativo" onclick="navegar('./calendario_visao_geral.html')"><img style="max-width: 24px;"
-//                             src="../../assets/svg/nav_dash/icon_house_filled.svg" alt="">Calendário</button>
-//                     <button class="btn-navbar" onclick="navegar('./servicos_servicos.html')"><img style="max-width: 24px;"
-//                             src="../../assets/svg/nav_dash/icon_tesoura_outline.svg" alt="">Serviços</button>
-//                     <button class="btn-navbar" onclick="navegar('./usuarios_clientes.html')"><img style="max-width: 24px;"
-//                             src="../../assets/svg/nav_dash/icon_user_outline.svg" alt="">Usuários</button>
-//                     <button class="btn-navbar" onclick="navegar('./controlem_servicos.html')"><img style="max-width: 24px;"
-//                             src="../../assets/svg/nav_dash/icon_doc_outline.svg" alt="">Controle Mensal</button>
-//                     <button class="btn-navbar" onclick="navegar('./perfil.html')"><img style="max-width: 24px;" 
-//                             src="../../assets/svg/nav_dash/icon_smile_outline.svg" alt="">Perfil</button>
-//                 </div>
-//                 <button onclick="logout()" class="btn-sair"><img style="max-width: 24px;" src="../../assets/svg/nav_config/icon_exit.svg"
-//                 alt="">Sair</button>
-//             </div>
-//         </div>
-        
-//         <div class="dash_section_filho">
+  // Simule aqui os imports reais
+  // import { listarClientes, listarServicos, exibirHorariosDisponiveis } from '...'
 
+  useEffect(() => {
+    // Buscar serviços e clientes ao abrir o popup
+    async function carregarDadosIniciais() {
+      try {
+        const servicosData = await listarServicos(); // Substitua pela sua função real
+        const clientesData = await listarClientes(); // Substitua pela sua função real
+        const pagamento = await listarPagamento(); // Substitua pela sua função real
 
-//             <!-- COMPONENTE - MINI -->
-//             <div class="mini_nav_pai">
-//                 <p class="paragrafo-2 mini_nav_filho_ativo" onclick="navegar('./calendario_visao_geral.html')">Visão Geral</p>
-//                 <p class="paragrafo-2 mini_nav_filho" onclick="navegar('./calendario_atendimentos.html')">Atendimentos Passados</p>
-//                 <p class="paragrafo-2 mini_nav_filho" onclick="navegar('./calendario_configuracoes.html')">Configurações</p>
-//             </div>
+        setServicos(servicosData);
+        setClientes(clientesData);
+        setPagamento(pagamento);
+      } catch (error) {
+        console.error("Erro ao carregar dados:", error);
+      }
+    }
 
-//             <div class="dash_section_container">
-//                 <h1 class="supertitulo-1">Próximos atendimentos</h1>
-//             </div>
+    carregarDadosIniciais();
+  }, []);
 
-//             <!-- <div class="dash_section_container"> -->
-//             <div class="calendario_card_proximo_atendimento card">
-//                 <div class="calendario_info_box_card_proximo_atendimento">
-//                     <p class="titulo-1 semibold">Nome da Cliente</p>
-//                     <p class="subtitulo"><a class="semibold">Serviço:</a> Luzes morena iluminada</p>
-//                     <p class="subtitulo semibold info">
-//                         <img src="../../assets/svg/time-sharp.svg" style="width: 38px; height: 38px;"> 
-//                         dd/mm/yy 00:00
-//                     </p>
-//                 </div>
-//                 <div class="calendario_buttons_box_card_proximo_atendimento">
-//                     <button class="btn-rosa" style="height: 60px;">Reagendar</button>
-//                     <button class="btn-branco" style="height: 60px;">Cancelar</button>
-//                 </div>
-//             </div>
-//             <!-- </div> -->
+  // Buscar horários disponíveis quando data e serviço forem selecionados
+  useEffect(() => {
 
-//             <div class="div_section_calendar card"></div>
+    console.log('Data selecionada:', dataSelecionada);
+    console.log('Serviço selecionado:', servicoSelecionado);
 
-//             <div class="btn-juntos" style="flex-direction: row; width: 100%;">
-//                 <button class="btn-rosa" style="width: 100%;">Criar Agendamento</button>
-//                 <button class="btn-branco" style="width: 100%;">Criar Compromisso</button>
-//             </div>
+    async function carregarHorarios() {
+      if (dataSelecionada && servicoSelecionado) {
+        try {
+          const horariosDisponiveis = await exibirHorariosDisponiveis(servicoSelecionado, dataSelecionada);
+          setHorarios(horariosDisponiveis);
+        } catch (error) {
+          console.error("Erro ao buscar horários:", error);
+        }
+      }
+    }
 
+    carregarHorarios();
+  }, [dataSelecionada, servicoSelecionado]);
 
-//         </div>
+  return (
+    <Popup>
+      <div className="calendario_box_popup_realizar_agendamento_adm">
+        <p className="paragrafo-1">Preencha os campos abaixo:</p>
+
+        <div className="calendario_box_lbl_inp_popup">
+          <label>Selecione a data que preferir</label>
+          <input
+            type="date"
+            value={dataSelecionada}
+            onChange={(e) => setDataSelecionada(e.target.value)}
+          />
+        </div>
+
+        <div className="calendario_box_down_boxes_popup">
+          <select
+            value={servicoSelecionado}
+            onChange={(e) => setServicoSelecionado(e.target.value)}
+          >
+            <option value="" disabled hidden>Serviço desejado</option>
+            {servicos.map((servico) => (
+              <option key={servico.id} value={servico.id}>{servico.nome}</option>
+            ))}
+          </select>
+
+          <select
+            value={clienteSelecionado}
+            onChange={(e) => setClienteSelecionado(e.target.value)}
+          >
+            <option value="" disabled hidden>Cliente</option>
+            {clientes.map((cliente) => (
+              <option key={cliente.id} value={cliente.id}>{cliente.nome} - {cliente.email}</option>
+            ))}
+          </select>
+
+          <select
+            value={horarioSelecionado}
+            onChange={(e) => setHorarioSelecionado(e.target.value)}
+          >
+            <option value="" disabled hidden>Selecione data e serviço</option>
+            {horarios.map((hora, i) => (
+              <option key={i} value={hora.horario}>{hora.horario}</option>
+            ))}
+          </select>
+
+          <select
+            value={pagamentoSelecionado}
+            onChange={(e) => setPagamentoSelecionado(e.target.value)}
+          >
+            <option value="" disabled hidden>Pagamento</option>
+            {pagamentos.map((pagamento, i) => (
+              <option key={i} value={pagamento.id}>{pagamento.forma}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="calendario_box_lbl_inp_popup">
+          <label htmlFor="">CUPOM de desconto:</label>
+          <input type="text" placeholder="Insira o código do cupom" />
+        </div>
+
+        <div className="button_box">
+          <button className="btn-rosa" onClick={async () => {
+            try {
+              await salvarAgendamento(clienteSelecionado, servicoSelecionado, pagamentoSelecionado, dataSelecionada, horarioSelecionado);
+
+              // 🔄 Atualiza a lista de agendamentos no pai (e o calendário se usar os mesmos dados)
+              if (onAgendamentoSalvo) await onAgendamentoSalvo();
+
+              onClose()
+              mensagemSucesso("Agendamento realizado com sucesso!")
+            } catch (error) {
+              console.error("Erro ao salvar agendamento:", error);
+              onClose()
+              mensagemErro("Erro ao salvar agendamento. Verifique os dados e tente novamente.");
+            }
+
+          }}>
+            Concluir
+          </button>
+
+          <button className="btn-branco" onClick={onClose}>
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </Popup>
+  );
+}

@@ -5,6 +5,7 @@ import MenuDash from "/src/components/MenuDash.jsx";
 import NavCalendario from "/src/components/NavCalendario.jsx";
 import Popup from "../../components/Popup.jsx";
 import Swal from 'sweetalert2';
+import {mensagemSucesso} from "../../js/utils.js"
 
 import { buscarAtendimentosPassadosPorIdFuncionario, concluirAgendamento, buscarDetalhesAgendamento } from "../../js/api/agendamento";
 
@@ -53,14 +54,13 @@ export default function Calendario_atendimentos() {
 
         {/* CARD DE ATENDIMENTO */}
         {agendamentos.length > 0 ? (
-          
           agendamentos.map((agendamento, index) => (
         <div key={index} className="dash_section_container">
           <div className="atendimento_passados_card_box card">
             <div className="info_box_atendimento_passados_card_box">
               <p className="paragrafo-1 semibold info">
                 <img
-                  src={``}
+                  src={agendamento.usuario.foto == null ? "/src/assets/img/usuario_foto_def.png" : `data:image/jpeg;base64,${agendamento.usuario.foto}`}
                   alt="foto cliente"
                   style={{ height: "45px", borderRadius: "50%" }}
                 />
@@ -177,16 +177,16 @@ function ConcluirAgendamentoPop({ dados, onClose, atualizarAgendamentos  }) {
                 try {
                   await concluirAgendamento(dados.id, valorPago);
                   // alert("Agendamento concluído com sucesso!");
-                  Swal.fire({
-                    title: 'Sucesso!',
-                    text: 'Agendamento concluído com sucesso.',
-                    icon: 'success',
-                    confirmButtonText: 'Fechar',
-                    customClass: {
-                      confirmButton: 'btn-rosa' // você pode estilizar via CSS se quiser
-                    },
-                  });
-
+                  // Swal.fire({
+                  //   title: 'Sucesso!',
+                  //   text: '',
+                  //   icon: 'success',
+                  //   confirmButtonText: 'Fechar',
+                  //   customClass: {
+                  //     confirmButton: 'btn-rosa' // você pode estilizar via CSS se quiser
+                  //   },
+                  // });
+                  mensagemSucesso("Agendamento concluído com sucesso !")
                   
                   onClose(); // fecha o modal
                   atualizarAgendamentos(); // atualiza a lista no pai
