@@ -1,6 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import NavbarLandingPage from "/src/components/NavbarLandingPage.jsx";
 import Footer from "/src/components/Footer.jsx";
 import { buscarAvaliacoes } from "../../js/api/avaliacao.js"
@@ -20,6 +20,39 @@ function EspecialidadeCard({ icon, titulo, descricao }) {
         {descricao}
       </p>
     </div>
+  );
+}
+
+function InstagramEmbed({ url }) {
+  useEffect(() => {
+    // Carrega o script oficial do Instagram se ainda não estiver na página
+    if (!document.getElementById("instagram-embed-script")) {
+      const script = document.createElement("script");
+      script.id = "instagram-embed-script";
+      script.src = "https://www.instagram.com/embed.js";
+      script.async = true;
+      document.body.appendChild(script);
+    } else {
+      // Se já existe, força o reprocessamento dos embeds
+      window.instgrm?.Embeds?.process();
+    }
+  }, [url]);
+
+  return (
+    <blockquote
+      className="instagram-media"
+      data-instgrm-permalink={url}
+      data-instgrm-version="14"
+      style={{
+        background: "#FFF",
+        border: 0,
+        margin: "1px",
+        maxWidth: "540px",
+        minWidth: "326px",
+        padding: 0,
+        width: "100%"
+      }}
+    />
   );
 }
 
@@ -129,8 +162,13 @@ export default function Index() {
 
       {/* Portifólio] */}
       <section className="portifolio_section_pai">
-        <p className="paragrafo-2 italic portifolio_section_title">Um pouco do meu trabalho!</p>
-        <img src="/src/assets/img/portifolio_teste.png" alt="portifolio" />
+        <p className="subtitulo portifolio_section_title"><a className="italic">Um pouco do meu trabalho!</a>😉</p>
+        {/* <img src="/src/assets/img/portifolio_teste.png" alt="portifolio" /> */}
+        <div className="instagram-embed-container">
+          <InstagramEmbed url="https://www.instagram.com/p/DJR2xteJD8D/?img_index=1" />
+          <InstagramEmbed url="https://www.instagram.com/p/DKPQwvDxGsr/?img_index=1" />
+          <InstagramEmbed url="https://www.instagram.com/p/DK2h471JEgA/?img_index=1" />
+        </div>
         <a href="https://www.instagram.com/marinamotahair/" target="_blank" rel="noopener noreferrer">
           <button className="btn-rosa bold" style={{ height: "50px" }}>
             <img src="/src/assets/svg/icon_instagram.svg" alt="" style={{ height: "30px" }} />

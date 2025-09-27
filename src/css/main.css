@@ -127,3 +127,10 @@ button {
     outline: none;
 }
 
+textarea {
+    background-color: var(--rosa-2);
+    border: 1px solid var(--cinza-2);
+    border-radius: 8px;
+    padding: 10px;
+}
+

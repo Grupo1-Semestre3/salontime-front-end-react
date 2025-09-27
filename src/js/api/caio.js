@@ -23,3 +23,18 @@ export function cancelarAgendamentoJS(id) {
   }
   return true;
 }
+
+export function enviarMotivoCancelar({ agendamento, usuario, descricaoServico }) {
+  try {
+    axios.post(`http://localhost:8080/avaliacao`, {
+      agendamento,
+      usuario,
+      descricaoServico
+    });
+    console.log("Motivo de cancelamento enviado com sucesso!");
+  } catch (error) {
+    console.error("Erro ao enviar motivo de cancelamento:", error);
+    return false;
+  }
+  return true;
+}

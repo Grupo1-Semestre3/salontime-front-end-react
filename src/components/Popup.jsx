@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import "../css/main.css";
 
 export default function Popup({ children }) {
   const [animar, setAnimar] = useState(false);
@@ -29,7 +28,7 @@ export function PopupAlerta({ mensagem, funcao, onClose }) {
           <p className="subtitulo semibold">Atenção!</p>
         </div>
           <p className="paragrafo-2" style={{ textAlign: "center" }}>{mensagem}</p>
-        <div style={{ display: "flex", gap: "10px", flexDirection: "row", justifyContent: "center" }}>
+        <div className="btn-juntos">
           <button className="btn-rosa" onClick={funcao}>Sim</button>
           <button className="btn-branco" onClick={onClose}>Não</button>
         </div>

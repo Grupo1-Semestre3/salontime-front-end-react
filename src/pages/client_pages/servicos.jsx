@@ -23,6 +23,7 @@ export default function Servicos() {
   const [servicos, setServicos] = useState([]);
   const [modalAberto, setModalAberto] = useState(false);
   const [popupAlertaAberto, setPopupAlertaAberto] = useState(false);
+  const [popupMotivoCancelar, setPopupMotivoCancelar] = useState(false);
   const [servicoSelecionado, setServicoSelecionado] = useState(null);
   const [proximoAgendamento, setProximoAgendamento] = useState({});
 
@@ -74,6 +75,11 @@ export default function Servicos() {
   const handleCancelarClick = () => {
     setPopupAlertaAberto(true);
   };
+
+  const handleMotivoCancelar = () => {
+    // Lógica para lidar com o motivo do cancelamento
+    setPopupMotivoCancelar(true);
+  }
 
   const confirmarCancelamento = () => {
     try {
@@ -139,9 +145,13 @@ export default function Servicos() {
             </h2>
 
             <div className="conteudo_proximo_agendamento">
-              <span className="paragrafo-1">{proximoAgendamento ? `Você tem 1 horário marcado:` : "Você não tem horários marcados 😢"}</span>
+              <span className="paragrafo-1">{
+                proximoAgendamento && proximoAgendamento.statusAgendamento?.id === 1
+                  ? `Você tem 1 horário marcado:`
+                  : "Você não tem horários marcados 😢"
+              }</span>
 
-              <div className="card_proximo_agendamento shadow" style={{ display: proximoAgendamento ? "flex" : "none" }}>
+              <div className="card_proximo_agendamento shadow" style={{ display: proximoAgendamento && proximoAgendamento.statusAgendamento?.id === 1 ? "flex" : "none" }}>
                 <div className="conteudo">
                   <p className="paragrafo-1 bold">{proximoAgendamento.usuario?.nome}</p>
                   <p className="paragrafo-1 bold" style={{ display: "flex", alignItems: "end" }}>
@@ -162,6 +172,20 @@ export default function Servicos() {
                       funcao={confirmarCancelamento}
                       onClose={() => setPopupAlertaAberto(false)}
                     />
+                  )}
+                  {popupMotivoCancelar && (
+                    <Popup>   
+                      <p className="paragrafo-2 semibold">Pode nos dizer o motivo do cancelamento?</p>           
+                      <textarea id="motivo-cancelamento" placeholder="Digite o motivo do cancelamento..." />
+                      <div className="btn-juntos">
+                        <button className="btn-rosa" onClick={() => enviarMotivoCancelar({
+                          agendamento: proximoAgendamento,
+                          usuario: usuario,
+                          descricaoServico: document.getElementById("motivo-cancelamento").value
+                        })}>Enviar</button> 
+                        <button className="btn-branco" onClick={() => setPopupMotivoCancelar(false)}>Pular</button>
+                      </div>
+                    </Popup>
                   )}
                 </div>
               </div>
@@ -330,18 +354,5 @@ function RealizarAgendamento({ servico, onClose }) {
   );
 }
 
-// function PopupAlerta({mensagem, funcao, onClose}) {
-//   return (
-//     <Popup>
-//       <>
-//         <img src="/src/assets/svg/icon_alert.svg" alt="icon-alert" />
-//         <p className="paragrafo-2">{mensagem}</p>
-//         <div>
-//           <button className="btn-rosa" onClick={funcao}>Sim</button>
-//           <button className="btn-branco" onClick={onClose}>Não</button>
-//         </div>
-//       </>
-//     </Popup>
-//   );
-// }
+
 
