@@ -24,12 +24,12 @@ export function cancelarAgendamentoJS(id) {
   return true;
 }
 
-export function enviarMotivoCancelar({ agendamento, usuario, descricaoServico }) {
+export function enviarMotivoCancelar({ id = null, descricao, agendamento }) {
   try {
-    axios.post(`http://localhost:8080/avaliacao`, {
-      agendamento,
-      usuario,
-      descricaoServico
+    axios.post(`http://localhost:8080/cancelamentos`, {
+      id,
+      descricao,
+      agendamento
     });
     console.log("Motivo de cancelamento enviado com sucesso!");
   } catch (error) {

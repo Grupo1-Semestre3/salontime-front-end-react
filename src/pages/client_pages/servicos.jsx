@@ -7,12 +7,12 @@ import Swal from 'sweetalert2';
 // COMPONENTES
 import NavbarLandingPage from "/src/components/NavbarLandingPage.jsx";
 import Footer from "/src/components/Footer.jsx";
-import Popup, {PopupAlerta} from "../../components/Popup.jsx";
+import Popup, { PopupAlerta } from "../../components/Popup.jsx";
 
 // JS 
 import { mensagemSucesso, mensagemErro } from "../../js/utils.js";
 import { buscarServicos } from "../../js/api/servico.js"
-import { buscarProximoAgendamento, cancelarAgendamentoJS } from "../../js/api/caio.js"
+import { buscarProximoAgendamento, cancelarAgendamentoJS, enviarMotivoCancelar } from "../../js/api/caio.js"
 
 import "../../css/popup/padraoPopup.css";
 
@@ -85,6 +85,9 @@ export default function Servicos() {
     try {
       cancelarAgendamentoJS(proximoAgendamento.id);
       mensagemSucesso(`Agendamento cancelado com sucesso!`)
+      setTimeout(() => {
+        handleMotivoCancelar();
+      }, 1500);
     } catch (error) {
       mensagemErro("Erro ao cancelar agendamento. Tente novamente mais tarde.");
       return
@@ -92,6 +95,19 @@ export default function Servicos() {
     setPopupAlertaAberto(false);
     // Aqui você pode atualizar a lista de agendamentos, mostrar mensagem, etc.
   };
+
+  const confirmarMotivoCancelar = () => {
+    try {
+      const descricao = document.getElementById("motivo-cancelamento").value;
+      enviarMotivoCancelar({ descricao, agendamento: proximoAgendamento });
+      mensagemSucesso(`Motivo de cancelamento enviado com sucesso!`)
+    } catch (error) {
+      mensagemErro("Erro ao enviar motivo de cancelamento. Tente novamente mais tarde.");
+      return
+    }
+    setPopupMotivoCancelar(false);
+    // Aqui você pode atualizar a lista de agendamentos, mostrar mensagem, etc.
+  }
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   useEffect(() => {
@@ -174,15 +190,11 @@ export default function Servicos() {
                     />
                   )}
                   {popupMotivoCancelar && (
-                    <Popup>   
-                      <p className="paragrafo-2 semibold">Pode nos dizer o motivo do cancelamento?</p>           
+                    <Popup>
+                      <p className="paragrafo-2 semibold">Pode nos dizer o motivo do cancelamento?</p>
                       <textarea id="motivo-cancelamento" placeholder="Digite o motivo do cancelamento..." />
                       <div className="btn-juntos">
-                        <button className="btn-rosa" onClick={() => enviarMotivoCancelar({
-                          agendamento: proximoAgendamento,
-                          usuario: usuario,
-                          descricaoServico: document.getElementById("motivo-cancelamento").value
-                        })}>Enviar</button> 
+                        <button className="btn-rosa" onClick={() => confirmarMotivoCancelar()}>Enviar</button>
                         <button className="btn-branco" onClick={() => setPopupMotivoCancelar(false)}>Pular</button>
                       </div>
                     </Popup>
