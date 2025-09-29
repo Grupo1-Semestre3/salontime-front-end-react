@@ -1,11 +1,44 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MenuConfig from "/src/components/MenuConfig.jsx";
+import { infoUsuario, atualizarDadosUsuario, atualizarSenhaUsuario } from "../../js/api/caio";
+import { mensagemErro, mensagemSucesso } from "../../js/utils";
+
 
 
 export default function Config_perfil({ onUpdateDados, onUpdateSenha }) {
-  const [dados, setDados] = useState({ nome: "", email: "", telefone: "", cpf: "", nascimento: "" });
+  const [usuario, setUsuario] = useState(null);
+  const [dados, setDados] = useState({id: "", nome: "", email: "", telefone: "", cpf: "", dataNascimento: "" });
   const [senha, setSenha] = useState({ atual: "", nova: "", confirmar: "" });
+
+  useEffect(() => {
+    const usuarioStr = localStorage.getItem("usuario");
+    if (usuarioStr) {
+      const usuarioObj = JSON.parse(usuarioStr);
+      setUsuario(usuarioObj);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (usuario && usuario.id) {
+      infoUsuario(usuario.id)
+        .then(data => {
+          if (data) {
+            setDados({
+              id: data.id || "",
+              nome: data.nome || "",
+              email: data.email || "",
+              telefone: data.telefone || "",
+              cpf: data.cpf || "",
+              dataNascimento: data.dataNascimento || ""
+            });
+          }
+        })
+        .catch(error => {
+          console.error("Erro ao carregar informações do usuário:", error);
+        });
+    }
+  }, [usuario]);
 
   const handleChangeDados = (e) => {
     setDados({ ...dados, [e.target.name]: e.target.value });
@@ -16,12 +49,24 @@ export default function Config_perfil({ onUpdateDados, onUpdateSenha }) {
 
   const handleSubmitDados = (e) => {
     e.preventDefault();
-    if (onUpdateDados) onUpdateDados(dados);
+    try {
+      atualizarDadosUsuario(usuario.id, dados)
+      mensagemSucesso("Dados atualizados com sucesso!");
+    } catch (error) {
+      mensagemErro("Erro ao atualizar dados do usuário.");
+      console.error("Erro ao atualizar dados do usuário:", error);
+    }
   };
 
   const handleSubmitSenha = (e) => {
     e.preventDefault();
-    if (onUpdateSenha) onUpdateSenha(senha);
+    try {
+      atualizarSenhaUsuario(id, senha.nova, senha.confirmar)
+      mensagemSucesso("Senha atualizada com sucesso!");
+    } catch (error) {
+      mensagemErro("Erro ao atualizar senha do usuário.");
+      console.error("Erro ao atualizar senha do usuário:", error);
+    }
   };
 
   return (
@@ -46,7 +91,7 @@ export default function Config_perfil({ onUpdateDados, onUpdateSenha }) {
         </div>
         <div className="input_pai">
           <p className="paragrafo-2">Data de nascimento</p>
-          <input type="text" className="input" name="nascimento" placeholder="Digite sua data de nascimento" value={dados.nascimento} onChange={handleChangeDados} />
+          <input type="text" className="input" name="dataNascimento" placeholder="Digite sua data de nascimento" value={dados.dataNascimento} onChange={handleChangeDados} />
         </div>
         <button className="btn-rosa" style={{ width: "100%" }} type="submit">
           Atualizar

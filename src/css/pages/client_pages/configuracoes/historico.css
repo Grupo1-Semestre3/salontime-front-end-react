@@ -38,3 +38,10 @@
         padding-left: 15%;
     }
 }
+
+.config_historico_lista{
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+}
