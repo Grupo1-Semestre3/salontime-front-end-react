@@ -99,13 +99,10 @@ export function login(email, senha, navigate) {
       if (dados) {
         localStorage.setItem("usuario", JSON.stringify(dados));
         localStorage.setItem("usuarioLogado", "1");
+        
         // if (dados.tipoUsuario.descricao === "CLIENTE") {
         //   console.log("Cliente logado:", dados.nome);
-        //   mensagemSucesso("Login realizado com sucesso!");
 
-        //   setTimeout(() => {
-        //     window.location.href = "/html/client_pages/servicos.html";
-        //   }, 1500);
         // } else if (
         //   dados.tipoUsuario.descricao === "FUNCIONARIO" ||
         //   dados.tipoUsuario.descricao === "ADMINISTRADOR"
@@ -117,21 +114,19 @@ export function login(email, senha, navigate) {
 
         if (dados.tipoUsuario.descricao === "CLIENTE") {
           // Espera um tempo se quiser mostrar mensagem
-          // mensagemSucesso("Login realizado com sucesso!");
+          mensagemSucesso("Login realizado com sucesso!");
           setTimeout(() => {
             navigate("/servicos"); // <- navega para a rota do cliente
-          }, 1000);
+          }, 1500);
         } else if (
           dados.tipoUsuario.descricao === "FUNCIONARIO" ||
           dados.tipoUsuario.descricao === "ADMINISTRADOR"
         ) {
-          // mensagemSucesso("Login realizado com sucesso!");
+          mensagemSucesso("Login realizado com sucesso!");
           setTimeout(() => {
             navigate("/adm/calendario-visao-geral"); // <- navega para a rota do admin
-          }, 1000);
+          }, 1500);
         }
-
-
       } else {
         mensagemErro("E-mail ou senha inválidos.");
       }

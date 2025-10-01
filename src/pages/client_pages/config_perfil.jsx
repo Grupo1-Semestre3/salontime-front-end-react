@@ -8,7 +8,7 @@ import { mensagemErro, mensagemSucesso } from "../../js/utils";
 
 export default function Config_perfil({ onUpdateDados, onUpdateSenha }) {
   const [usuario, setUsuario] = useState(null);
-  const [dados, setDados] = useState({id: "", nome: "", email: "", telefone: "", cpf: "", dataNascimento: "" });
+  const [dados, setDados] = useState({ id: "", nome: "", email: "", telefone: "", cpf: "", dataNascimento: "" });
   const [senha, setSenha] = useState({ atual: "", nova: "", confirmar: "" });
 
   useEffect(() => {
@@ -47,10 +47,10 @@ export default function Config_perfil({ onUpdateDados, onUpdateSenha }) {
     setSenha({ ...senha, [e.target.name]: e.target.value });
   };
 
-  const handleSubmitDados = (e) => {
+  const handleSubmitDados = async (e) => {
     e.preventDefault();
     try {
-      atualizarDadosUsuario(usuario.id, dados)
+      await atualizarDadosUsuario(usuario.id, dados);
       mensagemSucesso("Dados atualizados com sucesso!");
     } catch (error) {
       mensagemErro("Erro ao atualizar dados do usuário.");
@@ -58,11 +58,15 @@ export default function Config_perfil({ onUpdateDados, onUpdateSenha }) {
     }
   };
 
-  const handleSubmitSenha = (e) => {
+  const handleSubmitSenha = async (e) => {
     e.preventDefault();
+    if (!senha.atual || !senha.nova || !senha.confirmar) {
+      mensagemErro("Por favor, preencha todos os campos de senha.");
+      return;
+    }
     try {
-      atualizarSenhaUsuario(id, senha.nova, senha.confirmar)
-      mensagemSucesso("Senha atualizada com sucesso!");
+      await atualizarSenhaUsuario(usuario.id, senha.atual, senha.nova, senha.confirmar);
+      setSenha({ atual: "", nova: "", confirmar: "" }); // Limpa os campos após sucesso
     } catch (error) {
       mensagemErro("Erro ao atualizar senha do usuário.");
       console.error("Erro ao atualizar senha do usuário:", error);
@@ -112,7 +116,7 @@ export default function Config_perfil({ onUpdateDados, onUpdateSenha }) {
           <p className="paragrafo-2">Confirmar nova senha</p>
           <input type="password" className="input" name="confirmar" placeholder="Digite aqui" value={senha.confirmar} onChange={handleChangeSenha} />
         </div>
-        <button className="btn-rosa" style={{ width: "100%" }} type="submit">
+        <button className="btn-rosa" style={{ width: "100%" }} type="submit" >
           Atualizar
         </button>
       </form>

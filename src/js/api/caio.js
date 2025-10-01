@@ -53,7 +53,7 @@ export async function buscarAtendimentosPassados(id) {
   }
 }
 
-export async function infoUsuario(id){
+export async function infoUsuario(id) {
   try {
     const response = await axios.get(`http://localhost:8080/usuarios/${id}`);
     console.log("Informações do usuário!!!")
@@ -66,9 +66,9 @@ export async function infoUsuario(id){
   }
 }
 
-export function atualizarDadosUsuario(dados) {
+export function atualizarDadosUsuario(id, dados) {
   try {
-    axios.put(`http://localhost:8080/usuarios`, id, dados);
+    axios.put(`http://localhost:8080/usuarios/${id}`, dados);
     localStorage.setItem("usuario", JSON.stringify(dados));
     console.log("Dados do usuário atualizados com sucesso!");
   } catch (error) {
@@ -78,20 +78,23 @@ export function atualizarDadosUsuario(dados) {
   return true;
 }
 
-export function atualizarSenhaUsuario(id, novaSenha, confirmarSenha) {
+export function atualizarSenhaUsuario(id, senhaAtual, novaSenha, confirmarSenha) {
+
   if (novaSenha !== confirmarSenha) {
-    console.error("A nova senha e a confirmação de senha não coincidem.");
-    mensagemErro("A nova senha e a confirmação de senha não coincidem.");
+    console.error("A nova senha e a confirmação não coincidem.");
+    mensagemErro("A nova senha e a confirmação não coincidem.");
     return false;
-  }
-  try {
-    axios.patch(`http://localhost:8080/usuarios/mudarSenha/${id}`, id, novaSenha);
-    mensagemSucesso("Senha atualizada com sucesso!");
-    console.log("Senha do usuário atualizada com sucesso!");
-  } catch (error) {
-    mensagemErro("Erro ao atualizar senha do usuário.");
-    console.error("Erro ao atualizar senha do usuário:", error);
-    return false;
+  } 
+  else {
+    try {
+      axios.patch(`http://localhost:8080/usuarios/mudarSenha/${id}`, id, novaSenha);
+      mensagemSucesso("Senha atualizada com sucesso!");
+      console.log("Senha do usuário atualizada com sucesso!");
+    } catch (error) {
+      mensagemErro("Erro ao atualizar senha do usuário.");
+      console.error("Erro ao atualizar senha do usuário:", error);
+      return false;
+    }
   }
   return true;
 }
