@@ -76,6 +76,7 @@ export const atualizarServico = async (id, dadosServico, arquivo = null) => {
 export async function buscarFuncionariosCompetentes(servicoId) {
   try {
     const response = await axios.get(`http://localhost:8080/funcionario-competencia/servico/${servicoId}`);
+    console.log("Funcionários competentes:", response.data);
     return response.data;
   } catch (error) {
     console.error("Erro ao buscar funcionários competentes:", error);

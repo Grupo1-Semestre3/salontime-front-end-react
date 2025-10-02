@@ -416,7 +416,7 @@ function EditarServico({ servico, onClose, onSave }) {
                       onClick={() => toggleProfissional(profissional.id)}
                     >
                       <img
-                        src={profissional.foto || '/src/assets/img/default-user.png'}
+                        src={profissional.foto == null ? "/src/assets/img/usuario_foto_def.png" : `data:image/jpeg;base64,${profissional.foto}`}
                         className="profissional-avatar"
                       />
                       <span>{profissional.nome}</span>
