@@ -169,11 +169,11 @@ export default function Servicos() {
 
               <div className="card_proximo_agendamento shadow" style={{ display: proximoAgendamento && proximoAgendamento.statusAgendamento?.id === 1 ? "flex" : "none" }}>
                 <div className="conteudo">
-                  <p className="paragrafo-1 bold">{proximoAgendamento.usuario?.nome}</p>
+                  <p className="paragrafo-1 bold">{proximoAgendamento.servico?.nome}</p>
                   <p className="paragrafo-1 bold" style={{ display: "flex", alignItems: "end" }}>
                     <img src="/src/assets/vector/icon_horariio/ionicons/sharp/time-sharp.svg" alt="" />
                     {/* 01/01/2000 00:00pm */}
-                    {proximoAgendamento.data || "--/--/----"} {proximoAgendamento.inicio || "--:--"}
+                    {proximoAgendamento.data || "--/--/----"} {proximoAgendamento.inicio || "--:--"}h
                   </p>
                   <p className="paragrafo-1">
                     <b>Status:</b> {proximoAgendamento.statusAgendamento?.status || "Sem status"}

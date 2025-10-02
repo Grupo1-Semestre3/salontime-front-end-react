@@ -55,7 +55,7 @@ export default function NavSemLogin() {
               ) {
                 navigate("/adm/calendario-visao-geral");
               } else {
-                navigate("/config-cupons");
+                navigate("/config-perfil");
               }
             }}
           >

@@ -8,6 +8,7 @@
 @import url(./popup/padraoPopup.css);
 @import url(./popup/concluirAgendamento.css);
 @import url(./popup/realizarAgendamento.css);
+@import url(./popup/horarioExcecao.css);
 
 /* --- IMPORTANDO AS PÁGINAS CLIENTE --- */
 /* Configurações */
