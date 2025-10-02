@@ -180,7 +180,12 @@ function RealizarAgendamento({ onClose, onAgendamentoSalvo }) {
             type="date"
             value={dataSelecionada}
             onChange={(e) => setDataSelecionada(e.target.value)}
+            min={new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+              .toISOString()
+              .split("T")[0]}
           />
+
+
         </div>
 
         <div className="calendario_box_down_boxes_popup">

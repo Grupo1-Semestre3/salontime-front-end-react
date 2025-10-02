@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { cadastrarCliente } from "../../js/api/usuario";
+//import { cadastrarCliente } from "../../js/api/usuario";
 
 
 export default function Cadastro() {

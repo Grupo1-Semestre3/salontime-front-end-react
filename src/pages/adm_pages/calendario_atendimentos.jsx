@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import MenuDash from "/src/components/MenuDash.jsx";
 import NavCalendario from "/src/components/NavCalendario.jsx";
 import Popup from "../../components/Popup.jsx";
+import "../../css/popup/detalhesAgendamento.css";
 import Swal from 'sweetalert2';
 import {mensagemSucesso} from "../../js/utils.js"
 
@@ -13,7 +14,10 @@ export default function Calendario_atendimentos() {
   const navigate = useNavigate();
 
     const [agendamentos, setAgendamentos] = useState([]);
+    const [dadosHistorico, setDadosHistorico] = useState([]);
     const [modalConcluir, setModalConcluir] = useState(false);
+    const [modalDetalhes, setModalDetalhes] = useState(false);
+    const [DadosHistoricoAgendamento, setDadosHistoricoAgendamento] = useState(null);
     const [agendamentoSelecionado, setAgendamentoSelecionado] = useState(null);
 
     const carregarAgendamentos = () => {
@@ -43,6 +47,16 @@ export default function Calendario_atendimentos() {
         }}
         atualizarAgendamentos={carregarAgendamentos} // 👈 aqui
       />
+
+      {modalDetalhes && (
+        <VerDetalhesPop
+          //dados={dadosHistorico}
+          onClose={() => {
+            setModalDetalhes(false);
+            setDadosHistorico(null);
+          }}
+        />
+      )}
 
 
       
@@ -93,7 +107,7 @@ export default function Calendario_atendimentos() {
             <div className="buttons_box_atendimento_passados_card_box">
 
              
-           {agendamento.statusAgendamento.status === "PAGAMENTO_PENDENTE" && (
+           {(agendamento.statusAgendamento.status === "PAGAMENTO_PENDENTE" || agendamento.statusAgendamento.status == "AGENDADO") && (
              <button
                 className="btn-rosa"
                 onClick={() => {
@@ -106,16 +120,19 @@ export default function Calendario_atendimentos() {
 
             )}
 
-            {["CONCLUIDO", "PAGAMENTO_PENDENTE"].includes(agendamento.statusAgendamento.status) && (
-              <button className="btn-branco" onClick={() => navigate(`/detalhes/${agendamento.id}`)}>
-                Detalhes
-              </button>
-            )}
+              {(agendamento.statusAgendamento.status === "CONCLUIDO" || 
+                agendamento.statusAgendamento.status === "CANCELADO") && (
+                  <button 
+                    className="btn-branco" 
+                    onClick={() => {
+                      //setDadosHistoricoAgendamento(dadosHistorico);
+                      setModalDetalhes(true);
+                    }}
+                  >
+                    Detalhes
+                  </button>
+              )}
 
-
-
-
-              
             </div>
           </div>
         </div>
@@ -163,9 +180,6 @@ function ConcluirAgendamentoPop({ dados, onClose, atualizarAgendamentos  }) {
               placeholder="Digite o valor"
               value={valorPago}
               onChange={(e) => setValorPago(e.target.value)}
-              
-
-
             />
 
           </div>
@@ -176,16 +190,7 @@ function ConcluirAgendamentoPop({ dados, onClose, atualizarAgendamentos  }) {
               onClick={async () => {
                 try {
                   await concluirAgendamento(dados.id, valorPago);
-                  // alert("Agendamento concluído com sucesso!");
-                  // Swal.fire({
-                  //   title: 'Sucesso!',
-                  //   text: '',
-                  //   icon: 'success',
-                  //   confirmButtonText: 'Fechar',
-                  //   customClass: {
-                  //     confirmButton: 'btn-rosa' // você pode estilizar via CSS se quiser
-                  //   },
-                  // });
+                 
                   mensagemSucesso("Agendamento concluído com sucesso !")
                   
                   onClose(); // fecha o modal
@@ -206,6 +211,59 @@ function ConcluirAgendamentoPop({ dados, onClose, atualizarAgendamentos  }) {
       </>
     </Popup>
   );
+}
+
+function VerDetalhesPop({onClose}){
+ 
+  return(
+  <Popup>
+    <>
+      <div className="calendario_box_popup_concluir_agendamento">
+        <h1>Detalhes do atendimento</h1>
+
+        <div className="calendario_box_info_historico_detalhes_agendamento">
+          <div>
+            <span className="calendario_bolinha calendario_bolinha_rosa">
+
+            </span>
+          </div>
+          <div className="calendario_box_infos_status_data">
+            <h4>Concluido</h4>
+            <p>11/02/2025 9:40h</p>
+          </div>
+        </div>
+
+        <div className="calendario_box_info_historico_detalhes_agendamento">
+          <div>
+            <span className="calendario_bolinha calendario_bolinha_cinza">
+
+            </span>
+          </div>
+          <div className="calendario_box_infos_status_data">
+            <h4>Pag Pendente</h4>
+            <p>10/02/2025 15:40h</p>
+          </div>
+        </div>
+
+        <div className="calendario_box_info_historico_detalhes_agendamento">
+          <div>
+            <span className="calendario_bolinha calendario_bolinha_cinza">
+
+            </span>
+          </div>
+          <div className="calendario_box_infos_status_data">
+            <h4>Agendado</h4>
+            <p>10/02/2025 9:40h</p>
+          </div>
+        </div>
+
+        <button className="btn-rosa" onClick={onClose}>Voltar</button>
+
+      </div>
+    </>
+  </Popup>
+  );
+
 }
 
 // <!DOCTYPE html>
