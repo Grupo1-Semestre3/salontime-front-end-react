@@ -98,3 +98,27 @@ export function atualizarSenhaUsuario(id, senhaAtual, novaSenha, confirmarSenha)
   }
   return true;
 }
+
+export async function buscarFuncionamento() {
+  try {
+    const response = await axios.get(`http://localhost:8080/funcionamento`);
+    console.log("Funcionamento do salão!!!")
+    console.log(response.data)
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar funcionamento do salão:", error);
+    throw error;
+  }
+}
+
+export async function buscarHorarioExcecao() {
+  try {
+    const response = await axios.get(`http://localhost:8080/horario-execao`);
+    console.log("HorarioExecao do salão!!!")
+    console.log(response.data)
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar HorarioExecao do salão:", error);
+    throw error;
+  }
+}
