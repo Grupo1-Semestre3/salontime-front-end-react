@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import { cadastrarCliente } from "../../js/api/cliente/cliente";
+import { cadastrarCliente } from "../../js/api/usuario";
 
 
 export default function Cadastro() {
@@ -17,10 +17,10 @@ export default function Cadastro() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   cadastrarCliente(form); // Passe os dados do formulário
-  // };
+  const handleSubmit = (e) => {
+  e.preventDefault();
+   cadastrarCliente(form); // Passe os dados do formulário
+  };
 
   return (
     <div className="cadastro">
@@ -43,8 +43,8 @@ export default function Cadastro() {
          <p className="paragrafo-1 semibold">Preencha os campos para se cadastrar.</p>
        </div>
 
-       {/* onSubmit={handleSubmit} */}
-       <form className="cadastro__formulario" >
+    
+       <form className="cadastro__formulario" onSubmit={handleSubmit}>
          <div className="input_pai">
            <label htmlFor="nome">Nome completo</label>
            <input
