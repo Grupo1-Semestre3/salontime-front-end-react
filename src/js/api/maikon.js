@@ -70,3 +70,29 @@ export async function salvarAgendamento(idCliente, idServico, idPagamento, data,
         throw error;
     }
 }
+
+export async function buscarDadosHistoricoPorIdAgendamento(idAgendamemto){
+     try {
+        const response = await axios.get(`http://localhost:8080/agendamento/historico/${idAgendamemto}`);
+        console.log(response.data)
+        return response.data;
+
+    } catch (error) {
+        console.error("Erro ao buscar dado historico:", error);
+        throw error;
+    }
+}
+
+export async function realizarAvaliacao(dados) {
+     try {
+    
+        const response = await axios.post(`http://localhost:8080/avaliacao`, dados);
+        
+        console.log(response.data);
+        return response.data;
+
+    } catch (error) {
+        console.error("Erro ao salvar avaliacao:", error);
+        throw error;
+    }
+}

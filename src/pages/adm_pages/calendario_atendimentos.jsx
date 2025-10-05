@@ -6,7 +6,8 @@ import NavCalendario from "/src/components/NavCalendario.jsx";
 import Popup from "../../components/Popup.jsx";
 import "../../css/popup/detalhesAgendamento.css";
 import Swal from 'sweetalert2';
-import {mensagemSucesso} from "../../js/utils.js"
+import {mensagemSucesso, mensagemErro} from "../../js/utils.js"
+import {buscarDadosHistoricoPorIdAgendamento} from "../../js/api/maikon.js"
 
 import { buscarAtendimentosPassadosPorIdFuncionario, concluirAgendamento, buscarDetalhesAgendamento } from "../../js/api/agendamento";
 
@@ -26,6 +27,14 @@ export default function Calendario_atendimentos() {
         buscarAtendimentosPassadosPorIdFuncionario(usuario.id)
           .then(data => setAgendamentos(data))
           .catch(error => console.error("Erro ao carregar agendamentos:", error));
+      }
+    };
+
+      const carregarDadosHistorico = (idAgendamento) => {
+      if (idAgendamento) {
+        buscarDadosHistoricoPorIdAgendamento(idAgendamento)
+          .then(data => setDadosHistorico(data))
+          .catch(error => console.error("Erro ao carregar historico agendamentos:", error));
       }
     };
 
@@ -50,7 +59,7 @@ export default function Calendario_atendimentos() {
 
       {modalDetalhes && (
         <VerDetalhesPop
-          //dados={dadosHistorico}
+          dados={dadosHistorico}
           onClose={() => {
             setModalDetalhes(false);
             setDadosHistorico(null);
@@ -125,7 +134,7 @@ export default function Calendario_atendimentos() {
                   <button 
                     className="btn-branco" 
                     onClick={() => {
-                      //setDadosHistoricoAgendamento(dadosHistorico);
+                      carregarDadosHistorico(agendamento.id)
                       setModalDetalhes(true);
                     }}
                   >
@@ -158,7 +167,6 @@ function ConcluirAgendamentoPop({ dados, onClose, atualizarAgendamentos  }) {
    
   // const dataFormatada = new Date(dados.data).toLocaleDateString('pt-BR');
   const dataFormatada = formatarDataBR(dados.data); 
-  console.log("ID DO AGENDAMENTO -> " + dados.id)
   return (
     <Popup>
       <>
@@ -196,7 +204,7 @@ function ConcluirAgendamentoPop({ dados, onClose, atualizarAgendamentos  }) {
                   onClose(); // fecha o modal
                   atualizarAgendamentos(); // atualiza a lista no pai
                 } catch (err) {
-                  alert("Erro ao concluir agendamento");
+                  mensagemErro("Erro ao concluir agendamento");
                 }
               }}
             >
@@ -213,58 +221,33 @@ function ConcluirAgendamentoPop({ dados, onClose, atualizarAgendamentos  }) {
   );
 }
 
-function VerDetalhesPop({onClose}){
- 
-  return(
-  <Popup>
-    <>
+function VerDetalhesPop({ dados, onClose }) {
+  if (!dados || dados.length === 0) return null;
+
+  return (
+    <Popup>
       <div className="calendario_box_popup_concluir_agendamento">
         <h1>Detalhes do atendimento</h1>
 
-        <div className="calendario_box_info_historico_detalhes_agendamento">
-          <div>
-            <span className="calendario_bolinha calendario_bolinha_rosa">
+        {dados.map((item, index) => (
+          <div key={index} className="calendario_box_info_historico_detalhes_agendamento">
+            <div>
+              <span className="calendario_bolinha calendario_bolinha_cinza"></span>
+            </div>
 
-            </span>
+            <div className="calendario_box_infos_status_data">
+              <h4>{item.statusAgendamento}</h4>
+              <p>{formatarDataBR(item.dataHora.split("T")[0])} {item.dataHora.split("T")[1]?.slice(0,5)}h</p>
+            </div>
           </div>
-          <div className="calendario_box_infos_status_data">
-            <h4>Concluido</h4>
-            <p>11/02/2025 9:40h</p>
-          </div>
-        </div>
-
-        <div className="calendario_box_info_historico_detalhes_agendamento">
-          <div>
-            <span className="calendario_bolinha calendario_bolinha_cinza">
-
-            </span>
-          </div>
-          <div className="calendario_box_infos_status_data">
-            <h4>Pag Pendente</h4>
-            <p>10/02/2025 15:40h</p>
-          </div>
-        </div>
-
-        <div className="calendario_box_info_historico_detalhes_agendamento">
-          <div>
-            <span className="calendario_bolinha calendario_bolinha_cinza">
-
-            </span>
-          </div>
-          <div className="calendario_box_infos_status_data">
-            <h4>Agendado</h4>
-            <p>10/02/2025 9:40h</p>
-          </div>
-        </div>
+        ))}
 
         <button className="btn-rosa" onClick={onClose}>Voltar</button>
-
       </div>
-    </>
-  </Popup>
+    </Popup>
   );
-
 }
+
 
 // <!DOCTYPE html>
 // <html lang="pt-br">

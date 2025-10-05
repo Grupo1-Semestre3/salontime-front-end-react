@@ -24,13 +24,12 @@ export async function buscarAtendimentosPassadosPorIdFuncionario(idFuncionario) 
   }
 }
 
-//A implementar
 export async function concluirAgendamento(idAgendamento, valor) {
    try {
     const id = Number(idAgendamento); 
-    const responseStatus = await axios.patch(`http://localhost:8080/agendamento/status/${id}/5`);
     const responsePreco = await axios.patch(`http://localhost:8080/agendamento/valor/${id}/${valor}`);
-    console.log(responseStatus.data)
+    const responseStatus = await axios.patch(`http://localhost:8080/agendamento/status/${id}/5`);
+    console.log(id + " @#@# " + responseStatus.data)
     console.log(responsePreco.data)
 
     return responsePreco.data;
