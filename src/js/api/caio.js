@@ -111,6 +111,17 @@ export async function buscarFuncionamento() {
   }
 }
 
+export function editarFuncionamento(id, dados) {
+  try {
+    axios.put(`http://localhost:8080/funcionamento/${id}`, id, dados);
+    console.log("Funcionamento do salão editado com sucesso!");
+  } catch (error) {
+    console.error("Erro ao editar funcionamento do salão:", error);
+    return false;
+  }
+  return true;
+}
+
 export async function buscarHorarioExcecao() {
   try {
     const response = await axios.get(`http://localhost:8080/horario-execao`);
@@ -121,4 +132,37 @@ export async function buscarHorarioExcecao() {
     console.error("Erro ao buscar HorarioExecao do salão:", error);
     throw error;
   }
+}
+
+export async function cadastrarExcecao(dados) {
+  try {
+    const response = await axios.post(`http://localhost:8080/horario-execao`, dados);
+    console.log("Exceção cadastrada com sucesso!");
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao cadastrar exceção:", error);
+    throw error;
+  }
+}
+
+export async function editarExcecao(id, dados) {
+  try {
+    const response = await axios.patch(`http://localhost:8080/horario-execao/${id}`, dados);
+    console.log("Exceção editada com sucesso!");
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao editar exceção:", error);
+    throw error;
+  }
+}
+
+export function deletarExcecao(id) {
+  try {
+    axios.delete(`http://localhost:8080/horario-execao/${id}`);
+    console.log("Exceção deletada com sucesso!");
+  } catch (error) {
+    console.error("Erro ao deletar exceção:", error);
+    return false;
+  }
+  return true;
 }

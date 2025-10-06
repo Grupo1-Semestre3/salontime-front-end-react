@@ -4,7 +4,11 @@
   /* Classe util para quando um objeto precisar de sombra */
 }
 
-
+.line{
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
 
 /* --- OBJETOS --- */
 
