@@ -113,7 +113,7 @@ export async function buscarFuncionamento() {
 
 export function editarFuncionamento(id, dados) {
   try {
-    axios.put(`http://localhost:8080/funcionamento/${id}`, id, dados);
+    axios.put(`http://localhost:8080/funcionamento/${id}`, dados);
     console.log("Funcionamento do salão editado com sucesso!");
   } catch (error) {
     console.error("Erro ao editar funcionamento do salão:", error);

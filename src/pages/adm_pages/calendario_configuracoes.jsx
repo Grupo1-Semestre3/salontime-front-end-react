@@ -28,9 +28,8 @@ export default function Calendario_configuracoes() {
     }
   }, []);
 
-  useEffect(() => {
-    if (usuario && usuario.id) {
-      buscarFuncionamento()
+  function listarPadrao(){
+    buscarFuncionamento()
         .then(data => {
           if (Array.isArray(data)) {
             // Mantém campo aberto como 0/1
@@ -48,12 +47,17 @@ export default function Calendario_configuracoes() {
           console.error("Erro ao carregar horarios de funcionamento:", error);
           setFuncionamento([]);
         });
-    }
-  }, [usuario]);
+  }
+
 
   useEffect(() => {
     if (usuario && usuario.id) {
-      buscarHorarioExcecao()
+      listarPadrao();
+    }
+  }, [usuario]);
+  
+  function listarExcecao(){
+    buscarHorarioExcecao()
         .then(data => {
           if (Array.isArray(data)) {
             // Mantém campo aberto como 0/1
@@ -71,6 +75,11 @@ export default function Calendario_configuracoes() {
           console.error("Erro ao carregar horarios de exceção:", error);
           setFuncionamentoExcecao([]);
         });
+  }
+
+  useEffect(() => {
+    if (usuario && usuario.id) {
+      listarExcecao();
     }
   }, [usuario]);
 
@@ -101,10 +110,10 @@ export default function Calendario_configuracoes() {
     }
     const dados = {
       ...novoHorarioExcecao,
-      aberto: aberto === true ? 1 : 0,
-      capacidade: aberto === true ? Number(capacidade) : 0,
+      capacidade: aberto === 1 ? Number(capacidade) : 0,
       funcionario: { id: usuario.id }
     };
+    console.log("Dados para edição de exceção:", dados);
     try {
       await editarExcecao(id, dados);
       setPopupEditarExcecao(false);
@@ -112,11 +121,7 @@ export default function Calendario_configuracoes() {
       setNovoHorarioExcecao({});
       setExcecaoEditando(null);
       // Atualiza lista após edição
-      buscarHorarioExcecao().then(data => {
-        if (Array.isArray(data)) {
-          setFuncionamentoExcecao(data.filter(item => item.funcionario?.id === usuario.id));
-        }
-      });
+      listarExcecao();
     } catch (error) {
       setPopupEditarExcecao(false);
       mensagemErro("Erro ao editar exceção. Tente novamente mais tarde.");
@@ -133,8 +138,7 @@ export default function Calendario_configuracoes() {
     const { aberto, capacidade } = novoHorarioExcecao;
     const dados = {
       ...novoHorarioExcecao,
-      aberto: aberto === true ? 1 : 0,
-      capacidade: aberto === true ? Number(capacidade) : 0,
+      capacidade: aberto === 1 ? Number(capacidade) : 0,
       funcionario: { id: usuario.id }
     };
     try {
@@ -142,9 +146,29 @@ export default function Calendario_configuracoes() {
       setPopupCadastroExcecao(false);
       mensagemSucesso(`Exceção cadastrada com sucesso!`);
       setNovoHorarioExcecao({});
+      // Atualiza lista após cadastro
+      listarExcecao();
     } catch (error) {
       setPopupCadastroExcecao(false);
       mensagemErro("Erro ao cadastrar exceção. Tente novamente mais tarde.");
+    }
+  };
+
+  const confirmarDelecaoExcecao = async () => {
+    if (!novoHorarioExcecao.id) return;
+    if (window.confirm("Tem certeza que deseja excluir esta exceção?")) {
+      try {
+        await deletarExcecao(novoHorarioExcecao.id);
+        setPopupEditarExcecao(false);
+        mensagemSucesso("Exceção excluída com sucesso!");
+        setNovoHorarioExcecao({});
+        setExcecaoEditando(null);
+        // Atualiza lista após exclusão
+        listarExcecao();
+      } catch (error) {
+        console.error("Erro ao excluir exceção:", error);
+        mensagemErro("Erro ao excluir exceção. Tente novamente mais tarde.");
+      }
     }
   };
 
@@ -155,11 +179,12 @@ export default function Calendario_configuracoes() {
       mensagemErro(valid.mensagem);
       return;
     }
-    const { id, aberto, capacidade } = novoHorarioPadrao;
+    const { id, aberto, capacidade, inicio, fim } = novoHorarioPadrao;
     const dados = {
       ...novoHorarioPadrao,
-      aberto: aberto === true ? 1 : 0,
-      capacidade: aberto === true ? Number(capacidade) : 0,
+      capacidade: aberto === 1 ? Number(capacidade) : 0,
+      inicio: aberto === 1 ? inicio : null,
+      fim: aberto === 1 ? fim : null,
     };
     try {
       await editarFuncionamento(id, dados);
@@ -168,11 +193,7 @@ export default function Calendario_configuracoes() {
       setNovoHorarioExcecao({});
       setFuncionamentoEditando(null);
       // Atualiza lista após edição
-      buscarFuncionamento().then(data => {
-        if (Array.isArray(data)) {
-          setFuncionamento(data.filter(item => item.funcionario?.id === usuario.id));
-        }
-      });
+      listarPadrao();
     } catch (error) {
       setPopupEditarPadrao(false);
       mensagemErro("Erro ao editar horário padrão. Tente novamente mais tarde.");
@@ -203,7 +224,7 @@ export default function Calendario_configuracoes() {
             setPopupEditarPadrao={setPopupEditarPadrao}
             setFuncionamentoEditando={setFuncionamentoEditando}
             setNovoHorarioPadrao={setNovoHorarioPadrao}
-            novoHorarioPadrao={funcionamentoEditando}
+            novoHorarioPadrao={novoHorarioPadrao}
             onConfirm={confirmarEdicaoPadrao}
           />
         )}
@@ -239,8 +260,9 @@ export default function Calendario_configuracoes() {
             setPopupEditarExcecao={setPopupEditarExcecao}
             setExcecaoEditando={setExcecaoEditando}
             setNovoHorarioExcecao={setNovoHorarioExcecao}
-            novoHorarioExcecao={excecaoEditando}
+            novoHorarioExcecao={novoHorarioExcecao}
             onConfirm={confirmarEdicaoExcecao}
+            onConfirmDelete={confirmarDelecaoExcecao}
           />
         )}
 
@@ -298,37 +320,68 @@ function HorarioPadrao(funcionamento) {
 }
 
 function PopupEditarPadrao({ novoHorarioPadrao, setPopupEditarPadrao, onConfirm, setNovoHorarioPadrao, setFuncionamentoEditando }) {
+  // Garante que o state seja controlado e editável
+  const handleChange = (field, value) => {
+    setNovoHorarioPadrao(prev => ({ ...prev, [field]: value }));
+  };
   return (
     <Popup>
       <p className="paragrafo-1 semibold">Editar Horário Padrão:</p>
       <div className="line">
         <div className="input_pai">
           <p className="paragrafo-2">Status:</p>
-          <select name="status" className="select" style={{ width: '100%' }} value={novoHorarioPadrao.aberto === 1 ? "aberto" : "fechado"} onChange={(e) => setNovoHorarioPadrao({ ...novoHorarioPadrao, aberto: e.target.value === "aberto" ? 1 : 0 })}>
+          <select
+            name="status"
+            className="select"
+            style={{ width: '100%' }}
+            value={novoHorarioPadrao.aberto !== 1 && novoHorarioPadrao.aberto !== 0 ? "#" : (novoHorarioPadrao.aberto === 1 ? "aberto" : "fechado")}
+            onChange={e => handleChange('aberto', e.target.value === "aberto" ? 1 : 0)}
+          >
+            <option value="" disabled>Selecione uma opção</option>
             <option value="aberto">Aberto</option>
             <option value="fechado">Fechado</option>
           </select>
         </div>
         <div className="input_pai">
           <p>Capacidade:</p>
-          <input type="number" name="capacidade" className="input" placeholder="Digite o número" min="0" value={novoHorarioPadrao.capacidade === undefined ? '' : novoHorarioPadrao.capacidade} onChange={(e) => setNovoHorarioPadrao({ ...novoHorarioPadrao, capacidade: Number(e.target.value) })} />
+          <input
+            type="number"
+            name="capacidade"
+            className="input"
+            placeholder="Digite o número"
+            min="0"
+            value={novoHorarioPadrao.capacidade === undefined ? '' : novoHorarioPadrao.capacidade}
+            onChange={e => handleChange('capacidade', Number(e.target.value))}
+          />
         </div>
       </div>
 
       <div className="line">
         <div className="input_pai">
           <p>Hora Início:</p>
-          <input type="time" name="horaInicio" className="input" value={novoHorarioPadrao.inicio || ''} onChange={(e) => setNovoHorarioPadrao({ ...novoHorarioPadrao, inicio: e.target.value })} />
+          <input
+            type="time"
+            name="horaInicio"
+            className="input"
+            value={novoHorarioPadrao.inicio || ''}
+            onChange={e => handleChange('inicio', e.target.value)}
+          />
         </div>
         <div className="input_pai">
           <p>Hora Fim:</p>
-          <input type="time" name="horaFim" className="input" value={novoHorarioPadrao.fim || ''} onChange={(e) => setNovoHorarioPadrao({ ...novoHorarioPadrao, fim: e.target.value })} />
+          <input
+            type="time"
+            name="horaFim"
+            className="input"
+            value={novoHorarioPadrao.fim || ''}
+            onChange={e => handleChange('fim', e.target.value)}
+          />
         </div>
       </div>
 
-      <div className="btn-juntos">
+      <div className="btn-line">
+        <button className="btn-link" onClick={() => { setPopupEditarPadrao(false); setFuncionamentoEditando(null); }}>Cancelar</button>
         <button className="btn-rosa" onClick={onConfirm}>Salvar</button>
-        <button className="btn-branco" onClick={() => { setPopupEditarPadrao(false); setFuncionamentoEditando(null); }}>Cancelar</button>
       </div>
     </Popup>
   );
@@ -399,7 +452,8 @@ function PopupCadastrarExcecao({ novoHorarioExcecao, setPopupCadastroExcecao, on
       <div className="line">
         <div className="input_pai">
           <p className="paragrafo-2">Status:</p>
-          <select name="status" id="" className="select" style={{ width: '100%' }} value={novoHorarioExcecao.aberto === 1 ? "aberto" : "fechado"} onChange={(e) => setNovoHorarioExcecao({ ...novoHorarioExcecao, aberto: e.target.value === "aberto" ? 1 : 0 })}>
+          <select name="status" id="" className="select" style={{ width: '100%' }} value={novoHorarioExcecao.aberto === undefined ? "" : (novoHorarioExcecao.aberto === 1 ? "aberto" : "fechado")}  onChange={(e) => setNovoHorarioExcecao({ ...novoHorarioExcecao, aberto: e.target.value === "aberto" ? 1 : 0 })}>
+            <option value='' selected disabled>Selecione uma opção</option>
             <option value="aberto">Aberto</option>
             <option value="fechado">Fechado</option>
           </select>
@@ -432,36 +486,19 @@ function PopupCadastrarExcecao({ novoHorarioExcecao, setPopupCadastroExcecao, on
         </div>
       </div>
 
-      <div className="btn-juntos">
+      <div className="btn-line">
+        <button className="btn-link" onClick={() => setPopupCadastroExcecao(false)}>Cancelar</button>
         <button className="btn-rosa" onClick={onConfirm}>Concluir</button>
-        <button className="btn-branco" onClick={() => setPopupCadastroExcecao(false)}>Cancelar</button>
       </div>
     </Popup>
   );
 }
 
-function PopupEditarExcecao({ novoHorarioExcecao, setPopupEditarExcecao, onConfirm, setNovoHorarioExcecao, setExcecaoEditando }) {
-  // Função para deletar exceção
-  const handleDelete = async () => {
-    if (!novoHorarioExcecao.id) return;
-    if (window.confirm("Tem certeza que deseja excluir esta exceção?")) {
-      try {
-        await deletarExcecao(novoHorarioExcecao.id);
-        setPopupEditarExcecao(false);
-        mensagemSucesso("Exceção excluída com sucesso!");
-        setNovoHorarioExcecao({});
-        setExcecaoEditando(null);
-        // Atualiza lista após exclusão
-        buscarHorarioExcecao().then(data => {
-          if (Array.isArray(data)) {
-            setFuncionamentoExcecao(data.filter(item => item.funcionario?.id === usuario.id));
-          }
-        });
-      } catch (error) {
-        console.error("Erro ao excluir exceção:", error);
-        mensagemErro("Erro ao excluir exceção. Tente novamente mais tarde.");
-      }
-    }
+function PopupEditarExcecao({ novoHorarioExcecao, setPopupEditarExcecao, onConfirm, onConfirmDelete, setNovoHorarioExcecao, setExcecaoEditando }) {
+
+  // Garante que o state seja controlado e editável
+  const handleChange = (field, value) => {
+    setNovoHorarioExcecao(prev => ({ ...prev, [field]: value }));
   };
   return (
     <Popup>
@@ -469,54 +506,95 @@ function PopupEditarExcecao({ novoHorarioExcecao, setPopupEditarExcecao, onConfi
       <div className="line">
         <div className="input_pai">
           <p className="paragrafo-2">Status:</p>
-          <select name="status" id="" className="select" style={{ width: '100%' }} value={novoHorarioExcecao.aberto === 1 ? "aberto" : "fechado"} onChange={(e) => setNovoHorarioExcecao({ ...novoHorarioExcecao, aberto: e.target.value === "aberto" ? 1 : 0 })}>
+          <select
+            name="status"
+            className="select"
+            style={{ width: '100%' }}
+            value={novoHorarioExcecao.aberto === undefined ? "" : (novoHorarioExcecao.aberto === 1 ? "aberto" : "fechado")}
+            onChange={e => handleChange('aberto', e.target.value === "aberto" ? 1 : 0)}
+          >
+            <option value="" disabled>Selecione uma opção</option>
             <option value="aberto">Aberto</option>
             <option value="fechado">Fechado</option>
           </select>
         </div>
         <div className="input_pai">
           <p>Capacidade:</p>
-          <input type="number" name="capacidade" className="input" placeholder="Digite o número" min="0" value={novoHorarioExcecao.capacidade === undefined ? '' : novoHorarioExcecao.capacidade} onChange={(e) => setNovoHorarioExcecao({ ...novoHorarioExcecao, capacidade: Number(e.target.value) })} />
+          <input
+            type="number"
+            name="capacidade"
+            className="input"
+            placeholder="Digite o número"
+            min="0"
+            value={novoHorarioExcecao.capacidade === undefined ? 0 : novoHorarioExcecao.capacidade}
+            onChange={e => handleChange('capacidade', Number(e.target.value))}
+          />
         </div>
       </div>
 
       <div className="line">
         <div className="input_pai">
           <p>Data Início:</p>
-          <input type="date" name="dataInicio" className="input" value={novoHorarioExcecao.dataInicio || ''} onChange={(e) => setNovoHorarioExcecao({ ...novoHorarioExcecao, dataInicio: e.target.value })} />
+          <input
+            type="date"
+            name="dataInicio"
+            className="input"
+            value={novoHorarioExcecao.dataInicio || ''}
+            onChange={e => handleChange('dataInicio', e.target.value)}
+          />
         </div>
         <div className="input_pai">
           <p>Data Fim:</p>
-          <input type="date" name="dataFim" className="input" value={novoHorarioExcecao.dataFim || ''} onChange={(e) => setNovoHorarioExcecao({ ...novoHorarioExcecao, dataFim: e.target.value })} />
+          <input
+            type="date"
+            name="dataFim"
+            className="input"
+            value={novoHorarioExcecao.dataFim || ''}
+            onChange={e => handleChange('dataFim', e.target.value)}
+          />
         </div>
       </div>
 
       <div className="line">
         <div className="input_pai">
           <p>Hora Início:</p>
-          <input type="time" name="horaInicio" className="input" value={novoHorarioExcecao.inicio || ''} onChange={(e) => setNovoHorarioExcecao({ ...novoHorarioExcecao, inicio: e.target.value })} />
+          <input
+            type="time"
+            name="horaInicio"
+            className="input"
+            value={novoHorarioExcecao.inicio || ''}
+            onChange={e => handleChange('inicio', e.target.value)}
+          />
         </div>
         <div className="input_pai">
           <p>Hora Fim:</p>
-          <input type="time" name="horaFim" className="input" value={novoHorarioExcecao.fim || ''} onChange={(e) => setNovoHorarioExcecao({ ...novoHorarioExcecao, fim: e.target.value })} />
+          <input
+            type="time"
+            name="horaFim"
+            className="input"
+            value={novoHorarioExcecao.fim || ''}
+            onChange={e => handleChange('fim', e.target.value)}
+          />
         </div>
       </div>
 
-      <div className="btn-juntos">
-        <button className="btn-rosa" onClick={onConfirm}>Salvar</button>
-        <button className="btn-branco" onClick={() => setPopupEditarExcecao(false)}>Cancelar</button>
-        <button className="btn-vermelho" onClick={handleDelete}>Excluir</button>
+      <div className="btn-line">
+        <button className="btn-link" onClick={() => setPopupEditarExcecao(false)}>Cancelar</button>
+        <button className="btn-vermelho" onClick={onConfirmDelete}>Excluir</button>
+        <button className="btn-verde" onClick={onConfirm}>Salvar</button>
       </div>
     </Popup>
   );
 }
 
 // Validação centralizada para horários padrão e exceção
-function validateHorario(obj, tipo = "excecao") {
+function validateHorario(obj, tipo) {
   // tipo: "excecao" ou "padrao"
   const { aberto, capacidade, dataInicio, dataFim, inicio, fim } = obj;
+
+  console.log("Formulario enviado:", obj);
   // Aceita aberto como 0 ou 1
-  if ((aberto !== 0 && aberto !== 1) || capacidade === undefined || capacidade === "" || !inicio || !fim) {
+  if ((aberto !== 0 && aberto !== 1) || capacidade < 0 || (aberto === 1 && (!inicio || !fim)))  {
     return { ok: false, mensagem: "Preencha todos os campos obrigatórios e use valores válidos." };
   }
   if (tipo === "excecao") {
@@ -530,8 +608,11 @@ function validateHorario(obj, tipo = "excecao") {
       return { ok: false, mensagem: "O horário final deve ser maior que o horário inicial." };
     }
   } else {
-    if (fim <= inicio) {
+    if (aberto === 1 && fim <= inicio) {
       return { ok: false, mensagem: "O horário final deve ser maior que o horário inicial." };
+    }
+    if (aberto === 1 && capacidade == 0) {
+      return { ok: false, mensagem: "A capacidade deve ser maior que zero." };
     }
   }
   return { ok: true };
