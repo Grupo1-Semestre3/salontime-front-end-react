@@ -1,71 +1,72 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MenuDash from "../../components/MenuDash";
 import CardCliente from "../../components/CardCliente";
 import UsuariosHeader from "../../components/UsuariosHeader";
-
+import { listarClientes } from "../../js/api/kaua";
+import { mensagemErro } from "../../js/utils";
 
 export default function Usuarios_clientes() {
   const navigate = useNavigate();
-  const [clientes, setClientes] = useState([
-    {
-      id: 1,
-      nome: "Nome do Cliente",
-      email: "email@email.com",
-      telefone: "123123-12312",
-      foto: "/src/assets/img/foto_perfil.png",
-      pendencias: 10
-    },
-    {
-      id: 2,
-      nome: "Maria Silva",
-      email: "maria@email.com",
-      telefone: "98765-4321",
-      foto: "/src/assets/img/foto_perfil.png",
-      pendencias: 3
-    },{
-      id: 2,
-      nome: "Maria Silva",
-      email: "maria@email.com",
-      telefone: "98765-4321",
-      foto: "/src/assets/img/foto_perfil.png",
-      pendencias: 3
-    }
-  ]);
+  const [clientes, setClientes] = useState([]);
+
+  useEffect(() => {
+    const fetchClientes = async () => {
+      try {
+        const data = await listarClientes();
+        setClientes(data);
+      } catch (error) {
+        mensagemErro("Erro ao buscar a lista de clientes.");
+        console.error("Erro ao buscar clientes:", error);
+      }
+    };
+
+    fetchClientes();
+  }, []);
 
   const handleEditar = (id) => {
-    console.log("Editar cliente:", id);
-    // Implementar lógica de edição
+    navigate(`/editar-cliente/${id}`);
   };
 
   const handleDetalhes = (id) => {
-    console.log("Ver detalhes do cliente:", id);
-    // Implementar lógica para mostrar detalhes
+    navigate(`/detalhes-cliente/${id}`);
   };
 
   return (
     <MenuDash>
-      
-
       <UsuariosHeader
         tipo="clientes"
-        onButtonClick={() => console.log("Cadastrar Cliente")}
-        iconSrc="src\assets\svg\plus.svg"
-      ></UsuariosHeader>
+        onButtonClick={() => navigate("/cadastrar-cliente")}
+        iconSrc="src/assets/svg/plus.svg"
+      />
 
-      <div className="dash_section_container" style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', flexDirection: 'row' }}>
-        {clientes.map(cliente => (
-          <CardCliente
-            key={cliente.id}
-            nome={cliente.nome}
-            email={cliente.email}
-            telefone={cliente.telefone}
-            foto={cliente.foto}
-            pendencias={cliente.pendencias}
-            onEditar={() => handleEditar(cliente.id)}
-            onDetalhes={() => handleDetalhes(cliente.id)}
-          />
-        ))}
+      <div
+        className="dash_section_container"
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "20px",
+          flexDirection: "row",
+        }}
+      >
+        {clientes.length > 0 ? (
+          clientes.map((cliente) => (
+            <CardCliente
+              key={cliente.id}
+              nome={cliente.nome}
+              email={cliente.email}
+              telefone={cliente.telefone}
+              foto={cliente.foto}
+              pendencias={cliente.pendencias}
+              onEditar={() => handleEditar(cliente.id)}
+              onDetalhes={() => handleDetalhes(cliente.id)}
+            />
+          ))
+        ) : (
+          <p style={{ marginTop: "20px", fontSize: "1.2rem" }}>
+            Nenhum cliente encontrado.
+          </p>
+        )}
       </div>
     </MenuDash>
   );
