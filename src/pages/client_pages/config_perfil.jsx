@@ -9,7 +9,7 @@ import { mensagemErro, mensagemSucesso } from "../../js/utils";
 export default function Config_perfil({ onUpdateDados, onUpdateSenha }) {
   const [usuario, setUsuario] = useState(null);
   const [dados, setDados] = useState({ id: "", nome: "", email: "", telefone: "", cpf: "", dataNascimento: "" });
-  const [senha, setSenha] = useState({ atual: "", nova: "", confirmar: "" });
+  const [senha, setSenha] = useState({ senhaAtual: "", novaSenha: "", confirmar: ""});
 
   useEffect(() => {
     const usuarioStr = localStorage.getItem("usuario");
@@ -60,13 +60,24 @@ export default function Config_perfil({ onUpdateDados, onUpdateSenha }) {
 
   const handleSubmitSenha = async (e) => {
     e.preventDefault();
-    if (!senha.atual || !senha.nova || !senha.confirmar) {
+    if (!senha.senhaAtual || !senha.novaSenha || !senha.confirmar) {
       mensagemErro("Por favor, preencha todos os campos de senha.");
+      return;
+    } else if (senha.novaSenha !== senha.confirmar) {
+      mensagemErro("A nova senha e a confirmação não coincidem.");
+      return;
+    } else if (senha.senhaAtual === senha.novaSenha) {
+      mensagemErro("A nova senha deve ser diferente da senha atual.");
       return;
     }
     try {
-      await atualizarSenhaUsuario(usuario.id, senha.atual, senha.nova, senha.confirmar);
-      setSenha({ atual: "", nova: "", confirmar: "" }); // Limpa os campos após sucesso
+      const dadosSenha = {
+        senhaAtual: senha.senhaAtual,
+        novaSenha: senha.novaSenha
+      };
+      await atualizarSenhaUsuario(usuario.id, dadosSenha);
+      mensagemSucesso("Senha atualizada com sucesso!");
+      setSenha({ senhaAtual: "", novaSenha: "", confirmar: "" }); // Limpa os campos após sucesso
     } catch (error) {
       mensagemErro("Erro ao atualizar senha do usuário.");
       console.error("Erro ao atualizar senha do usuário:", error);
@@ -95,7 +106,7 @@ export default function Config_perfil({ onUpdateDados, onUpdateSenha }) {
         </div>
         <div className="input_pai">
           <p className="paragrafo-2">Data de nascimento</p>
-          <input type="text" className="input" name="dataNascimento" placeholder="Digite sua data de nascimento" value={dados.dataNascimento} onChange={handleChangeDados} />
+          <input type="date" className="input" name="dataNascimento" placeholder="Digite sua data de nascimento" value={dados.dataNascimento} onChange={handleChangeDados} />
         </div>
         <button className="btn-rosa" style={{ width: "100%" }} type="submit">
           Atualizar
@@ -106,11 +117,11 @@ export default function Config_perfil({ onUpdateDados, onUpdateSenha }) {
         <p className="titulo-1">Alterar senha:</p>
         <div className="input_pai">
           <p className="paragrafo-2">Senha atual</p>
-          <input type="password" className="input" name="atual" placeholder="Digite aqui" value={senha.atual} onChange={handleChangeSenha} />
+          <input type="password" className="input" name="senhaAtual" placeholder="Digite aqui" value={senha.senhaAtual} onChange={handleChangeSenha} />
         </div>
         <div className="input_pai">
           <p className="paragrafo-2">Nova senha</p>
-          <input type="password" className="input" name="nova" placeholder="Digite aqui" value={senha.nova} onChange={handleChangeSenha} />
+          <input type="password" className="input" name="novaSenha" placeholder="Digite aqui" value={senha.novaSenha} onChange={handleChangeSenha} />
         </div>
         <div className="input_pai">
           <p className="paragrafo-2">Confirmar nova senha</p>

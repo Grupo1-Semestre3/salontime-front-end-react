@@ -53,6 +53,19 @@ export async function buscarAtendimentosPassados(id) {
   }
 }
 
+export async function buscarCupons(id) {
+  try {
+    const response = await axios.get(`http://localhost:8080/cupom-destinado/lista/${id}`);
+    console.log("Cupons disponíveis!!!")
+    console.log(response.data)
+    return response.data;
+
+  } catch (error) {
+    console.error("Erro ao buscar cupons:", error);
+    throw error;
+  }
+}
+
 export async function infoUsuario(id) {
   try {
     const response = await axios.get(`http://localhost:8080/usuarios/${id}`);
@@ -78,23 +91,14 @@ export function atualizarDadosUsuario(id, dados) {
   return true;
 }
 
-export function atualizarSenhaUsuario(id, senhaAtual, novaSenha, confirmarSenha) {
-
-  if (novaSenha !== confirmarSenha) {
-    console.error("A nova senha e a confirmação não coincidem.");
-    mensagemErro("A nova senha e a confirmação não coincidem.");
+export function atualizarSenhaUsuario(id, senhaBody) {
+  try {
+    axios.patch(`http://localhost:8080/usuarios/mudarSenha/${id}`, senhaBody);
+    console.log("Senha do usuário atualizada com sucesso!");
+  } catch (error) {
+    mensagemErro("Erro ao atualizar senha do usuário.");
+    console.error("Erro ao atualizar senha do usuário:", error);
     return false;
-  } 
-  else {
-    try {
-      axios.patch(`http://localhost:8080/usuarios/mudarSenha/${id}`, id, novaSenha);
-      mensagemSucesso("Senha atualizada com sucesso!");
-      console.log("Senha do usuário atualizada com sucesso!");
-    } catch (error) {
-      mensagemErro("Erro ao atualizar senha do usuário.");
-      console.error("Erro ao atualizar senha do usuário:", error);
-      return false;
-    }
   }
   return true;
 }
