@@ -8,25 +8,12 @@ function navegar(path) {
 
 // Util - 2 - Formatar nome (Letra Maiúscula).
 function formatarNomeInput(inputElement) {
-  function nomeFormatado(value) {
     return value
       .trim()
       .replace(/\s+/g, " ")
       .split(" ")
       .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(" ");
-  }
-
-  function formatarNome() {
-    inputElement.value = nomeFormatado(inputElement.value);
-  }
-
-  inputElement.addEventListener("blur", handleFormat);
-  inputElement.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      formatarNome();
-    }
-  });
 }
 
 // Util - 3 - Validar confirmação de senha.
@@ -51,19 +38,10 @@ function formatarCPFInput(inputElement) {
 
     if (cpf.length == 11) {
       return cpf;
+    } else {
+      return mensagemErro("CPF inválido. Deve conter exatamente 11 dígitos numéricos.");
     }
   }
-
-  function formatar() {
-    inputElement.value = formatarCPF(inputElement.value);
-  }
-
-  inputElement.addEventListener("blur", formatar);
-  inputElement.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      formatar();
-    }
-  });
 }
 
 function validarCamposCadastro(nome, telefone, email, senha, senhaConfirmar) {
@@ -75,14 +53,14 @@ function validarCamposCadastro(nome, telefone, email, senha, senhaConfirmar) {
     return "O nome deve ter entre 1 e 50 caracteres.";
   }
 
-  if(telefone.length != 11){
+  if (telefone.length != 11) {
     return "O telefone deve conter exatamente 11 dígitos numéricos.";
   }
 
   if (!regexEmail.test(email)) {
     return "E-mail inválido.";
   }
-  
+
   if (senha.length === 0 || senha.length > 30) {
     return "A senha deve ter entre 1 e 30 caracteres.";
   }

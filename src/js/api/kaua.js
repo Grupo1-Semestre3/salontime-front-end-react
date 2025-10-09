@@ -23,6 +23,16 @@ export async function listarClientes() {
     }
 }
 
+export async function listarFuncionarios() {
+    try {
+        const response = await axios.get(`http://localhost:8080/usuarios/lista-funcionarios`);
+        console.log(response.data)
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao buscar funcionarios:", error);
+        throw error;
+    }
+}
 
 export async function mudarSenha(id, newSenha, oldSenha) {
     try {

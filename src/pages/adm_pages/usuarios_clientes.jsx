@@ -25,11 +25,11 @@ export default function Usuarios_clientes() {
   }, []);
 
   const handleEditar = (id) => {
-    navigate(`/editar-cliente/${id}`);
+    
   };
 
   const handleDetalhes = (id) => {
-    navigate(`/detalhes-cliente/${id}`);
+    
   };
 
   return (
