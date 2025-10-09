@@ -31,6 +31,30 @@ export async function buscarServicos() {
   }
 }
 
+export async function criarServico(dadosServico) {
+  try {
+    const servicoData = {
+      nome: dadosServico.nome,
+      preco: parseFloat(dadosServico.preco),
+      tempo: dadosServico.tempo,
+      status: dadosServico.status || "ATIVO",
+      simultaneo: Boolean(dadosServico.simultaneo),
+      descricao: dadosServico.descricao || ''
+    };
+
+    const response = await axios.post("http://localhost:8080/servicos", servicoData, {
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao criar serviço:", error);
+    throw error;
+  }
+}
+
 export const atualizarServico = async (id, dadosServico, arquivo = null) => {
   try {
     // Preparar objeto base do serviço

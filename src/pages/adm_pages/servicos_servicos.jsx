@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import MenuDash from "../../components/MenuDash";
 import NavServicos from "../../components/NavServicos";
-import { buscarServicos, atualizarServico, buscarFuncionariosCompetentes } from "../../js/api/elerson.js";
+import { buscarServicos, atualizarServico, buscarFuncionariosCompetentes, criarServico } from "../../js/api/elerson.js";
 import InfoCard from "../../components/InfoCard.jsx";
 import Popup from "../../components/Popup.jsx";
+import { mensagemErro, mensagemSucesso } from "../../js/utils.js";
 
 export default function Servicos_servicos() {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ export default function Servicos_servicos() {
   const [loading, setLoading] = useState(true);
   const [servicoSelecionado, setServicoSelecionado] = useState(null);
   const [modalAberto, setModalAberto] = useState(false);
+  const [modalCriarAberto, setModalCriarAberto] = useState(false);
 
   // Formatar o tempo (00:45:00 -> 45min)
   const formatarTempo = (tempo) => {
@@ -63,12 +65,22 @@ export default function Servicos_servicos() {
     setServicoSelecionado(null);
   };
 
+  const handleCloseModalCriar = () => {
+    setModalCriarAberto(false);
+  };
+
   // Handler for after a service is successfully updated
   const handleServicoAtualizado = (servicoAtualizado) => {
     setServicos(servicos.map(s =>
       s.id === servicoAtualizado.id ? servicoAtualizado : s
     ));
     handleCloseModal();
+  };
+
+  // Handler for after a service is successfully created
+  const handleServicoCriado = (novoServico) => {
+    setServicos([...servicos, novoServico]);
+    handleCloseModalCriar();
   };
 
   useEffect(() => {
@@ -95,7 +107,7 @@ export default function Servicos_servicos() {
         <div className="dash_section_container">
           <div className="dash_servico_section_2">
             <h1>Gerenciar Serviços</h1>
-            <button className="btn-rosa" onClick={() => navigate("/adm/servicos/novo")}>
+            <button className="btn-rosa" onClick={() => setModalCriarAberto(true)}>
               <img
                 src="/src/assets/vector/icon_sum/jam-icons/Vector.svg"
                 alt=""
@@ -162,6 +174,13 @@ export default function Servicos_servicos() {
           servico={servicoSelecionado}
           onClose={handleCloseModal}
           onSave={handleServicoAtualizado}
+        />
+      )}
+
+      {modalCriarAberto && (
+        <CriarServico
+          onClose={handleCloseModalCriar}
+          onSave={handleServicoCriado}
         />
       )}
     </>
@@ -268,12 +287,12 @@ function EditarServico({ servico, onClose, onSave }) {
       onSave(servicoAtualizado);
 
       // Feedback visual de sucesso (opcional)
-      alert("Serviço atualizado com sucesso!");
+      mensagemSucesso("Serviço atualizado com sucesso!");
 
     } catch (error) {
       console.error("Erro ao atualizar serviço:", error);
       // Feedback visual de erro
-      alert(`Erro ao atualizar serviço: ${error.message || "Erro desconhecido"}`);
+      mensagemErro(`Erro ao atualizar serviço: ${error.message || "Erro desconhecido"}`);
     } finally {
       // Finalizar indicador de carregamento
       // setLoading(false);
@@ -433,6 +452,192 @@ function EditarServico({ servico, onClose, onSave }) {
             <button type="submit" className="btn-verde">Atualizar</button>
             <button className="btn-vermelho">Remover</button>
             <button type="button" className="btn-branco" onClick={onClose}>Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </Popup>
+  );
+}
+
+function CriarServico({ onClose, onSave }) {
+  const [formData, setFormData] = useState({
+    nome: "",
+    descricao: "",
+    tempo: "00:30:00",
+    status: "ATIVO",
+    preco: 0,
+    simultaneo: false
+  });
+  const [fotoSelecionada, setFotoSelecionada] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: name === "simultaneo" ? value === "true" : value
+    });
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setFotoSelecionada(e.target.files[0]);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      setLoading(true);
+      
+      // Criar o serviço
+      const novoServico = await criarServico(formData);
+      
+      // Notificar o componente pai sobre a criação bem-sucedida
+      onSave(novoServico);
+      
+      // Feedback visual de sucesso
+      mensagemSucesso("Serviço criado com sucesso!");
+      
+    } catch (error) {
+      console.error("Erro ao criar serviço:", error);
+      mensagemErro(`Erro ao criar serviço: ${error.message || "Erro desconhecido"}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Popup style="width: auto;" onClose={onClose}>
+      <div className="servico-form">
+        <h2 style={{ fontSize: '22px' }}>Preencha os campos abaixo:</h2>
+
+        <form onSubmit={handleSubmit}>
+          <div className="input_pai">
+            <label htmlFor="nome">Nome do Serviço</label>
+            <input
+              type="text"
+              id="nome"
+              name="nome"
+              placeholder="Ex: Corte de Cabelo"
+              value={formData.nome}
+              onChange={handleChange}
+              required
+              className="input"
+              style={{ width: '416px' }}
+            />
+          </div>
+
+          <div className="input_pai">
+            <label htmlFor="descricao">Descrição do Serviço</label>
+            <textarea
+              id="descricao"
+              name="descricao"
+              placeholder="Descreva o serviço..."
+              value={formData.descricao}
+              onChange={handleChange}
+              required
+              className="input"
+              style={{ width: '416px' }}
+            />
+          </div>
+
+          <div className="btn-juntos">
+            <div className="input_pai" style={{ width: '200px' }}>
+              <label htmlFor="tempo">Tempo de duração</label>
+              <input
+                type="time"
+                id="tempo"
+                name="tempo"
+                value={formData.tempo}
+                onChange={handleChange}
+                required
+                className="input"
+                style={{ width: '200px' }}
+              />
+            </div>
+
+            <div className="input_pai" style={{ width: '200px' }}>
+              <label htmlFor="status">Status</label>
+              <select
+                id="status"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className="input"
+                style={{ width: '200px' }}
+              >
+                <option value="ATIVO">ATIVO</option>
+                <option value="INATIVO">INATIVO</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="btn-juntos">
+            <div className="input_pai" style={{ width: '200px' }}>
+              <label htmlFor="preco">Valor inicial</label>
+              <input
+                type="number"
+                id="preco"
+                name="preco"
+                min="0"
+                step="0.01"
+                placeholder="0,00"
+                value={formData.preco}
+                onChange={handleChange}
+                required
+                className="input"
+              />
+            </div>
+
+            <div className="input_pai" style={{ width: '200px' }}>
+              <label htmlFor="simultaneo">Permite Simultâneo?</label>
+              <select
+                id="simultaneo"
+                name="simultaneo"
+                value={formData.simultaneo}
+                onChange={handleChange}
+                className="input"
+                style={{ width: '200px' }}
+              >
+                <option value={true}>Sim</option>
+                <option value={false}>Não</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Adicione uma foto</label>
+            <div className="file-upload">
+              <label htmlFor="foto-criar" className="file-upload-label">
+                <input
+                  type="file"
+                  id="foto-criar"
+                  name="foto"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  style={{ display: 'none' }}
+                />
+                <div className="custom-file-button">
+                  <span>{fotoSelecionada ? fotoSelecionada.name : "Selecione uma foto"}</span>
+                  <img
+                    src="/src/assets/svg/upload-icon.svg"
+                    alt="Selecionar arquivo"
+                    className="upload-icon"
+                  />
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div className="btn-juntos" style={{ marginTop: '20px' }}>
+            <button type="submit" className="btn-verde" disabled={loading} style={{ minWidth: '50%' }}>
+              {loading ? "Criando..." : "Criar"}
+            </button>
+            <button type="button" className="btn-branco" onClick={onClose} disabled={loading} style={{ minWidth: '50%' }}>
+              Cancelar
+            </button>
           </div>
         </form>
       </div>
