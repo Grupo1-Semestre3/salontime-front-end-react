@@ -61,7 +61,7 @@ export async function salvarAgendamento(idCliente, idServico, idPagamento, data,
         };
 
         const response = await axios.post(`http://localhost:8080/agendamento`, body);
-        
+
         console.log(response.data);
         return response.data;
 
@@ -71,8 +71,8 @@ export async function salvarAgendamento(idCliente, idServico, idPagamento, data,
     }
 }
 
-export async function buscarDadosHistoricoPorIdAgendamento(idAgendamemto){
-     try {
+export async function buscarDadosHistoricoPorIdAgendamento(idAgendamemto) {
+    try {
         const response = await axios.get(`http://localhost:8080/agendamento/historico/${idAgendamemto}`);
         console.log(response.data)
         return response.data;
@@ -84,15 +84,33 @@ export async function buscarDadosHistoricoPorIdAgendamento(idAgendamemto){
 }
 
 export async function realizarAvaliacao(dados) {
-     try {
-    
+    try {
+
         const response = await axios.post(`http://localhost:8080/avaliacao`, dados);
-        
+
         console.log(response.data);
         return response.data;
 
     } catch (error) {
         console.error("Erro ao salvar avaliacao:", error);
+        throw error;
+    }
+}
+
+export async function reagendarAgendamento(agendamentoId, dataSelecionada, horarioSelecionado) {
+
+    const dados = {
+        novaData: dataSelecionada,
+        inicio: horarioSelecionado
+    }
+    
+    try {
+        const response = await axios.patch(`http://localhost:8080/agendamento/reagendamento/${agendamentoId}`, dados);
+        console.log(response.data);
+        return response.data;
+
+    } catch (error) {
+        console.error("Erro ao reagendar avaliacao:", error);
         throw error;
     }
 }
