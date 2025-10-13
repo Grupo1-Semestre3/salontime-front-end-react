@@ -1,12 +1,12 @@
-import { mensagemErro, mensagemSucesso } from '../utils';
+import { mensagemErro, mensagemSucesso, validarCamposCadastro } from '../utils';
 
-function cadastrarCliente() {
+export function cadastrarCliente(form, navigate) {
 
-  const nome = document.getElementById("cadastro_form_nome").value;
-  const email = document.getElementById("cadastro_form_email").value;
-  const telefone = document.getElementById("cadastro_form_telefone").value;
-  const senha = document.getElementById("cadastro_form_senha").value;
-  const senhaConfirmar = document.getElementById("cadastro_form_confirmar").value;
+  const nome = form.nome;
+  const email = form.email;
+  const telefone = form.telefone;
+  const senha = form.senha;
+  const senhaConfirmar = form.confirmar;
 
   const validar = validarCamposCadastro(nome, telefone, email, senha, senhaConfirmar);
 
@@ -26,7 +26,7 @@ function cadastrarCliente() {
       .then(resposta => resposta.json())
       .then(dados => {
         mensagemSucesso("Cadastro realizado com sucesso!");
-        loginComParametroPosCad(email, senha);
+        loginComParametroPosCad(email, senha, navigate);
       })
       .catch(erro => {
         console.error("Erro no cadastro:", erro);
@@ -37,7 +37,7 @@ function cadastrarCliente() {
 
 }
 
-function loginComParametroPosCad(email, senha) {
+function loginComParametroPosCad(email, senha, navigate) {
 
   fetch("http://localhost:8080/usuarios/login", {
     method: "PATCH",
@@ -58,14 +58,16 @@ function loginComParametroPosCad(email, senha) {
           console.log("Cliente logado:", dados.nome);
           mensagemSucesso("Login realizado com sucesso!")
 
-          setTimeout(function () {
-            window.location.href = "/html/client_pages/servicos.html";
+          setTimeout(() => {
+            navigate("/servicos"); // <- navega para a rota do admin
           }, 1500);
 
         } else if (dados.tipoUsuario.descricao == "FUNCIONARIO" || dados.tipoUsuario.descricao == "ADMINISTRADOR") {
           console.log("Fun ou administrador logado:", dados.nome);
           mensagemSucesso("Login realizado com sucesso!")
-          window.location.href = "/html/adm_pages/calendario_visao_geral.html";
+          setTimeout(() => {
+            navigate("/adm/calendario-visao-geral");
+          }, 1500);
         }
 
 

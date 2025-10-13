@@ -16,7 +16,7 @@ function CardCupom({ cupom, usado }) {
             <img src="/src/assets/svg/key.svg" alt="" /> <span className="semibold">Código:</span> {cupom?.codigo}
           </p>
           <p className="paragrafo-2">
-            <img src="/src/assets/svg/cash-sharp.svg" alt="" /> <span className="semibold">Desconto:</span> {cupom?.desconto}
+            <img src="/src/assets/svg/cash-sharp.svg" alt="" /> <span className="semibold">Desconto:</span> {cupom?.desconto}%
           </p>
           <p className="">
             <img src="/src/assets/svg/refresh-cw.svg" alt="" /> <span className="semibold">Usos disponíveis:</span> {usado == true ? "0" : "1"}

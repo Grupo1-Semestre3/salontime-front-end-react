@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-//import { cadastrarCliente } from "../../js/api/usuario";
+import { cadastrarCliente } from "../../js/api/usuario";
 
 
 export default function Cadastro() {
@@ -19,7 +19,7 @@ export default function Cadastro() {
 
   const handleSubmit = (e) => {
   e.preventDefault();
-   cadastrarCliente(form); // Passe os dados do formulário
+   cadastrarCliente(form, navigate); // Passe os dados do formulário
   };
 
   return (

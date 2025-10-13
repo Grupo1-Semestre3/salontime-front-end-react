@@ -1,3 +1,36 @@
+// PATCH foto do usuário
+export async function atualizarFotoUsuario(id, fotoFile) {
+  const formData = new FormData();
+  formData.append("foto", fotoFile);
+  try {
+    const response = await axios.patch(`http://localhost:8080/usuarios/foto/${id}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+    return response.data;
+  } catch (error) {
+    mensagemErro("Erro ao atualizar foto do usuário.");
+    throw error;
+  }
+}
+
+// GET foto do usuário
+export async function buscarFotoUsuario(id) {
+  try {
+    const response = await axios.get(`http://localhost:8080/usuarios/foto/${id}`, {
+      responseType: "arraybuffer"
+    });
+    // Converte para base64 para exibir no <img>
+    const base64 = btoa(
+      new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), "")
+    );
+    // Descobre o tipo da imagem pelo header
+    const contentType = response.headers["content-type"] || "image/png";
+    return `data:${contentType};base64,${base64}`;
+  } catch (error) {
+    mensagemErro("Erro ao buscar foto do usuário.");
+    throw error;
+  }
+}
 import axios from "axios";
 import { mensagemErro, mensagemSucesso } from "../utils";
 

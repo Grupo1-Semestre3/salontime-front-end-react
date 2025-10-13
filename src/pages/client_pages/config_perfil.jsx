@@ -2,11 +2,16 @@
 import { useState, useEffect } from "react";
 import MenuConfig from "/src/components/MenuConfig.jsx";
 import { infoUsuario, atualizarDadosUsuario, atualizarSenhaUsuario } from "../../js/api/caio";
+import { buscarFotoUsuario, atualizarFotoUsuario } from "../../js/api/caio";
 import { mensagemErro, mensagemSucesso } from "../../js/utils";
 
 
 
 export default function Config_perfil({ onUpdateDados, onUpdateSenha }) {
+  const [fotoPreview, setFotoPreview] = useState(() => {
+    const usuarioLocal = JSON.parse(localStorage.getItem("usuario"));
+    return usuarioLocal?.foto || "/src/assets/img/usuario_foto_def.png";
+  });
   const [usuario, setUsuario] = useState(null);
   const [dados, setDados] = useState({ id: "", nome: "", email: "", telefone: "", cpf: "", dataNascimento: "" });
   const [senha, setSenha] = useState({ senhaAtual: "", novaSenha: "", confirmar: ""});
@@ -18,6 +23,45 @@ export default function Config_perfil({ onUpdateDados, onUpdateSenha }) {
       setUsuario(usuarioObj);
     }
   }, []);
+
+  useEffect(() => {
+    if (usuario && usuario.id) {
+      buscarFotoUsuario(usuario.id)
+        .then(url => {
+          console.log("URL da foto do usuário:", url);
+          setFotoPreview(url);
+          // Atualiza localStorage
+          const usuarioAtual = JSON.parse(localStorage.getItem("usuario"));
+          if (usuarioAtual) {
+            usuarioAtual.foto = url;
+            localStorage.setItem("usuario", JSON.stringify(usuarioAtual));
+          }
+        })
+        .catch(() => setFotoPreview("/src/assets/img/usuario_foto_def.png"));
+    }
+  }, [usuario]);
+
+  const handleFotoChange = async (e) => {
+    const file = e.target.files[0];
+    if (file && usuario && usuario.id) {
+      try {
+        await atualizarFotoUsuario(usuario.id, file);
+        mensagemSucesso("Foto atualizada com sucesso!");
+        buscarFotoUsuario(usuario.id)
+          .then(url => {
+            setFotoPreview(url);
+            // Atualiza localStorage
+            const usuarioAtual = JSON.parse(localStorage.getItem("usuario"));
+            if (usuarioAtual) {
+              usuarioAtual.foto = url;
+              localStorage.setItem("usuario", JSON.stringify(usuarioAtual));
+            }
+          });
+      } catch (error) {
+        mensagemErro("Erro ao atualizar foto.");
+      }
+    }
+  };
 
   useEffect(() => {
     if (usuario && usuario.id) {
@@ -86,6 +130,11 @@ export default function Config_perfil({ onUpdateDados, onUpdateSenha }) {
 
   return (
     <MenuConfig>
+      <div className="foto_perfil_div">
+          <img src={fotoPreview} alt="user_foto" className="foto_perfil_config" />
+          <input type="file" accept="image/*" id="foto" style={{ display: "none" }} onChange={handleFotoChange} />
+          <label htmlFor="foto" className="btn-rosa">Alterar Foto</label>
+      </div>
       <form className="config_section_container" onSubmit={handleSubmitDados} autoComplete="off">
         <p className="titulo-1">Dados pessoais:</p>
         <div className="input_pai">
