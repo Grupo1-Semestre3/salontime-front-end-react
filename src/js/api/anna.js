@@ -1,6 +1,5 @@
 import axios from "axios";
 
-
 // Atualizar cupom existente
 export async function atualizarCupom(id, cupomData) {
   try {
@@ -18,12 +17,10 @@ export async function atualizarCupom(id, cupomData) {
     const response = await axios.put(`http://localhost:8080/cupons/${id}`, body);
     return response.data;
   } catch (error) {
-    console.error("Erro ao atualizar cupom:", error);
+        console.error("Erro ao atualizar cupom:", error);
     throw error;
   }
 }
-
-
 
 // Buscar cupom por ID
 export async function buscarCupom() {
@@ -31,7 +28,7 @@ export async function buscarCupom() {
     const response = await axios.get(`http://localhost:8080/cupons`);
     return response.data; // Retorna o CupomDto
   } catch (error) {
-    console.error("Erro ao buscar cupom:", error);
+     console.error("Erro ao buscar cupom:", error);
     throw error;
   }
 }
@@ -43,16 +40,21 @@ export async function criarCupom(cupomData) {
       nome: cupomData.nome,
       descricao: cupomData.descricao,
       codigo: cupomData.codigo,
-      ativo: cupomData.ativo,
-      inicio: cupomData.inicio,
-      fim: cupomData.fim,
-      tipoDestinatario: cupomData.tipoDestinatario
+      ativo: cupomData.ativo ?? true,
+      inicio: cupomData.inicio || null,
+      fim: cupomData.fim || null,
+      tipoDestinatario: cupomData.tipoDestinatario,
+      desconto: cupomData.desconto ?? null
     };
 
     const response = await axios.post('http://localhost:8080/cupons', body);
     return response.data;
   } catch (error) {
     console.error("Erro ao criar cupom:", error);
+    if (error.response) {
+      console.error("Status:", error.response.status);
+      console.error("Response data:", error.response.data);
+    }
     throw error;
   }
 }
@@ -64,6 +66,47 @@ export async function desativarCupom(id) {
     return response.data;
   } catch (error) {
     console.error("Erro ao desativar cupom:", error);
+    throw error;
+  }
+}
+
+// Criar um novo cupom destinado (POST)
+export async function salvarCupomDestinado(cupom, usuario, usado = null) {
+  try {
+    const body = {
+      cupom: cupom,
+      usuario: usuario,
+      usado: usado
+    };
+
+    const response = await axios.post(`http://localhost:8080/cupom-destinado`, body);
+
+    console.log(response.data);
+    return response.data;
+
+  } catch (error) {
+    console.error("Erro ao salvar cupom destinado:", error);
+    throw error;
+  }
+}
+
+// Atualizar um cupom destinado (PUT)
+export async function atualizarCupomDestinado(id, cupom, usuario, usado = null) {
+  try {
+    const body = {
+      id: id,
+      cupom: cupom,
+      usuario: usuario,
+      usado: usado
+    };
+
+    const response = await axios.put(`http://localhost:8080/cupom-destinado/${id}`, body);
+
+    console.log(response.data);
+    return response.data;
+
+  } catch (error) {
+    console.error("Erro ao atualizar cupom destinado:", error);
     throw error;
   }
 }

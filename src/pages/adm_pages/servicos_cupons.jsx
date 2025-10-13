@@ -140,9 +140,9 @@ function CriarCupom({ onClose, onSave }) {
             />
           </div>
 
-          <div className="btn-juntos">
-            <button type="submit" className="btn-verde">Criar</button>
-            <button type="button" className="btn-branco" onClick={onClose}>
+          <div className="btn-juntos" style={{ display: 'flex', gap: '12px' }}>
+            <button type="submit" className="btn-rosa" style={{ flex: 1 }}>Criar</button>
+            <button type="button" className="btn-branco" onClick={onClose} style={{ flex: 1 }}>
               Cancelar
             </button>
           </div>
