@@ -1,8 +1,9 @@
-// import "../../css/popup/realizarAgendamento.css";
+import "../../css/popup/realizarAgendamento.css";
 // FUNCOES 
 import { use, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
+import { exibirHorariosDisponiveis, listarPagamento, salvarAgendamento } from "../../js/api/maikon.js"; // ✅ Adicione esse import
 
 // COMPONENTES
 import NavbarLandingPage from "/src/components/NavbarLandingPage.jsx";
@@ -13,7 +14,6 @@ import Popup, { PopupAlerta } from "../../components/Popup.jsx";
 import { mensagemSucesso, mensagemErro } from "../../js/utils.js";
 import { buscarServicos } from "../../js/api/servico.js"
 import { buscarProximoAgendamento, cancelarAgendamentoJS, enviarMotivoCancelar } from "../../js/api/caio.js"
-
 import "../../css/popup/padraoPopup.css";
 
 
@@ -26,6 +26,7 @@ export default function Servicos() {
   const [popupMotivoCancelar, setPopupMotivoCancelar] = useState(false);
   const [servicoSelecionado, setServicoSelecionado] = useState(null);
   const [proximoAgendamento, setProximoAgendamento] = useState({});
+  const [horarioSelecionado, setHorarioSelecionado] = useState("");
 
   useEffect(() => {
     const usuario = localStorage.getItem("usuario");
@@ -335,35 +336,148 @@ export default function Servicos() {
     </>
   );
 }
+
 function RealizarAgendamento({ servico, onClose }) {
+
+  const [pagamentos, setPagamento] = useState([]);
+
+  const [dataSelecionada, setDataSelecionada] = useState("");
+  const [horarios, setHorarios] = useState([]);
+  const [horarioSelecionado, setHorarioSelecionado] = useState("");
+  const [cupomSelecionado, setCupomSelecionado] = useState("");
+  const [pagamentoSelecionado, setPagamentoSelecionado] = useState("");
+
+
+  useEffect(() => {
+    // Buscar serviços e clientes ao abrir o popup
+    async function carregarDadosIniciais() {
+      try {
+
+        const pagamento = await listarPagamento();
+
+        setPagamento(pagamento);
+      } catch (error) {
+        console.error("Erro ao carregar dados:", error);
+      }
+    }
+
+    carregarDadosIniciais();
+  }, []);
+
+  useEffect(() => {
+    async function carregarHorarios() {
+      if (dataSelecionada && servico?.id) {
+        try {
+          const horariosDisponiveis = await exibirHorariosDisponiveis(servico.id, dataSelecionada);
+          setHorarios(horariosDisponiveis);
+        } catch (error) {
+          console.error("Erro ao buscar horários:", error);
+          mensagemErro("Erro ao buscar horários disponíveis.");
+        }
+      }
+    }
+
+    carregarHorarios();
+  }, [dataSelecionada, servico]);
+
+  async function handleConfirmarAgendamento() {
+    try {
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+      if (!usuario || !usuario.id) {
+        mensagemErro("Usuário não encontrado. Faça login novamente.");
+        return;
+      }
+
+      if (!dataSelecionada || !horarioSelecionado || !pagamentoSelecionado) {
+        mensagemErro("Preencha todos os campos obrigatórios.");
+        return;
+      }
+
+      await salvarAgendamento(
+        usuario.id,
+        servico.id,
+        pagamentoSelecionado,
+        dataSelecionada,
+        horarioSelecionado
+      );
+
+      mensagemSucesso("Agendamento realizado com sucesso!");
+      onClose(); // fecha o modal
+    } catch (error) {
+      console.error("Erro ao salvar agendamento:", error);
+      mensagemErro("Erro ao realizar agendamento. Tente novamente mais tarde.");
+    }
+  }
+
+
   return (
     <Popup>
-      <>
-        <div className="nome_servico_box">
-          <p className="paragrafo-1">{servico?.nome || "Serviço"}</p>
-        </div>
+      <div className="nome_servico_box">
+        <p className="paragrafo-1">{servico?.nome || "Serviço"}</p>
+      </div>
 
-        <div className="data_box">
-          <label htmlFor="data">Selecione a data que preferir</label>
-          <input type="date" name="data" id="data" />
-        </div>
+      <div className="servicos">
+        <div className="servico_agendamento_popup">
+          
+            <label htmlFor="data">Selecione a data que preferir</label>
+            <input
+              type="date"
+              name="data"
+              id="data"
+              value={dataSelecionada}
+              onChange={(e) => setDataSelecionada(e.target.value)}
+              min={new Date().toISOString().split("T")[0]} // impedindo datas passadas
+            />
+          
 
-        <div className="horarios_box">
-          <p>Horários disponíveis</p>
-          <div className="grid_horarios">
-            {Array(12).fill("9:00").map((hora, i) => (
-              <div key={i}>{hora}</div>
+          <select
+            value={horarioSelecionado}
+            onChange={(e) => setHorarioSelecionado(e.target.value)}
+            disabled={!horarios.length}
+          >
+            <option value="" disabled hidden>
+              {dataSelecionada && servico?.id
+                ? "Selecione um horário"
+                : "Selecione data"}
+            </option>
+            {horarios.map((hora, i) => (
+              <option key={i} value={hora.horario}>
+                {hora.horario}
+              </option>
             ))}
-          </div>
+          </select>
+
+          <select
+            value={pagamentoSelecionado}
+            onChange={(e) => setPagamentoSelecionado(e.target.value)}
+          >
+            <option value="" disabled hidden>Pagamento</option>
+            {pagamentos.map((pagamento, i) => (
+              <option key={i} value={pagamento.id}>{pagamento.forma}</option>
+            ))}
+          </select>
+
+          <label htmlFor="cupom">Digite o cupom</label>
+          <input
+            placeholder="Digite o cupom (OPCIONAL)"
+            type="text"
+            name="cupom"
+            id="cupom"
+            value={cupomSelecionado}
+            onChange={(e) => setCupomSelecionado(e.target.value)}
+          />
         </div>
 
         <div className="button_box">
-          <button className="btn-rosa">Confirmar</button>
+          <button className="btn-rosa" onClick={handleConfirmarAgendamento}>Confirmar</button>
+
           <button className="btn-branco" onClick={onClose}>Cancelar</button>
         </div>
-      </>
+      </div>
     </Popup>
   );
+
 }
 
 
