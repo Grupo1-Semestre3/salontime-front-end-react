@@ -129,57 +129,61 @@ export default function Perfil() {
   return (
     <MenuDash>
       {/* DADOS PESSOAIS */}
-      <div className="dash_section_container">
-        <div className="perfil_pai_box">
-          <h1 className="supertitulo-1">Dados pessoais:</h1>
+      <div className="w-full flex justify-center py-8">
+        <div className="w-full max-w-4xl p-0 px-[10%] flex flex-col gap-4">
+          <h1 className="text-3xl font-bold mb-2 text-gray-800">Dados pessoais:</h1>
 
-          <div className="perfil_label_inp_box">
-            <label htmlFor="nome">Nome completo</label>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="nome" className="text-base font-medium">Nome completo</label>
             <input
               id="nome"
               type="text"
               value={usuarioEdicao.nome}
               onChange={handleChangeUsuario}
               placeholder="Digite seu nome completo"
+              className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
             />
           </div>
 
-          <div className="perfil_label_inp_box">
-            <label htmlFor="email">Endereço de e-mail</label>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="email" className="text-base font-medium">Endereço de e-mail</label>
             <input
               id="email"
               type="text"
               value={usuarioEdicao.email}
               onChange={handleChangeUsuario}
               placeholder="Digite seu endereço de e-mail"
+              className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
             />
           </div>
 
-          <div className="perfil_label_inp_box">
-            <label htmlFor="telefone">Número de telefone</label>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="telefone" className="text-base font-medium">Número de telefone</label>
             <input
               id="telefone"
               type="text"
               value={usuarioEdicao.telefone}
               onChange={handleChangeUsuario}
               placeholder="Digite seu número de telefone"
+              className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
             />
           </div>
 
-          <div className="perfil_label_inp_box">
-            <label htmlFor="cpf">CPF</label>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="cpf" className="text-base font-medium">CPF</label>
             <input
               id="cpf"
               type="text"
               value={usuarioEdicao.cpf}
               onChange={handleChangeUsuario}
               placeholder="Digite seu CPF"
+              className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
             />
           </div>
 
-          <div className="perfil_label_inp_box">
+          <div className="flex flex-col items-end">
             <input
-              className="btn-rosa"
+              className="bg-pink-500 hover:bg-pink-600 font-semibold rounded-[32px] cursor-pointer transition h-11 w-full text-white"
               type="button"
               value="Atualizar"
               onClick={handleAtualizarUsuario}
@@ -189,46 +193,49 @@ export default function Perfil() {
       </div>
 
       {/* ALTERAR SENHA */}
-      <div className="dash_section_container">
-        <div className="perfil_pai_box">
-          <h1 className="supertitulo-1">Alterar senha:</h1>
+      <div className="w-full flex justify-center py-8">
+        <div className="w-full max-w-4xl p-0 px-[10%] flex flex-col gap-4">
+          <h1 className="text-3xl font-bold mb-2 text-gray-800">Alterar senha:</h1>
 
-          <div className="perfil_label_inp_box">
-            <label htmlFor="inp_senha_inp">Senha atual</label>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="inp_senha_inp" className="text-base font-medium">Senha atual</label>
             <input
               id="inp_senha_inp"
               type="password"
               placeholder="Digite sua senha atual"
               value={senhaAtual}
               onChange={(e) => setSenhaAtual(e.target.value)}
+              className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
             />
           </div>
 
-          <div className="perfil_label_inp_box">
-            <label htmlFor="inp_nova_senha_inp">Nova senha</label>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="inp_nova_senha_inp" className="text-base font-medium">Nova senha</label>
             <input
               id="inp_nova_senha_inp"
               type="password"
               placeholder="Digite sua nova senha"
               value={novaSenha}
               onChange={(e) => setNovaSenha(e.target.value)}
+              className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
             />
           </div>
 
-          <div className="perfil_label_inp_box">
-            <label htmlFor="inp_nova_senha_confirmacao_inp">Confirmar nova senha</label>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="inp_nova_senha_confirmacao_inp" className="text-base font-medium">Confirmar nova senha</label>
             <input
               id="inp_nova_senha_confirmacao_inp"
               type="password"
               placeholder="Digite sua nova senha novamente"
               value={confirmarSenha}
               onChange={(e) => setConfirmarSenha(e.target.value)}
+              className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
             />
           </div>
 
-          <div className="perfil_label_inp_box">
+          <div className="flex flex-col items-end">
             <input
-              className="btn-rosa"
+              className="bg-pink-500 hover:bg-pink-600 font-semibold rounded-[32px] cursor-pointer transition h-11 w-full text-white"
               type="button"
               value="Atualizar"
               onClick={handleMudarSenha}
@@ -238,94 +245,101 @@ export default function Perfil() {
       </div>
 
       {/* INFORMAÇÕES DO SALÃO */}
-      <div className="dash_section_container">
-        <div className="perfil_pai_box">
-          <h1 className="supertitulo-1">Informações do Salão</h1>
+      <div className="w-full flex justify-center py-8">
+        <div className="w-full max-w-4xl p-0 px-[10%] flex flex-col gap-4">
+          <h1 className="text-3xl font-bold mb-2 text-gray-800">Informações do Salão</h1>
 
-          <div className="perfil_label_inp_box">
-            <label htmlFor="email">E-mail</label>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="email" className="text-base font-medium">E-mail</label>
             <input
               id="email"
               value={infoSalao.email}
               onChange={handleChangeSalao}
               placeholder="Digite email do salão"
               type="text"
+              className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
             />
           </div>
 
-          <div className="perfil_label_inp_box">
-            <label htmlFor="telefone">Número de telefone</label>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="telefone" className="text-base font-medium">Número de telefone</label>
             <input
               id="telefone"
               value={infoSalao.telefone}
               onChange={handleChangeSalao}
               placeholder="Digite o número de telefone do salão"
               type="text"
+              className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
             />
           </div>
 
-          <div className="perfil_label_inp_duplo_box perfil_log_box">
-            <div className="perfil_label_inp_duplo perfil_log">
-              <label htmlFor="logradouro">Logradouro</label>
+          <div className="flex gap-5">
+            <div className="flex flex-col flex-1 gap-2">
+              <label htmlFor="logradouro" className="text-base font-medium">Logradouro</label>
               <input
                 id="logradouro"
                 value={infoSalao.logradouro}
                 onChange={handleChangeSalao}
                 placeholder="Digite o logradouro do salão"
                 type="text"
+                className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
               />
             </div>
 
-            <div className="perfil_label_inp_duplo perfil_num">
-              <label htmlFor="numero">Número</label>
+            <div className="flex flex-col flex-1 gap-2">
+              <label htmlFor="numero" className="text-base font-medium">Número</label>
               <input
                 id="numero"
                 value={infoSalao.numero}
                 onChange={handleChangeSalao}
                 placeholder="Digite o número do salão"
                 type="text"
+                className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
               />
             </div>
           </div>
 
-          <div className="perfil_label_inp_duplo_box perfil_meio_meio_box">
-            <div className="perfil_label_inp_duplo">
-              <label htmlFor="cidade">Cidade</label>
+          <div className="flex gap-5">
+            <div className="flex flex-col flex-1 gap-2">
+              <label htmlFor="cidade" className="text-base font-medium">Cidade</label>
               <input
                 id="cidade"
                 value={infoSalao.cidade}
                 onChange={handleChangeSalao}
                 placeholder="Digite a cidade"
                 type="text"
+                className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
               />
             </div>
 
-            <div className="perfil_label_inp_duplo">
-              <label htmlFor="estado">Estado</label>
+            <div className="flex flex-col flex-1 gap-2">
+              <label htmlFor="estado" className="text-base font-medium">Estado</label>
               <input
                 id="estado"
                 value={infoSalao.estado}
                 onChange={handleChangeSalao}
                 placeholder="Digite o estado"
                 type="text"
+                className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
               />
             </div>
           </div>
 
-          <div className="perfil_label_inp_box">
-            <label htmlFor="complemento">Complemento</label>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="complemento" className="text-base font-medium">Complemento</label>
             <input
               id="complemento"
               value={infoSalao.complemento}
               onChange={handleChangeSalao}
               placeholder="Digite o complemento"
               type="text"
+              className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
             />
           </div>
 
-          <div className="perfil_label_inp_box">
+          <div className="flex flex-col items-end">
             <input
-              className="btn-rosa"
+              className="bg-pink-500 hover:bg-pink-600 font-semibold rounded-[32px] cursor-pointer transition h-11 w-full text-white"
               type="button"
               value="Atualizar"
               onClick={handleAtualizarSalao}

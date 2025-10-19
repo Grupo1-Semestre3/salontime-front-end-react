@@ -45,6 +45,9 @@ npm install react-big-calendar moment
 ```
 npm install sweetalert2
 ```
+```
+npm install tailwindcss @tailwindcss/vite
+```
 
 3. Rodar projeto:
 
