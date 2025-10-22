@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { cadastrarCliente } from "../../js/api/usuario";
-
+import { cadastrarCliente, login } from "../../js/api/usuario";
 
 export default function Cadastro() {
   const navigate = useNavigate();
@@ -17,9 +16,10 @@ export default function Cadastro() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
   e.preventDefault();
-   cadastrarCliente(form, navigate); // Passe os dados do formulário
+   await cadastrarCliente(form, navigate); // Passe os dados do formulário
+  //  await login(form.email, form.senha, navigate); // Loga o usuário após o cadastro
   };
 
   return (

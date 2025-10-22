@@ -183,7 +183,7 @@ export default function Perfil() {
 
           <div className="flex flex-col items-end">
             <input
-              className="bg-pink-500 hover:bg-pink-600 font-semibold rounded-[32px] cursor-pointer transition h-11 w-full text-white"
+              className="bg-[#DD236D] hover:bg-[#b81c59] font-semibold rounded-[32px] cursor-pointer transition h-11 w-full text-white"
               type="button"
               value="Atualizar"
               onClick={handleAtualizarUsuario}
@@ -235,7 +235,7 @@ export default function Perfil() {
 
           <div className="flex flex-col items-end">
             <input
-              className="bg-pink-500 hover:bg-pink-600 font-semibold rounded-[32px] cursor-pointer transition h-11 w-full text-white"
+              className="bg-[#DD236D] hover:bg-[#b81c59] font-semibold rounded-[32px] cursor-pointer transition h-11 w-full text-white"
               type="button"
               value="Atualizar"
               onClick={handleMudarSenha}
@@ -339,7 +339,7 @@ export default function Perfil() {
 
           <div className="flex flex-col items-end">
             <input
-              className="bg-pink-500 hover:bg-pink-600 font-semibold rounded-[32px] cursor-pointer transition h-11 w-full text-white"
+              className="bg-[#DD236D] hover:bg-[#b81c59] font-semibold rounded-[32px] cursor-pointer transition h-11 w-full text-white"
               type="button"
               value="Atualizar"
               onClick={handleAtualizarSalao}

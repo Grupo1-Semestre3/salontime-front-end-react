@@ -72,7 +72,7 @@ export default function Calendario_atendimentos() {
 
         {/* TÍTULO */}
         <div className="dash_section_container">
-          <h1 className="supertitulo-1">Atendimentos Passados:</h1>
+          <h1 className="titulo-1">Atendimentos Passados:</h1>
         </div>
 
         {/* CARD DE ATENDIMENTO */}

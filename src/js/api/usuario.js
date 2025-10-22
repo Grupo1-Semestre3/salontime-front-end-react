@@ -26,7 +26,9 @@ export function cadastrarCliente(form, navigate) {
       .then(resposta => resposta.json())
       .then(dados => {
         mensagemSucesso("Cadastro realizado com sucesso!");
-        loginComParametroPosCad(email, senha, navigate);
+        setTimeout(() => {
+          login(email, senha, navigate, true); // Loga o usuário após o cadastro
+        }, 1500);
       })
       .catch(erro => {
         console.error("Erro no cadastro:", erro);
@@ -37,58 +39,8 @@ export function cadastrarCliente(form, navigate) {
 
 }
 
-function loginComParametroPosCad(email, senha, navigate) {
-
-  fetch("http://localhost:8080/usuarios/login", {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ email, senha })
-  })
-    .then(resposta => resposta.json())
-    .then(dados => {
-      if (dados) {
-
-        localStorage.setItem("usuario", JSON.stringify(dados));
-        localStorage.setItem('isLoggedIn', '1')
-
-        if (dados.tipoUsuario.descricao == "CLIENTE") {
-
-          console.log("Cliente logado:", dados.nome);
-          mensagemSucesso("Login realizado com sucesso!")
-
-          setTimeout(() => {
-            navigate("/servicos"); // <- navega para a rota do admin
-          }, 1500);
-
-        } else if (dados.tipoUsuario.descricao == "FUNCIONARIO" || dados.tipoUsuario.descricao == "ADMINISTRADOR") {
-          console.log("Fun ou administrador logado:", dados.nome);
-          mensagemSucesso("Login realizado com sucesso!")
-          setTimeout(() => {
-            navigate("/adm/calendario-visao-geral");
-          }, 1500);
-        }
-
-
-        console.log("Usuário logado:", dados.nome);
-
-      } else {
-        mensagemErro("E-mail ou senha inválidos.");
-
-      }
-    })
-    .catch(erro => {
-      mensagemErro("E-mail ou senha inválidos.");
-      console.error("Erro no login:", erro);
-    });
-}
-
-
-// cliente.js
-export function login(email, senha, navigate) {
-
-
+export function login(email, senha, navigate, posCadastro = false) {
+  
   return fetch("http://localhost:8080/usuarios/login", {
     method: "PATCH",
     headers: {
@@ -101,22 +53,12 @@ export function login(email, senha, navigate) {
       if (dados) {
         localStorage.setItem("usuario", JSON.stringify(dados));
         localStorage.setItem("usuarioLogado", "1");
-        
-        // if (dados.tipoUsuario.descricao === "CLIENTE") {
-        //   console.log("Cliente logado:", dados.nome);
-
-        // } else if (
-        //   dados.tipoUsuario.descricao === "FUNCIONARIO" ||
-        //   dados.tipoUsuario.descricao === "ADMINISTRADOR"
-        // ) {
-        //   console.log("Fun ou administrador logado:", dados.nome);
-        //   mensagemSucesso("Login realizado com sucesso!");
-        //   window.location.href = "/html/adm_pages/calendario_visao_geral.html";
-        // }
-
+ 
         if (dados.tipoUsuario.descricao === "CLIENTE") {
           // Espera um tempo se quiser mostrar mensagem
-          mensagemSucesso("Login realizado com sucesso!");
+          if (posCadastro == false) {
+            mensagemSucesso("Login realizado com sucesso!");
+          }
           setTimeout(() => {
             navigate("/servicos"); // <- navega para a rota do cliente
           }, 1500);

@@ -50,7 +50,7 @@ export default function Config_cupons() {
 
   return (
     <MenuConfig>
-      <h1>CUPONS Disponíveis:</h1>
+      <h1 className="titulo-1">CUPONS Disponíveis:</h1>
       <p className="paragrafo-1 desc_principal">
         Lembre-se de manter os dados de perfil sempre atualizados! Assim você tem mais chances de receber um desconto!
       </p>

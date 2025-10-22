@@ -106,7 +106,7 @@ export default function Servicos_servicos() {
 
         <div className="dash_section_container">
           <div className="dash_servico_section_2">
-            <h1>Gerenciar Serviços</h1>
+            <h1 className="titulo-1">Gerenciar Serviços</h1>
             <button className="btn-rosa" onClick={() => setModalCriarAberto(true)}>
               <img
                 src="/src/assets/vector/icon_sum/jam-icons/Vector.svg"

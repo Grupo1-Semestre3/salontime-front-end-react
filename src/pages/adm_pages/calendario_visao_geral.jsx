@@ -56,7 +56,7 @@ export default function CalendarioVisaoGeral() {
         {/* MINI NAV */}
         <NavCalendario />
         <div className="dash_section_container">
-          <h1 className="supertitulo-1">Próximos atendimentos</h1>
+          <h1 className="titulo-1">Próximos atendimentos</h1>
         </div>
 
         {modalRealizarAgendamento && (

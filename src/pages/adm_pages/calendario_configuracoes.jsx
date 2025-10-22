@@ -210,7 +210,7 @@ export default function Calendario_configuracoes() {
 
         {/* HORÁRIOS PADRÃO */}
         <div className="dash_section_container">
-          <h1 className="supertitulo-1">Horários Padrão:</h1>
+          <h1 className="titulo-1">Horários Padrão:</h1>
         </div>
 
         {/* Exemplo de dia da semana (pode repetir para os outros dias) */}
@@ -230,7 +230,7 @@ export default function Calendario_configuracoes() {
         )}
         {/* HORÁRIOS DE EXCEÇÃO */}
         <div className="dash_section_container horario_excecao_titulo_box">
-          <h1>Horários de Exceção:</h1>
+          <h1 className="subtitulo bold">Horários de Exceção:</h1>
           <button className="btn-rosa" onClick={handleOpenPopupCadastroExcecao}>
             <img
               src="/src/assets/vector/icon_sum/jam-icons/Vector.svg"

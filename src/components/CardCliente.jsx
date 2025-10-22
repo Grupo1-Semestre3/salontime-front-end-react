@@ -14,7 +14,7 @@ export default function CardCliente({
       <img className="card-foto-cliente" src={foto} alt={`Foto de ${nome}`} />
 
       <div className="card-info">
-        <h2>{nome}</h2>
+        <p className="paragrafo-1 bold">{nome}</p>
 
         <div className="info-item">
           <img src="/src/assets/svg/icon_mail.svg" alt="Ícone Email" className="icon-small" />
@@ -30,7 +30,7 @@ export default function CardCliente({
       <div className="card-buttons">
         <button className="btn-rosa" onClick={onEditar}>Editar</button>
         <button className="btn-branco" onClick={onDetalhes}>Detalhes</button>
-        {exibirPendencias && <p className="paragrafo-1">Pendências: {pendencias}</p>}
+        {exibirPendencias && <p className="paragrafo-2">Pendências: {pendencias}</p>}
       </div>
     </div>
   );

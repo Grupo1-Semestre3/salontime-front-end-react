@@ -446,7 +446,7 @@ export default function Servicos_cupons() {
         <NavServicos />
         <div className="dash_section_container">
           <div className="dash_servico_section_2">
-            <h1>Gerenciar CUPONS</h1>
+            <h1 className="titulo-1">Gerenciar CUPONS</h1>
             <button className="btn-rosa" onClick={() => setShowCriarCupom(true)}>
               <img
                 src="/src/assets/vector/icon_sum/jam-icons/Vector.svg"

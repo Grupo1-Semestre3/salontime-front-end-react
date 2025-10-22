@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import MenuConfig from "/src/components/MenuConfig.jsx";
 import { infoUsuario, atualizarDadosUsuario, atualizarSenhaUsuario } from "../../js/api/caio";
-import { buscarFotoUsuario, atualizarFotoUsuario } from "../../js/api/caio";
+import { atualizarFotoUsuario } from "../../js/api/caio";
 import { mensagemErro, mensagemSucesso } from "../../js/utils";
 
 
@@ -10,7 +10,7 @@ import { mensagemErro, mensagemSucesso } from "../../js/utils";
 export default function Config_perfil({ onUpdateDados, onUpdateSenha }) {
   const [fotoPreview, setFotoPreview] = useState(() => {
     const usuarioLocal = JSON.parse(localStorage.getItem("usuario"));
-    return usuarioLocal?.foto || "/src/assets/img/usuario_foto_def.png";
+    return usuarioLocal.foto == null ? "/src/assets/img/usuario_foto_def.png" : `data:image/jpeg;base64,${usuarioLocal.foto}`;
   });
   const [usuario, setUsuario] = useState(null);
   const [dados, setDados] = useState({ id: "", nome: "", email: "", telefone: "", cpf: "", dataNascimento: "" });
@@ -24,22 +24,22 @@ export default function Config_perfil({ onUpdateDados, onUpdateSenha }) {
     }
   }, []);
 
-  useEffect(() => {
-    if (usuario && usuario.id) {
-      buscarFotoUsuario(usuario.id)
-        .then(url => {
-          console.log("URL da foto do usuário:", url);
-          setFotoPreview(url);
-          // Atualiza localStorage
-          const usuarioAtual = JSON.parse(localStorage.getItem("usuario"));
-          if (usuarioAtual) {
-            usuarioAtual.foto = url;
-            localStorage.setItem("usuario", JSON.stringify(usuarioAtual));
-          }
-        })
-        .catch(() => setFotoPreview("/src/assets/img/usuario_foto_def.png"));
-    }
-  }, [usuario]);
+  // useEffect(() => {
+  //   if (usuario && usuario.id) {
+  //     buscarFotoUsuario(usuario.id)
+  //       .then(url => {
+  //         console.log("URL da foto do usuário:", url);
+  //         setFotoPreview(url);
+  //         // Atualiza localStorage
+  //         const usuarioAtual = JSON.parse(localStorage.getItem("usuario"));
+  //         if (usuarioAtual) {
+  //           usuarioAtual.foto = url;
+  //           localStorage.setItem("usuario", JSON.stringify(usuarioAtual));
+  //         }
+  //       })
+  //       .catch(() => setFotoPreview("/src/assets/img/usuario_foto_def.png"));
+  //   }
+  // }, [usuario]);
 
   const handleFotoChange = async (e) => {
     const file = e.target.files[0];
