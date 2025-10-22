@@ -141,7 +141,7 @@ export default function Perfil() {
               value={usuarioEdicao.nome}
               onChange={handleChangeUsuario}
               placeholder="Digite seu nome completo"
-              className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
+              className="rounded-[16px] border-0 px-12 bg-white h-12"
             />
           </div>
 
@@ -153,7 +153,7 @@ export default function Perfil() {
               value={usuarioEdicao.email}
               onChange={handleChangeUsuario}
               placeholder="Digite seu endereço de e-mail"
-              className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
+              className="rounded-[16px] border-0 px-12 bg-white h-12"
             />
           </div>
 
@@ -165,7 +165,7 @@ export default function Perfil() {
               value={usuarioEdicao.telefone}
               onChange={handleChangeUsuario}
               placeholder="Digite seu número de telefone"
-              className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
+              className="rounded-[16px] border-0 px-12 bg-white h-12"
             />
           </div>
 
@@ -177,7 +177,7 @@ export default function Perfil() {
               value={usuarioEdicao.cpf}
               onChange={handleChangeUsuario}
               placeholder="Digite seu CPF"
-              className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
+              className="rounded-[16px] border-0 px-12 bg-white h-12"
             />
           </div>
 
@@ -186,6 +186,7 @@ export default function Perfil() {
               className="bg-[#DD236D] hover:bg-[#b81c59] font-semibold rounded-[32px] cursor-pointer transition h-11 w-full text-white"
               type="button"
               value="Atualizar"
+              style={{ color: "white" }}
               onClick={handleAtualizarUsuario}
             />
           </div>
@@ -205,7 +206,7 @@ export default function Perfil() {
               placeholder="Digite sua senha atual"
               value={senhaAtual}
               onChange={(e) => setSenhaAtual(e.target.value)}
-              className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
+              className="rounded-[16px] border-0 px-12 bg-white h-12"
             />
           </div>
 
@@ -217,7 +218,7 @@ export default function Perfil() {
               placeholder="Digite sua nova senha"
               value={novaSenha}
               onChange={(e) => setNovaSenha(e.target.value)}
-              className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
+              className="rounded-[16px] border-0 px-12 bg-white h-12"
             />
           </div>
 
@@ -229,7 +230,7 @@ export default function Perfil() {
               placeholder="Digite sua nova senha novamente"
               value={confirmarSenha}
               onChange={(e) => setConfirmarSenha(e.target.value)}
-              className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
+              className="rounded-[16px] border-0 px-12 bg-white h-12"
             />
           </div>
 
@@ -238,6 +239,7 @@ export default function Perfil() {
               className="bg-[#DD236D] hover:bg-[#b81c59] font-semibold rounded-[32px] cursor-pointer transition h-11 w-full text-white"
               type="button"
               value="Atualizar"
+              style={{ color: "white" }}
               onClick={handleMudarSenha}
             />
           </div>
@@ -257,7 +259,7 @@ export default function Perfil() {
               onChange={handleChangeSalao}
               placeholder="Digite email do salão"
               type="text"
-              className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
+              className="rounded-[16px] border-0 px-12 bg-white h-12"
             />
           </div>
 
@@ -269,7 +271,7 @@ export default function Perfil() {
               onChange={handleChangeSalao}
               placeholder="Digite o número de telefone do salão"
               type="text"
-              className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
+              className="rounded-[16px] border-0 px-12 bg-white h-12"
             />
           </div>
 
@@ -282,7 +284,7 @@ export default function Perfil() {
                 onChange={handleChangeSalao}
                 placeholder="Digite o logradouro do salão"
                 type="text"
-                className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
+                className="rounded-[16px] border-0 px-12 bg-white h-12"
               />
             </div>
 
@@ -294,7 +296,7 @@ export default function Perfil() {
                 onChange={handleChangeSalao}
                 placeholder="Digite o número do salão"
                 type="text"
-                className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
+                className="rounded-[16px] border-0 px-12 bg-white h-12"
               />
             </div>
           </div>
@@ -308,7 +310,7 @@ export default function Perfil() {
                 onChange={handleChangeSalao}
                 placeholder="Digite a cidade"
                 type="text"
-                className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
+                className="rounded-[16px] border-0 px-12 bg-white h-12"
               />
             </div>
 
@@ -320,7 +322,7 @@ export default function Perfil() {
                 onChange={handleChangeSalao}
                 placeholder="Digite o estado"
                 type="text"
-                className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
+                className="rounded-[16px] border-0 px-12 bg-white h-12"
               />
             </div>
           </div>
@@ -333,7 +335,7 @@ export default function Perfil() {
               onChange={handleChangeSalao}
               placeholder="Digite o complemento"
               type="text"
-              className="rounded-[16px] border-0 px-12 bg-white border-0 h-12"
+              className="rounded-[16px] border-0 px-12 bg-white h-12"
             />
           </div>
 
@@ -342,6 +344,7 @@ export default function Perfil() {
               className="bg-[#DD236D] hover:bg-[#b81c59] font-semibold rounded-[32px] cursor-pointer transition h-11 w-full text-white"
               type="button"
               value="Atualizar"
+              style={{ color: "white" }}
               onClick={handleAtualizarSalao}
             />
           </div>

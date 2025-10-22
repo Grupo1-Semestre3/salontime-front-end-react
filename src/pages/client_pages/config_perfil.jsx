@@ -1,8 +1,7 @@
 
 import { useState, useEffect } from "react";
 import MenuConfig from "/src/components/MenuConfig.jsx";
-import { infoUsuario, atualizarDadosUsuario, atualizarSenhaUsuario } from "../../js/api/caio";
-import { atualizarFotoUsuario } from "../../js/api/caio";
+import { infoUsuario, atualizarDadosUsuario, atualizarSenhaUsuario, atualizarFotoUsuario, buscarFotoUsuario } from "../../js/api/caio";
 import { mensagemErro, mensagemSucesso } from "../../js/utils";
 
 
@@ -10,7 +9,7 @@ import { mensagemErro, mensagemSucesso } from "../../js/utils";
 export default function Config_perfil({ onUpdateDados, onUpdateSenha }) {
   const [fotoPreview, setFotoPreview] = useState(() => {
     const usuarioLocal = JSON.parse(localStorage.getItem("usuario"));
-    return usuarioLocal.foto == null ? "/src/assets/img/usuario_foto_def.png" : `data:image/jpeg;base64,${usuarioLocal.foto}`;
+    return usuarioLocal.foto == null ? "/src/assets/img/usuario_foto_def.png" : `${usuarioLocal.foto}`;
   });
   const [usuario, setUsuario] = useState(null);
   const [dados, setDados] = useState({ id: "", nome: "", email: "", telefone: "", cpf: "", dataNascimento: "" });
@@ -47,16 +46,14 @@ export default function Config_perfil({ onUpdateDados, onUpdateSenha }) {
       try {
         await atualizarFotoUsuario(usuario.id, file);
         mensagemSucesso("Foto atualizada com sucesso!");
-        buscarFotoUsuario(usuario.id)
-          .then(url => {
-            setFotoPreview(url);
-            // Atualiza localStorage
-            const usuarioAtual = JSON.parse(localStorage.getItem("usuario"));
-            if (usuarioAtual) {
-              usuarioAtual.foto = url;
-              localStorage.setItem("usuario", JSON.stringify(usuarioAtual));
-            }
-          });
+        const url = await buscarFotoUsuario(usuario.id);
+        setFotoPreview(url);
+        // Atualiza localStorage
+        const usuarioAtual = JSON.parse(localStorage.getItem("usuario"));
+        if (usuarioAtual) {
+          usuarioAtual.foto = url;
+          localStorage.setItem("usuario", JSON.stringify(usuarioAtual));
+        }
       } catch (error) {
         mensagemErro("Erro ao atualizar foto.");
       }

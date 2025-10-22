@@ -3,37 +3,38 @@ import { mensagemErro, mensagemSucesso } from "../utils";
 
 // PATCH foto do usuário
 export async function atualizarFotoUsuario(id, fotoFile) {
-  const formData = new FormData();
-  formData.append("foto", fotoFile);
   try {
-    const response = await axios.patch(`http://localhost:8080/usuarios/foto/${id}`, formData, {
-      headers: { "Content-Type": "multipart/form-data" }
+    // Ler arquivo como ArrayBuffer e enviar diretamente no body
+    const arrayBuffer = await fotoFile.arrayBuffer();
+    const response = await axios.patch(`http://localhost:8080/usuarios/foto/${id}`, arrayBuffer, {
+      headers: { "Content-Type": "application/octet-stream" },
+      responseType: 'arraybuffer'
     });
     return response.data;
   } catch (error) {
     mensagemErro("Erro ao atualizar foto do usuário.");
+    console.error("Erro ao atualizar foto do usuário:", error);
     throw error;
   }
 }
 
-// GET foto do usuário
-// export async function buscarFotoUsuario(id) {
-//   try {
-//     const response = await axios.get(`http://localhost:8080/usuarios/foto/${id}`, {
-//       responseType: "arraybuffer"
-//     });
-//     // Converte para base64 para exibir no <img>
-//     const base64 = btoa(
-//       new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), "")
-//     );
-//     // Descobre o tipo da imagem pelo header
-//     const contentType = response.headers["content-type"] || "image/png";
-//     return `data:${contentType};base64,${base64}`;
-//   } catch (error) {
-//     mensagemErro("Erro ao buscar foto do usuário.");
-//     throw error;
-//   }
-// }
+// GET foto do usuário - retorna data URL (base64)
+export async function buscarFotoUsuario(id) {
+  try {
+    const response = await axios.get(`http://localhost:8080/usuarios/foto/${id}`, {
+      responseType: 'arraybuffer'
+    });
+    const base64 = btoa(
+      new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), "")
+    );
+    const contentType = response.headers['content-type'] || 'image/png';
+    return `data:${contentType};base64,${base64}`;
+  } catch (error) {
+    mensagemErro("Erro ao buscar foto do usuário.");
+    console.error("Erro ao buscar foto do usuário:", error);
+    throw error;
+  }
+}
 
 export async function buscarProximoAgendamento(id) {
   try {
