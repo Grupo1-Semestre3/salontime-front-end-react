@@ -114,9 +114,12 @@ export async function infoUsuario(id) {
   }
 }
 
-export function atualizarDadosUsuario(id, dados) {
+export async function atualizarDadosUsuario(id, dados) {
   try {
-    axios.put(`http://localhost:8080/usuarios/${id}`, dados);
+    const usuarioAtual = await axios.get(`http://localhost:8080/usuarios/${id}`);
+    dadosParaAtualizar = { ...usuarioAtual.data, ...dados };
+
+    await axios.put(`http://localhost:8080/usuarios/${id}`, dadosParaAtualizar);
     localStorage.setItem("usuario", JSON.stringify(dados));
     console.log("Dados do usuário atualizados com sucesso!");
   } catch (error) {
