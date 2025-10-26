@@ -171,8 +171,8 @@ export default function Servicos() {
               <div className="card_proximo_agendamento shadow" style={{ display: proximoAgendamento && proximoAgendamento.statusAgendamento?.id === 1 ? "flex" : "none" }}>
                 <div className="conteudo">
                   <p className="paragrafo-1 bold">{proximoAgendamento.servico?.nome}</p>
-                  <p className="paragrafo-1 bold" style={{ display: "flex", alignItems: "end" }}>
-                    <img src="/src/assets/vector/icon_horariio/ionicons/sharp/time-sharp.svg" alt="" />
+                  <p className="paragrafo-1 bold" style={{ display: "flex", alignItems: "center", gap: '4px' }}>
+                    <img src="/src/assets/vector/icon_horariio/ionicons/sharp/time-sharp.svg" alt="" style={{ minHeight: "20px", minWidth: "20px" }}  />
                     {/* 01/01/2000 00:00pm */}
                     {proximoAgendamento.data || "--/--/----"} {proximoAgendamento.inicio || "--:--"}h
                   </p>
@@ -261,7 +261,7 @@ export default function Servicos() {
                 <div className="marina_points_conexao"></div>
               </div>
             </div>
-            <img src="/src/assets/vector/icon_cupom/bootstrap/filled/tags-fill.svg" alt="icon-cupom" />
+            <img src="/src/assets/vector/icon_cupom/bootstrap/filled/tags-fill.svg" alt="icon-cupom" className="icon-cupom-max"/>
           </div>
         </section>
       )}
