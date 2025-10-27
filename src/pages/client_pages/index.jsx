@@ -179,15 +179,47 @@ export default function Index() {
 
 
       {/* Sobre mim */}
-      <section className="sobre_section_pai">
+      <section className="sobre_section_pai_1">
         <img src="/src/assets/img/marina_sobre_mim.png" alt="sobre-mim" style={{ height: "576px" }} />
         <div className="sobre_section_container">
           <p className="titulo-1" style={{ fontFamily: "Georgia" }}>Sobre Mim</p>
           <p className="paragrafo-2" style={{ maxWidth: "424px" }}>
-            Texto com uma breve descrição da Marina<br />
-            Texto com uma breve descrição da Marina<br />
-            Texto com uma breve descrição da Marina<br />
-            Texto com uma breve descrição da Marina
+            Olá! Sou a Marina Mota, cabeleireira com mais de 10 anos de experiência 
+            atendendo mulheres na região do ABC Paulista. Acredito que 
+            cada cabelo conta uma história, e meu trabalho é trazer à tona o melhor 
+            de cada mulher, com cuidado, técnica e muito brilho! 💖
+          </p>
+          <p className="paragrafo-2 italic sobre_section_social">
+            <img src="/src/assets/svg/icon_whatsapp 1.svg" alt="icon-zap" />
+            {infoSalao.telefone || '(11) 98765-4321'}
+          </p>
+          <p className="paragrafo-2 italic sobre_section_social">
+            <img src="/src/assets/svg/icon_instagram2.svg" alt="icon-insta" />
+            @marinamotahair
+          </p>
+          <button
+            className="btn-rosa"
+            onClick={() => navigate("/servicos")}
+          >
+            <img src="/src/assets/vector/icon_sum/jam-icons/Vector.svg" alt="" />
+            Agendar
+          </button>
+        </div>
+      </section>
+
+
+
+      <section className="sobre_section_pai_2">
+        <div className="sobre_mim_title">
+          <img src="/src/assets/img/marina_sobre_mim.png" alt="sobre-mim" style={{ height: "150px" }} />
+          <p className="titulo-1" style={{ fontFamily: "Georgia", fontSize: "50px" }}>Sobre <br/> Mim</p>
+        </div>
+        <div className="sobre_section_container">
+          <p className="paragrafo-2" style={{ maxWidth: "424px" }}>
+            Olá! Sou a Marina Mota, cabeleireira com mais de 10 anos de experiência 
+            atendendo mulheres na região do ABC Paulista. Acredito que 
+            cada cabelo conta uma história, e meu trabalho é trazer à tona o melhor 
+            de cada mulher, com cuidado, técnica e muito brilho! 💖
           </p>
           <p className="paragrafo-2 italic sobre_section_social">
             <img src="/src/assets/svg/icon_whatsapp 1.svg" alt="icon-zap" />
@@ -234,7 +266,7 @@ export default function Index() {
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3658.6253637830596!2d-46.5593502!3d-23.657927!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce425d6f37e0cf%3A0x92b7fbb1e0c21678!2sR.%20Adamantina%2C%2034%20-%203%20-%20Baeta%20Neves%2C%20S%C3%A3o%20Bernardo%20do%20Campo%20-%20SP%2C%2009760-340!5e0!3m2!1spt-BR!2sbr!4v1692279080345!5m2!1spt-BR!2sbr"
               width="100%"
               height="100%"
-              style={{ border: 0, borderRadius: "0px 0px 32px 32px" }}
+              style={{ border: 0, borderRadius: "0px 0px 16px 16px" }}
               allowFullScreen=""
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
