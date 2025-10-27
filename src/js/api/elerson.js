@@ -107,3 +107,42 @@ export async function buscarFuncionariosCompetentes(servicoId) {
     throw error;
   }
 }
+
+export async function buscarKPI(ano, mes) {
+  try {
+    const response = await axios.get(
+      `http://localhost:8080/dashboard/kpi/${ano}/${mes}`
+    );
+    console.log("KPI Data:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar KPI:", error);
+    throw error;
+  }
+}
+
+export async function buscarKPIUsuarios(ano, mes) {
+  try {
+    const response = await axios.get(
+      `http://localhost:8080/dashboard/kpi-usuarios/${ano}/${mes}`
+    );
+    console.log("KPI Usuários Data:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar KPI de usuários:", error);
+    throw error;
+  }
+}
+
+export async function buscarAtendimentoGrafico(ano, mes) {
+  try {
+    const response = await axios.get(
+      `http://localhost:8080/dashboard/atendimento-grafico/${ano}/${mes}`
+    );
+    console.log("Atendimento Gráfico Data:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar dados de atendimento para gráfico:", error);
+    throw error;
+  }
+}
