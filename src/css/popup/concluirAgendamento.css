@@ -2,6 +2,8 @@
     gap: 10px;
     display: flex;
     flex-direction: column;
+
+    min-width: 300px;
 }
 
 .calendario_box_info_concluir_agendamento{

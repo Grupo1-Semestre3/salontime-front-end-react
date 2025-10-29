@@ -93,7 +93,7 @@ export default function CalendarioVisaoGeral() {
                     alt="icone tempo"
                     style={{ width: "38px", height: "38px" }}
                   />
-                  {agendamento.data} - incio {agendamento.inicio} até {agendamento.fim}
+                  {agendamento.data}, Início {agendamento.inicio} - Fim {agendamento.fim}
                 </p>
               </div>
               <div className="calendario_buttons_box_card_proximo_atendimento">

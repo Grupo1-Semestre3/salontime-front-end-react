@@ -46,9 +46,9 @@ export default function FormularioCliente({
 
   return (
     <div className="form-cliente-container">
-      <h3 className="bold">
+      <p className="paragrafo-1 bold">
         {mode === "create" ? "Cadastrar Cliente" : "Editar Cliente"}
-      </h3>
+      </p>
 
       <form className="form-cliente" onSubmit={handleSubmit}>
         <div className="form-group">
@@ -95,7 +95,7 @@ export default function FormularioCliente({
             name="cpf"
             value={formData.cpf}
             onChange={handleChange}
-            required
+            // required
           />
         </div>
 
@@ -106,7 +106,7 @@ export default function FormularioCliente({
             name="dataNascimento"
             value={formData.dataNascimento}
             onChange={handleChange}
-            required
+            // required
           />
         </div>
 

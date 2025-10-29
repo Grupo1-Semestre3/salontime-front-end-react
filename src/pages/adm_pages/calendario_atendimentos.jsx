@@ -129,9 +129,7 @@ export default function Calendario_atendimentos() {
 
             )}
 
-              {(agendamento.statusAgendamento.status === "CONCLUIDO" || 
-                agendamento.statusAgendamento.status === "CANCELADO") && (
-                  <button 
+            <button 
                     className="btn-branco" 
                     onClick={() => {
                       carregarDadosHistorico(agendamento.id)
@@ -140,7 +138,7 @@ export default function Calendario_atendimentos() {
                   >
                     Detalhes
                   </button>
-              )}
+              
 
             </div>
           </div>
@@ -172,7 +170,7 @@ function ConcluirAgendamentoPop({ dados, onClose, atualizarAgendamentos  }) {
       <>
         <div className="calendario_box_popup_concluir_agendamento">
           <div className="calendario_nome_cliente_box">
-            <p className="paragrafo-1">{dados.usuario?.nome}</p>
+            <p className="paragrafo-1 semibold">{dados.usuario?.nome}</p>
           </div>
           <div className="calendario_box_info_concluir_agendamento">
             <p><strong>Servico:</strong> {dados.servico.nome}</p>

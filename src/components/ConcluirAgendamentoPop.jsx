@@ -12,13 +12,13 @@ export default function ConcluirAgendamentoPop({ dados, onClose, atualizarAgenda
     <Popup>
       <div className="calendario_box_popup_concluir_agendamento">
         <div className="calendario_nome_cliente_box">
-          <p className="paragrafo-1">{dados.usuario?.nome}</p>
+          <p className="paragrafo-1 semibold">{dados.usuario?.nome}</p>
         </div>
 
         <div className="calendario_box_info_concluir_agendamento">
           <p><strong>Serviço:</strong> {dados.servico?.nome}</p>
           <p>
-            <img src="/src/assets/svg/time-sharp.svg" alt="" />: {dataFormatada} {dados.inicio} horas
+            <img src="/src/assets/svg/time-sharp.svg" alt=""/>{dataFormatada} {dados.inicio} horas
           </p>
           <p><strong>Valor:</strong> R${dados.preco}</p>
           <p><strong>Cupom:</strong> {dados.cupom?.descricao || "Sem cupom"}</p>
