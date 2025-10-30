@@ -3,7 +3,7 @@ import "../../css/popup/realizarAgendamento.css";
 import { use, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
-import { exibirHorariosDisponiveis, listarPagamento, salvarAgendamento } from "../../js/api/maikon.js"; // ✅ Adicione esse import
+import { exibirHorariosDisponiveis, listarPagamento, salvarAgendamento, reagendarAgendamento } from "../../js/api/maikon.js"; 
 
 // COMPONENTES
 import NavbarLandingPage from "/src/components/NavbarLandingPage.jsx";
@@ -11,7 +11,7 @@ import Footer from "/src/components/Footer.jsx";
 import Popup, { PopupAlerta } from "../../components/Popup.jsx";
 
 // JS 
-import { mensagemSucesso, mensagemErro } from "../../js/utils.js";
+import { mensagemSucesso, mensagemErro, formatarDataBR } from "../../js/utils.js";
 import { buscarServicos } from "../../js/api/servico.js"
 import { buscarProximoAgendamento, cancelarAgendamentoJS, enviarMotivoCancelar } from "../../js/api/caio.js"
 import "../../css/popup/padraoPopup.css";
@@ -27,6 +27,9 @@ export default function Servicos() {
   const [servicoSelecionado, setServicoSelecionado] = useState(null);
   const [proximoAgendamento, setProximoAgendamento] = useState({});
   const [horarioSelecionado, setHorarioSelecionado] = useState("");
+  const [dadosParaReagendar, setDadosParaReagendar] = useState(null)
+  const [modalRealizarReagendamento, setModalRealizarReagendamento] = useState(false);
+
 
   useEffect(() => {
     const usuario = localStorage.getItem("usuario");
@@ -94,7 +97,17 @@ export default function Servicos() {
       return
     }
     setPopupAlertaAberto(false);
-    // Aqui você pode atualizar a lista de agendamentos, mostrar mensagem, etc.
+
+  };
+
+  
+  const carregarProximoAgendamento = async (idUsuario) => {
+    try {
+      const data = await buscarProximoAgendamento(idUsuario);
+      setProximoAgendamento(data);
+    } catch (error) {
+      console.error("Erro ao carregar próximo agendamento:", error);
+    }
   };
 
   const confirmarMotivoCancelar = () => {
@@ -107,7 +120,7 @@ export default function Servicos() {
       return
     }
     setPopupMotivoCancelar(false);
-    // Aqui você pode atualizar a lista de agendamentos, mostrar mensagem, etc.
+    
   }
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -126,6 +139,16 @@ export default function Servicos() {
         />
       )}
 
+      {modalRealizarReagendamento && dadosParaReagendar && (
+        <RealizarReagendamento
+          onClose={() => {
+            setModalRealizarReagendamento(false);
+            setDadosParaReagendar(null);
+          }}
+          dadosAgendamento={dadosParaReagendar}
+          onAgendamentoSalvo={() => carregarProximoAgendamento(usuario.id)}
+        />
+      )}
 
       {/* NAV */}
       <NavbarLandingPage />
@@ -172,16 +195,21 @@ export default function Servicos() {
                 <div className="conteudo">
                   <p className="paragrafo-1 bold">{proximoAgendamento.servico?.nome}</p>
                   <p className="paragrafo-1 bold" style={{ display: "flex", alignItems: "center", gap: '4px' }}>
-                    <img src="/src/assets/vector/icon_horariio/ionicons/sharp/time-sharp.svg" alt="" style={{ minHeight: "20px", minWidth: "20px" }}  />
+                    <img src="/src/assets/vector/icon_horariio/ionicons/sharp/time-sharp.svg" alt="" style={{ minHeight: "20px", minWidth: "20px" }} />
                     {/* 01/01/2000 00:00pm */}
-                    {proximoAgendamento.data || "--/--/----"} {proximoAgendamento.inicio || "--:--"}h
+                    {formatarDataBR(proximoAgendamento.data)  || "--/--/----"} {proximoAgendamento.inicio || "--:--"}h
                   </p>
                   <p className="paragrafo-1">
                     <b>Status:</b> {proximoAgendamento.statusAgendamento?.status || "Sem status"}
                   </p>
                 </div>
                 <div className="btn-juntos" style={{ flexDirection: "column" }}>
-                  <button className="btn-rosa paragrafo-1">Reagendar</button>
+                  <button className="btn-rosa paragrafo-1"
+                    onClick={() => {
+                      setDadosParaReagendar(proximoAgendamento);
+                      setModalRealizarReagendamento(true);
+                    }}
+                  >Reagendar</button>
                   <button className="btn-branco paragrafo-1" onClick={handleCancelarClick}>Cancelar</button>
                   {popupAlertaAberto && (
                     <PopupAlerta
@@ -261,7 +289,7 @@ export default function Servicos() {
                 <div className="marina_points_conexao"></div>
               </div>
             </div>
-            <img src="/src/assets/vector/icon_cupom/bootstrap/filled/tags-fill.svg" alt="icon-cupom" className="icon-cupom-max"/>
+            <img src="/src/assets/vector/icon_cupom/bootstrap/filled/tags-fill.svg" alt="icon-cupom" className="icon-cupom-max" />
           </div>
         </section>
       )}
@@ -419,17 +447,17 @@ function RealizarAgendamento({ servico, onClose }) {
 
       <div className="servicos">
         <div className="servico_agendamento_popup">
-          
-            <label htmlFor="data">Selecione a data que preferir</label>
-            <input
-              type="date"
-              name="data"
-              id="data"
-              value={dataSelecionada}
-              onChange={(e) => setDataSelecionada(e.target.value)}
-              min={new Date().toISOString().split("T")[0]} // impedindo datas passadas
-            />
-          
+
+          <label htmlFor="data">Selecione a data que preferir</label>
+          <input
+            type="date"
+            name="data"
+            id="data"
+            value={dataSelecionada}
+            onChange={(e) => setDataSelecionada(e.target.value)}
+            min={new Date().toISOString().split("T")[0]} // impedindo datas passadas
+          />
+
 
           <select
             value={horarioSelecionado}
@@ -482,3 +510,88 @@ function RealizarAgendamento({ servico, onClose }) {
 
 
 
+function RealizarReagendamento({ onClose, dadosAgendamento, onAgendamentoSalvo }) {
+  const [dataSelecionada, setDataSelecionada] = useState("");
+  const [horarios, setHorarios] = useState([]);
+  const [horarioSelecionado, setHorarioSelecionado] = useState("");
+
+  const servicoId = dadosAgendamento?.servico?.id;
+  const agendamentoId = dadosAgendamento?.id;
+
+  // 🔁 Buscar horários quando data muda
+  useEffect(() => {
+    async function carregarHorarios() {
+      if (dataSelecionada && servicoId) {
+        try {
+          const horariosDisponiveis = await exibirHorariosDisponiveis(servicoId, dataSelecionada);
+          setHorarios(horariosDisponiveis);
+        } catch (error) {
+          console.error("Erro ao buscar horários:", error);
+          mensagemErro("Erro ao buscar horários disponíveis.");
+        }
+      }
+    }
+
+    carregarHorarios();
+  }, [dataSelecionada, servicoId]);
+
+  const handleConfirmarReagendamento = async () => {
+    if (!dataSelecionada || !horarioSelecionado) {
+      mensagemErro("Selecione uma nova data e horário.");
+      return;
+    }
+
+    console.log("###############3")
+    console.log(agendamentoId, dataSelecionada, horarioSelecionado)
+    console.log("###############3")
+    try {
+      await reagendarAgendamento(agendamentoId, dataSelecionada, horarioSelecionado);
+      mensagemSucesso("Reagendamento realizado com sucesso!");
+      if (onAgendamentoSalvo) await onAgendamentoSalvo();
+      onClose();
+    } catch (error) {
+      console.error("Erro ao reagendar:", error);
+      mensagemErro("Erro ao realizar reagendamento.");
+    }
+  };
+
+  return (
+    <Popup>
+      <div className="calendario_box_popup_realizar_agendamento_adm">
+        <h2 className="supertitulo-2">Reagendar Atendimento</h2>
+
+        <p className="paragrafo-2">Serviço: <strong>{dadosAgendamento?.servico?.nome}</strong></p>
+
+        <div className="calendario_box_lbl_inp_popup">
+          <label>Nova data</label>
+          <input
+            type="date"
+            value={dataSelecionada}
+            onChange={(e) => setDataSelecionada(e.target.value)}
+            min={new Date().toISOString().split("T")[0]}
+          />
+        </div>
+
+        <div className="calendario_box_down_boxes_popup">
+          <label>Horários disponíveis</label>
+          <select
+            value={horarioSelecionado}
+            onChange={(e) => setHorarioSelecionado(e.target.value)}
+          >
+            <option value="" disabled hidden>Selecione o horário</option>
+            {horarios.map((hora, i) => (
+              <option key={i} value={hora.horario}>
+                {hora.horario}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="button_box">
+          <button className="btn-rosa" onClick={handleConfirmarReagendamento}>Confirmar</button>
+          <button className="btn-branco" onClick={onClose}>Cancelar</button>
+        </div>
+      </div>
+    </Popup>
+  );
+}

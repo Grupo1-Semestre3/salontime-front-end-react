@@ -124,24 +124,11 @@ function verificarLoginServicos() {
 }
 
 // Util - 6 - Formatar data para padrão brasileiro (DD/MM/YYYY)
-function formatarDataBR(dataISO) {
-  if (!dataISO) return "Data inválida";
+function formatarDataBR(data) {
+  if (!data) return "Data inválida";
 
-  try {
-    const data = new Date(dataISO);
-
-    // Verifica se a data é válida
-    if (isNaN(data.getTime())) return "Data inválida";
-
-    const dia = String(data.getDate()).padStart(2, "0");
-    const mes = String(data.getMonth() + 1).padStart(2, "0");
-    const ano = data.getFullYear();
-
-    return `${dia}/${mes}/${ano}`;
-  } catch (error) {
-    console.error("Erro ao formatar data:", error);
-    return "Data inválida";
-  }
+  const [ano, mes, dia] = data.split("-");
+  return `${dia}/${mes}/${ano}`;
 }
 
 
