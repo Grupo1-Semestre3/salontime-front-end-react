@@ -5,9 +5,10 @@ import NavCalendario from "../../components/NavCalendario";
 import Calendario from "../../components/Calendario";
 import "../../css/popup/realizarAgendamentoADM.css"
 import Popup from "../../components/Popup.jsx";
-import { mensagemErro, mensagemSucesso } from "../../js/utils.js"
+import { mensagemErro, mensagemSucesso, formatarDataBR } from "../../js/utils.js"
 import { buscarProximosAgendamentosFuncionario } from "../../js/api/agendamento";
 import { listarServicos, listarClientes, listarPagamento, exibirHorariosDisponiveis, salvarAgendamento, reagendarAgendamento } from "../../js/api/maikon.js"
+import { cancelarAgendamentoJS, enviarMotivoCancelar, cadastrarExcecao} from "../../js/api/caio.js"
 
 export default function CalendarioVisaoGeral() {
   const navigate = useNavigate();
@@ -15,10 +16,43 @@ export default function CalendarioVisaoGeral() {
   const [modalRealizarAgendamento, setModalRealizarAgendamento] = useState(false);
   const [modalRealizarReagendamento, setModalRealizarReagendamento] = useState(false);
   const [dadosParaReagendar, setDadosParaReagendar] = useState(null);
+  const [popupAlertaAberto, setPopupAlertaAberto] = useState(false);
+  const [agendamentoParaCancelar, setAgendamentoParaCancelar] = useState(null);
+  const [popupMotivoCancelar, setPopupMotivoCancelar] = useState(false);
 
+  const [novoHorarioExcecao, setNovoHorarioExcecao] = useState({});
+  const [popupCadastroExcecao, setPopupCadastroExcecao] = useState(false);
+  
 
+  
 
-  // 👉 Função reutilizável para buscar agendamentos
+  const confirmarCadastroExcecao = async () => {
+      const valid = validateHorario(novoHorarioExcecao, "excecao");
+      if (!valid.ok) {
+        setPopupCadastroExcecao(false);
+        mensagemErro(valid.mensagem);
+        return;
+      }
+
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+      const { aberto, capacidade } = novoHorarioExcecao;
+      const dados = {
+        ...novoHorarioExcecao,
+        capacidade: aberto === 1 ? Number(capacidade) : 0,
+        funcionario: { id: usuario.id }
+      };
+      try {
+        await cadastrarExcecao(dados);
+        setPopupCadastroExcecao(false);
+        mensagemSucesso(`Exceção cadastrada com sucesso!`);
+        setNovoHorarioExcecao({});
+      } catch (error) {
+        setPopupCadastroExcecao(false);
+        mensagemErro("Erro ao cadastrar exceção. Tente novamente mais tarde.");
+      }
+    };
+
   const carregarAgendamentos = async () => {
     const usuario = JSON.parse(localStorage.getItem("usuario"));
     if (usuario && usuario.id) {
@@ -30,6 +64,49 @@ export default function CalendarioVisaoGeral() {
       }
     }
   };
+
+  const handleCancelarClick = (agendamento) => {
+    setAgendamentoParaCancelar(agendamento);
+    setPopupAlertaAberto(true);
+  };
+
+  const handleMotivoCancelar = () => {
+    setPopupMotivoCancelar(true);
+  };
+
+  const handleOpenPopupCadastroExcecao = () => {
+    setNovoHorarioExcecao({});
+    setPopupCadastroExcecao(true);
+  };
+  const confirmarMotivoCancelar = () => {
+    try {
+      const descricao = document.getElementById("motivo-cancelamento").value;
+      enviarMotivoCancelar({
+        descricao,
+        agendamento: agendamentoParaCancelar
+      });
+      mensagemSucesso("Motivo de cancelamento enviado com sucesso!");
+    } catch (error) {
+      mensagemErro("Erro ao enviar motivo de cancelamento. Tente novamente mais tarde.");
+    }
+    setPopupMotivoCancelar(false);
+  };
+
+  const confirmarCancelamento = async () => {
+    try {
+      await cancelarAgendamentoJS(agendamentoParaCancelar.id);
+      mensagemSucesso("Agendamento cancelado com sucesso!");
+
+      setTimeout(() => {
+        handleMotivoCancelar();
+      }, 1500);
+      carregarAgendamentos()
+    } catch (error) {
+      mensagemErro("Erro ao cancelar agendamento. Tente novamente mais tarde.");
+    }
+    setPopupAlertaAberto(false);
+  };
+
 
   useEffect(() => {
     carregarAgendamentos();
@@ -66,6 +143,17 @@ export default function CalendarioVisaoGeral() {
           />
         )}
 
+        {popupMotivoCancelar && (
+          <Popup>
+            <p className="paragrafo-2 semibold">Pode nos dizer o motivo do cancelamento?</p>
+            <textarea id="motivo-cancelamento" placeholder="Digite o motivo do cancelamento..." />
+            <div className="btn-juntos">
+              <button className="btn-rosa" onClick={() => confirmarMotivoCancelar()}>Enviar</button>
+              <button className="btn-branco" onClick={() => setPopupMotivoCancelar(false)}>Pular</button>
+            </div>
+          </Popup>
+        )}
+
         {modalRealizarReagendamento && dadosParaReagendar && (
           <RealizarReagendamento
             onClose={() => {
@@ -93,7 +181,7 @@ export default function CalendarioVisaoGeral() {
                     alt="icone tempo"
                     style={{ width: "38px", height: "38px" }}
                   />
-                  {agendamento.data}, Início {agendamento.inicio} - Fim {agendamento.fim}
+                  {formatarDataBR(agendamento.data)}, Início {agendamento.inicio} - Fim {agendamento.fim}
                 </p>
               </div>
               <div className="calendario_buttons_box_card_proximo_atendimento">
@@ -108,7 +196,15 @@ export default function CalendarioVisaoGeral() {
                   Reagendar
                 </button>
 
-                <button className="btn-branco" style={{ height: "60px" }}>Cancelar</button>
+                <button className="btn-branco" onClick={() => handleCancelarClick(agendamento)} style={{ height: "60px" }}>Cancelar</button>
+                {popupAlertaAberto && (
+                  <PopupAlerta
+                    mensagem="Tem certeza que deseja cancelar o agendamento?"
+                    funcao={confirmarCancelamento}
+                    onClick={() => setPopupMotivoCancelar(true)}
+                    onClose={() => setPopupAlertaAberto(false)}
+                  />
+                )}
               </div>
             </div>
           ))
@@ -128,7 +224,15 @@ export default function CalendarioVisaoGeral() {
           </button>
 
 
-          <button className="btn-branco" style={{ width: "100%" }}>Criar Compromisso</button>
+          <button className="btn-branco" onClick={handleOpenPopupCadastroExcecao} style={{ width: "100%" }}>Criar Compromisso</button>
+          {popupCadastroExcecao == true ? (
+            <PopupCadastrarExcecao
+              novoHorarioExcecao={novoHorarioExcecao}
+              setPopupCadastroExcecao={setPopupCadastroExcecao}
+              onConfirm={confirmarCadastroExcecao}
+              setNovoHorarioExcecao={setNovoHorarioExcecao}
+            />
+          ) : null}
         </div>
 
         {/* CALENDÁRIO */}
@@ -319,6 +423,7 @@ function RealizarReagendamento({ onClose, dadosAgendamento, onAgendamentoSalvo }
   const handleConfirmarReagendamento = async () => {
     if (!dataSelecionada || !horarioSelecionado) {
       mensagemErro("Selecione uma nova data e horário.");
+      onClose()
       return;
     }
 
@@ -333,6 +438,7 @@ function RealizarReagendamento({ onClose, dadosAgendamento, onAgendamentoSalvo }
     } catch (error) {
       console.error("Erro ao reagendar:", error);
       mensagemErro("Erro ao realizar reagendamento.");
+      onClose()
     }
   };
 
@@ -376,4 +482,101 @@ function RealizarReagendamento({ onClose, dadosAgendamento, onAgendamentoSalvo }
       </div>
     </Popup>
   );
+}
+
+export function PopupAlerta({ mensagem, funcao, onClose }) {
+
+  return (
+    <Popup>
+      <>
+        <div className="popup_alerta_titulo">
+          <img src="/src/assets/svg/icon_alert.svg" alt="icon-alert" />
+          <p className="subtitulo semibold">Atenção!</p>
+        </div>
+        <p className="paragrafo-2" style={{ textAlign: "center" }}>{mensagem}</p>
+        <div className="btn-juntos">
+          <button style={{ width: '50%' }} className="btn-rosa" onClick={funcao}>Sim</button>
+          <button style={{ width: '50%' }} className="btn-branco" onClick={onClose}>Não</button>
+        </div>
+      </>
+    </Popup>
+  );
+}
+
+function PopupCadastrarExcecao({ novoHorarioExcecao, setPopupCadastroExcecao, onConfirm, setNovoHorarioExcecao }) {
+  return (
+    <Popup>
+      <p className="paragrafo-1 semibold">Preencha os campos abaixo:</p>
+      <div className="line">
+        <div className="input_pai">
+          <p className="paragrafo-2">Status:</p>
+          <select name="status" id="" className="select" style={{ width: '100%' }} value={novoHorarioExcecao.aberto === undefined ? "" : (novoHorarioExcecao.aberto === 1 ? "aberto" : "fechado")}  onChange={(e) => setNovoHorarioExcecao({ ...novoHorarioExcecao, aberto: e.target.value === "aberto" ? 1 : 0 })}>
+            <option value='' selected disabled>Selecione uma opção</option>
+            <option value="aberto">Aberto</option>
+            <option value="fechado">Fechado</option>
+          </select>
+        </div>
+        <div className="input_pai">
+          <p>Capacidade:</p>
+          <input type="number" name="capacidade" className="input" placeholder="Digite o número" min="0" onChange={(e) => setNovoHorarioExcecao({ ...novoHorarioExcecao, capacidade: Number(e.target.value) })} />
+        </div>
+      </div>
+
+      <div className="line">
+        <div className="input_pai">
+          <p>Data Início:</p>
+          <input type="date" name="dataInicio" className="input" onChange={(e) => setNovoHorarioExcecao({ ...novoHorarioExcecao, dataInicio: e.target.value })} />
+        </div>
+        <div className="input_pai">
+          <p>Data Fim:</p>
+          <input type="date" name="dataFim" className="input" onChange={(e) => setNovoHorarioExcecao({ ...novoHorarioExcecao, dataFim: e.target.value })} />
+        </div>
+      </div>
+
+      <div className="line">
+        <div className="input_pai">
+          <p>Hora Início:</p>
+          <input type="time" name="horaInicio" className="input" onChange={(e) => setNovoHorarioExcecao({ ...novoHorarioExcecao, inicio: e.target.value })} />
+        </div>
+        <div className="input_pai">
+          <p>Hora Fim:</p>
+          <input type="time" name="horaFim" className="input" onChange={(e) => setNovoHorarioExcecao({ ...novoHorarioExcecao, fim: e.target.value })} />
+        </div>
+      </div>
+
+      <div className="btn-line">
+        <button className="btn-link" onClick={() => setPopupCadastroExcecao(false)}>Cancelar</button>
+        <button className="btn-rosa" onClick={onConfirm}>Concluir</button>
+      </div>
+    </Popup>
+  );
+}
+function validateHorario(obj, tipo) {
+  // tipo: "excecao" ou "padrao"
+  const { aberto, capacidade, dataInicio, dataFim, inicio, fim } = obj;
+
+  console.log("Formulario enviado:", obj);
+  // Aceita aberto como 0 ou 1
+  if ((aberto !== 0 && aberto !== 1) || capacidade < 0 || (aberto === 1 && (!inicio || !fim)))  {
+    return { ok: false, mensagem: "Preencha todos os campos obrigatórios e use valores válidos." };
+  }
+  if (tipo === "excecao") {
+    if (!dataInicio || !dataFim) {
+      return { ok: false, mensagem: "Preencha todos os campos de data." };
+    }
+    if (new Date(dataFim) < new Date(dataInicio)) {
+      return { ok: false, mensagem: "A data final deve ser igual ou posterior à data inicial." };
+    }
+    if (dataInicio === dataFim && fim <= inicio) {
+      return { ok: false, mensagem: "O horário final deve ser maior que o horário inicial." };
+    }
+  } else {
+    if (aberto === 1 && fim <= inicio) {
+      return { ok: false, mensagem: "O horário final deve ser maior que o horário inicial." };
+    }
+    if (aberto === 1 && capacidade == 0) {
+      return { ok: false, mensagem: "A capacidade deve ser maior que zero." };
+    }
+  }
+  return { ok: true };
 }

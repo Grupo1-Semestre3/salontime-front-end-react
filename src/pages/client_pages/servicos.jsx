@@ -3,7 +3,7 @@ import "../../css/popup/realizarAgendamento.css";
 import { use, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
-import { exibirHorariosDisponiveis, listarPagamento, salvarAgendamento, reagendarAgendamento } from "../../js/api/maikon.js"; 
+import { exibirHorariosDisponiveis, listarPagamento, salvarAgendamento, reagendarAgendamento } from "../../js/api/maikon.js";
 
 // COMPONENTES
 import NavbarLandingPage from "/src/components/NavbarLandingPage.jsx";
@@ -27,9 +27,9 @@ export default function Servicos() {
   const [servicoSelecionado, setServicoSelecionado] = useState(null);
   const [proximoAgendamento, setProximoAgendamento] = useState({});
   const [horarioSelecionado, setHorarioSelecionado] = useState("");
+  const [motivoCancelamento, setMotivoCancelamento] = useState("");
   const [dadosParaReagendar, setDadosParaReagendar] = useState(null)
   const [modalRealizarReagendamento, setModalRealizarReagendamento] = useState(false);
-
 
   useEffect(() => {
     const usuario = localStorage.getItem("usuario");
@@ -100,7 +100,7 @@ export default function Servicos() {
 
   };
 
-  
+
   const carregarProximoAgendamento = async (idUsuario) => {
     try {
       const data = await buscarProximoAgendamento(idUsuario);
@@ -112,15 +112,14 @@ export default function Servicos() {
 
   const confirmarMotivoCancelar = () => {
     try {
-      const descricao = document.getElementById("motivo-cancelamento").value;
-      enviarMotivoCancelar({ descricao, agendamento: proximoAgendamento });
+      enviarMotivoCancelar({ motivoCancelamento, agendamento: proximoAgendamento });
       mensagemSucesso(`Motivo de cancelamento enviado com sucesso!`)
     } catch (error) {
       mensagemErro("Erro ao enviar motivo de cancelamento. Tente novamente mais tarde.");
       return
     }
     setPopupMotivoCancelar(false);
-    
+
   }
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -197,7 +196,7 @@ export default function Servicos() {
                   <p className="paragrafo-1 bold" style={{ display: "flex", alignItems: "center", gap: '4px' }}>
                     <img src="/src/assets/vector/icon_horariio/ionicons/sharp/time-sharp.svg" alt="" style={{ minHeight: "20px", minWidth: "20px" }} />
                     {/* 01/01/2000 00:00pm */}
-                    {formatarDataBR(proximoAgendamento.data)  || "--/--/----"} {proximoAgendamento.inicio || "--:--"}h
+                    {formatarDataBR(proximoAgendamento.data) || "--/--/----"} {proximoAgendamento.inicio || "--:--"}h
                   </p>
                   <p className="paragrafo-1">
                     <b>Status:</b> {proximoAgendamento.statusAgendamento?.status || "Sem status"}
@@ -221,7 +220,10 @@ export default function Servicos() {
                   {popupMotivoCancelar && (
                     <Popup>
                       <p className="paragrafo-2 semibold">Pode nos dizer o motivo do cancelamento?</p>
-                      <textarea id="motivo-cancelamento" placeholder="Digite o motivo do cancelamento..." />
+                      <textarea
+                        value={motivoCancelamento}
+                        onChange={(e) => setMotivoCancelamento(e.target.value)}
+                        placeholder="Digite o motivo do cancelamento..." />
                       <div className="btn-juntos">
                         <button className="btn-rosa" onClick={() => confirmarMotivoCancelar()}>Enviar</button>
                         <button className="btn-branco" onClick={() => setPopupMotivoCancelar(false)}>Pular</button>
@@ -538,6 +540,7 @@ function RealizarReagendamento({ onClose, dadosAgendamento, onAgendamentoSalvo }
   const handleConfirmarReagendamento = async () => {
     if (!dataSelecionada || !horarioSelecionado) {
       mensagemErro("Selecione uma nova data e horário.");
+      onClose()
       return;
     }
 
@@ -552,6 +555,7 @@ function RealizarReagendamento({ onClose, dadosAgendamento, onAgendamentoSalvo }
     } catch (error) {
       console.error("Erro ao reagendar:", error);
       mensagemErro("Erro ao realizar reagendamento.");
+      onClose()
     }
   };
 
