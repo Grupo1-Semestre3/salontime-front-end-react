@@ -1,5 +1,5 @@
-import React from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useLocation} from "react-router-dom";
 import { logout } from "../js/api/usuario";
 
 export default function MenuDash({ children }) {
@@ -10,6 +10,15 @@ export default function MenuDash({ children }) {
     // lógica de logout aqui
     console.log("Logout");
   };
+
+  const [usuario, setUsuario] = useState(null);
+    useEffect(() => {
+      const usuarioStorage = localStorage.getItem("usuario");
+      if (usuarioStorage) {
+        const user = JSON.parse(usuarioStorage);
+        setUsuario(user);
+      }
+    }, []);
 
   // Função para determinar se a rota está ativa
   const isActive = (path) => location.pathname === path;
@@ -24,7 +33,8 @@ export default function MenuDash({ children }) {
               alt="icone"
               style={{ maxWidth: "169px" }}
             />
-            <p className="paragrafo-e bold">Bem vinda Marina!</p>
+            {/* show first name (or fallback) */}
+            <p className="paragrafo-e bold">Bem vinda(o) {usuario?.nome ? usuario.nome.split(' ')[0] : ''}!</p>
             <div className="dash_navbar_column">
               <button
                 className={

@@ -3,6 +3,7 @@ import MenuDash from "../../components/MenuDash";
 import NavServicos from "../../components/NavServicos";
 import { buscarCupom, atualizarCupom, desativarCupom, criarCupom } from "../../js/api/anna";
 import Popup, { PopupAlerta } from "../../components/Popup";
+import { mensagemErro, mensagemSucesso } from "../../js/utils";
 
 function CriarCupom({ onClose, onSave }) {
   const [formData, setFormData] = useState({
@@ -27,9 +28,16 @@ function CriarCupom({ onClose, onSave }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const novoCupom = await criarCupom(formData);
-      onSave(novoCupom);
-      onClose();
+
+      if (formData.inicio > formData.fim){
+        onClose();
+        mensagemErro("A data de início deve ser menor do que a data de fim.")
+      } else {
+        const novoCupom = await criarCupom(formData);
+        onSave(novoCupom);
+        onClose();
+        mensagemSucesso("Cupom criado com sucesso!")
+      }
     } catch (error) {
       console.error("Erro ao criar cupom:", error);
       alert("Erro ao criar cupom. Por favor, tente novamente.");
@@ -39,7 +47,7 @@ function CriarCupom({ onClose, onSave }) {
   return (
     <Popup style="width: auto;" onClose={onClose}>
       <div className="servico-form">
-        <h2 style={{ fontSize: '22px' }}>Criar Novo Cupom</h2>
+        <h2 className="paragrafo-1 bold">Criar Novo Cupom</h2>
         <form onSubmit={handleSubmit}>
           <div className="input_pai">
             <label htmlFor="nome">Titulo do CUPOM</label>
@@ -51,6 +59,7 @@ function CriarCupom({ onClose, onSave }) {
               onChange={handleChange}
               required
               className="input"
+              placeholder="Ex: Promo de Nata!"
               style={{ width: '416px' }}
             />
           </div>
@@ -63,6 +72,7 @@ function CriarCupom({ onClose, onSave }) {
               value={formData.descricao}
               onChange={handleChange}
               required
+              placeholder="Descreva o cupom"
               className="input"
               style={{ width: '416px' }}
             />
@@ -78,6 +88,7 @@ function CriarCupom({ onClose, onSave }) {
                 value={formData.codigo}
                 onChange={handleChange}
                 required
+                placeholder="Ex: NATAL10"
                 className="input"
               />
             </div>
@@ -134,6 +145,7 @@ function CriarCupom({ onClose, onSave }) {
               value={formData.desconto}
               onChange={handleChange}
               required
+              placeholder="Insira um valor de 1 a 100"
               className="input"
               min="0"
               max="100"
@@ -176,9 +188,15 @@ function EditarCupom({ cupom, onClose, onSave }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const cupomAtualizado = await atualizarCupom(cupom.id, formData);
-      onSave(cupomAtualizado);
-      onClose();
+      if (formData.inicio > formData.fim){
+        onClose();
+        mensagemErro("A data de início deve ser menor do que a data de fim.")
+      } else {
+        const cupomAtualizado = await atualizarCupom(cupom.id, formData);
+        onSave(cupomAtualizado);
+        onClose();
+        mensagemSucesso("Cupom atualizado com sucesso!")
+      }
     } catch (error) {
       console.error("Erro ao atualizar cupom:", error);
       alert("Erro ao atualizar cupom. Por favor, tente novamente.");
@@ -192,6 +210,7 @@ function EditarCupom({ cupom, onClose, onSave }) {
   const handleConfirmarRemocao = async () => {
     try {
       await desativarCupom(cupom.id);
+      mensagemSucesso("Cupom removido com sucesso!")
       onSave({ ...cupom, ativo: false });
       onClose();
     } catch (error) {
@@ -204,7 +223,7 @@ function EditarCupom({ cupom, onClose, onSave }) {
     <>
       <Popup style="width: auto;" onClose={onClose}>
         <div className="servico-form">
-          <h2 style={{ fontSize: '22px' }}>Altere os campos que deseja atualizar:</h2>
+          <h1 style={{ fontSize: '20px' }} className="bold">Altere os campos que deseja atualizar:</h1>
           <form onSubmit={handleSubmit}>
             <div className="input_pai">
               <label htmlFor="nome">Nome do Cupom</label>
@@ -305,7 +324,7 @@ function EditarCupom({ cupom, onClose, onSave }) {
               />
             </div>
 
-            <div className="btn-juntos">
+            <div className="btn-juntos" style={{justifyContent:"center"}}>
               <button type="submit" className="btn-verde">Atualizar</button>
               <button 
                 type="button" 
@@ -369,7 +388,7 @@ function CupomCard({ cupom, onEdit }) {
         </div>
         <div className="dash_servico_servico_info_filho">
           <img src="/src/assets/svg/cash-sharp.svg" alt="" />
-          <p>Destinado para: {cupom.tipoDestinatario}</p>
+          <p>Desconto: {cupom.desconto}%</p>
         </div>
         <div className="dash_servico_servico_button btn-juntos">
           <button
@@ -380,11 +399,11 @@ function CupomCard({ cupom, onEdit }) {
             Editar
           </button>
           <button 
-            className={cupom.ativo ? "btn-branco" : "btn-cinza"}
+            className="btn-cinza"
             style={{ width: "120px" }}
             disabled={!cupom.ativo}
           >
-            {cupom.ativo ? 'Ativo' : 'Desativado'}
+            Status:{cupom.ativo ? ' Ativo' : ' Desativado'}
           </button>
         </div>
       </div>

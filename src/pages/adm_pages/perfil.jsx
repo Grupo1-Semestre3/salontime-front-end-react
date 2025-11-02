@@ -7,10 +7,16 @@ import {
   listarUsuarioPorId,
   atualizarUsuario,
 } from "../../js/api/kaua";
+import {atualizarFotoUsuario} from "../../js/api/caio";
 import { mensagemSucesso, mensagemErro } from "../../js/utils";
 
 export default function Perfil() {
   const [usuario, setUsuario] = useState(null);
+  const usuarioFt = JSON.parse(localStorage.getItem("usuario"));
+  const [fotoPreview, setFotoPreview] = useState(() => {
+    const usuarioLocal = JSON.parse(localStorage.getItem("usuario"));
+    return usuarioLocal.foto == null ? "/src/assets/img/usuario_foto_def.png" : `${usuarioLocal.foto}`;
+  });
   const [usuarioEdicao, setUsuarioEdicao] = useState({
     nome: "",
     email: "",
@@ -55,7 +61,26 @@ export default function Perfil() {
     const { id, value } = e.target;
     setUsuarioEdicao((prev) => ({ ...prev, [id]: value }));
   };
-
+  const handleFotoChange = async (e) => {
+    const file = e.target.files[0];
+    if (file && usuario && usuario.id) {
+      try {
+        await atualizarFotoUsuario(usuario.id, file);
+        mensagemSucesso("Foto atualizada com sucesso!");
+        window.location.reload();
+        const url = await buscarFotoUsuario(usuario.id);
+        setFotoPreview(url);
+        // Atualiza localStorage
+        const usuarioAtual = JSON.parse(localStorage.getItem("usuario"));
+        if (usuarioAtual) {
+          usuarioAtual.foto = url;
+          localStorage.setItem("usuario", JSON.stringify(usuarioAtual));
+        }
+      } catch (error) {
+        mensagemErro("Erro ao atualizar foto.");
+      }
+    }
+  };
   const handleAtualizarUsuario = async () => {
     if (!usuarioEdicao.nome || !usuarioEdicao.email || !usuarioEdicao.telefone || !usuarioEdicao.cpf) {
       mensagemErro("Preencha todos os campos antes de atualizar.");
@@ -131,6 +156,23 @@ export default function Perfil() {
       {/* DADOS PESSOAIS */}
       <div className="w-full flex justify-center py-8">
         <div className="w-full max-w-4xl p-0 px-[10%] flex flex-col gap-4">
+
+          <div className="foto_perfil_div">
+            <img
+              src={`http://localhost:8080/usuarios/foto/${usuarioFt.id}`}
+              onError={(e) => { e.target.src = "/src/assets/img/usuario_foto_def.png"; }}
+              alt="user_foto"
+              className="w-40 h-40 rounded-[150px] object-cover object-center"
+              style={{ objectFit: 'cover' }}
+            />
+            <input type="file" accept="image/*" id="foto" style={{ display: "none" }} onChange={handleFotoChange} />
+            <label 
+              htmlFor="foto" 
+              style={{ color: "white", display:"flex", alignItems:"center", justifyContent:"center"}}
+              className="bg-[#DD236D] hover:bg-[#b81c59] font-semibold rounded-[32px] cursor-pointer transition h-11 w-33 text-white"
+            >Alterar Foto</label>
+          </div>
+
           <h1 className="text-3xl font-bold mb-2 text-gray-800">Dados pessoais:</h1>
 
           <div className="flex flex-col gap-2">
