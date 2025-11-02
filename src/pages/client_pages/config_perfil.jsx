@@ -7,13 +7,17 @@ import { mensagemErro, mensagemSucesso } from "../../js/utils";
 
 
 export default function Config_perfil({ onUpdateDados, onUpdateSenha }) {
+
+  const usuarioFt = JSON.parse(localStorage.getItem("usuario"));
+
+
   const [fotoPreview, setFotoPreview] = useState(() => {
     const usuarioLocal = JSON.parse(localStorage.getItem("usuario"));
     return usuarioLocal.foto == null ? "/src/assets/img/usuario_foto_def.png" : `${usuarioLocal.foto}`;
   });
   const [usuario, setUsuario] = useState(null);
   const [dados, setDados] = useState({ id: "", nome: "", email: "", telefone: "", cpf: "", dataNascimento: "" });
-  const [senha, setSenha] = useState({ senhaAtual: "", novaSenha: "", confirmar: ""});
+  const [senha, setSenha] = useState({ senhaAtual: "", novaSenha: "", confirmar: "" });
 
   useEffect(() => {
     const usuarioStr = localStorage.getItem("usuario");
@@ -22,6 +26,8 @@ export default function Config_perfil({ onUpdateDados, onUpdateSenha }) {
       setUsuario(usuarioObj);
     }
   }, []);
+
+
 
   // useEffect(() => {
   //   if (usuario && usuario.id) {
@@ -46,6 +52,7 @@ export default function Config_perfil({ onUpdateDados, onUpdateSenha }) {
       try {
         await atualizarFotoUsuario(usuario.id, file);
         mensagemSucesso("Foto atualizada com sucesso!");
+        window.location.reload();
         const url = await buscarFotoUsuario(usuario.id);
         setFotoPreview(url);
         // Atualiza localStorage
@@ -128,9 +135,14 @@ export default function Config_perfil({ onUpdateDados, onUpdateSenha }) {
   return (
     <MenuConfig>
       <div className="foto_perfil_div">
-          <img src={fotoPreview} alt="user_foto" className="foto_perfil_config" />
-          <input type="file" accept="image/*" id="foto" style={{ display: "none" }} onChange={handleFotoChange} />
-          <label htmlFor="foto" className="btn-rosa">Alterar Foto</label>
+        <img
+          src={`http://localhost:8080/usuarios/foto/${usuarioFt.id}`}
+          onError={(e) => { e.target.src = "/src/assets/img/usuario_foto_def.png"; }}
+          alt="user_foto"
+          className="foto_perfil_config"
+        />
+        <input type="file" accept="image/*" id="foto" style={{ display: "none" }} onChange={handleFotoChange} />
+        <label htmlFor="foto" className="btn-rosa">Alterar Foto</label>
       </div>
       <form className="config_section_container" onSubmit={handleSubmitDados} autoComplete="off">
         <p className="titulo-1">Dados pessoais:</p>
