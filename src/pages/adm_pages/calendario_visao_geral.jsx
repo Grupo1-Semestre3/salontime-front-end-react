@@ -8,7 +8,7 @@ import Popup from "../../components/Popup.jsx";
 import { mensagemErro, mensagemSucesso, formatarDataBR } from "../../js/utils.js"
 import { buscarProximosAgendamentosFuncionario } from "../../js/api/agendamento";
 import { listarServicos, listarClientes, listarPagamento, exibirHorariosDisponiveis, salvarAgendamento, reagendarAgendamento } from "../../js/api/maikon.js"
-import { cancelarAgendamentoJS, enviarMotivoCancelar, cadastrarExcecao} from "../../js/api/caio.js"
+import { cancelarAgendamentoJS, enviarMotivoCancelar, cadastrarExcecao } from "../../js/api/caio.js"
 
 export default function CalendarioVisaoGeral() {
   const navigate = useNavigate();
@@ -22,36 +22,36 @@ export default function CalendarioVisaoGeral() {
 
   const [novoHorarioExcecao, setNovoHorarioExcecao] = useState({});
   const [popupCadastroExcecao, setPopupCadastroExcecao] = useState(false);
-  
 
-  
+
+
 
   const confirmarCadastroExcecao = async () => {
-      const valid = validateHorario(novoHorarioExcecao, "excecao");
-      if (!valid.ok) {
-        setPopupCadastroExcecao(false);
-        mensagemErro(valid.mensagem);
-        return;
-      }
+    const valid = validateHorario(novoHorarioExcecao, "excecao");
+    if (!valid.ok) {
+      setPopupCadastroExcecao(false);
+      mensagemErro(valid.mensagem);
+      return;
+    }
 
-      const usuario = JSON.parse(localStorage.getItem("usuario"));
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
 
-      const { aberto, capacidade } = novoHorarioExcecao;
-      const dados = {
-        ...novoHorarioExcecao,
-        capacidade: aberto === 1 ? Number(capacidade) : 0,
-        funcionario: { id: usuario.id }
-      };
-      try {
-        await cadastrarExcecao(dados);
-        setPopupCadastroExcecao(false);
-        mensagemSucesso(`Exceção cadastrada com sucesso!`);
-        setNovoHorarioExcecao({});
-      } catch (error) {
-        setPopupCadastroExcecao(false);
-        mensagemErro("Erro ao cadastrar exceção. Tente novamente mais tarde.");
-      }
+    const { aberto, capacidade } = novoHorarioExcecao;
+    const dados = {
+      ...novoHorarioExcecao,
+      capacidade: aberto === 1 ? Number(capacidade) : 0,
+      funcionario: { id: usuario.id }
     };
+    try {
+      await cadastrarExcecao(dados);
+      setPopupCadastroExcecao(false);
+      mensagemSucesso(`Exceção cadastrada com sucesso!`);
+      setNovoHorarioExcecao({});
+    } catch (error) {
+      setPopupCadastroExcecao(false);
+      mensagemErro("Erro ao cadastrar exceção. Tente novamente mais tarde.");
+    }
+  };
 
   const carregarAgendamentos = async () => {
     const usuario = JSON.parse(localStorage.getItem("usuario"));
@@ -72,6 +72,10 @@ export default function CalendarioVisaoGeral() {
 
   const handleMotivoCancelar = () => {
     setPopupMotivoCancelar(true);
+  };
+
+  const handleMotivoCancelarFalse = () => {
+    setPopupMotivoCancelar(false);
   };
 
   const handleOpenPopupCadastroExcecao = () => {
@@ -99,8 +103,9 @@ export default function CalendarioVisaoGeral() {
 
       setTimeout(() => {
         handleMotivoCancelar();
+        carregarAgendamentos()
       }, 1500);
-      carregarAgendamentos()
+
     } catch (error) {
       mensagemErro("Erro ao cancelar agendamento. Tente novamente mais tarde.");
     }
@@ -149,7 +154,7 @@ export default function CalendarioVisaoGeral() {
             <textarea id="motivo-cancelamento" placeholder="Digite o motivo do cancelamento..." />
             <div className="btn-juntos">
               <button className="btn-rosa" onClick={() => confirmarMotivoCancelar()}>Enviar</button>
-              <button className="btn-branco" onClick={() => setPopupMotivoCancelar(false)}>Pular</button>
+              <button className="btn-branco" onClick={() => handleMotivoCancelarFalse()}>Pular</button>
             </div>
           </Popup>
         )}
@@ -252,11 +257,14 @@ function RealizarAgendamento({ onClose, onAgendamentoSalvo }) {
   const [horarios, setHorarios] = useState([]);
   const [pagamentos, setPagamento] = useState([]);
 
+  const [filtroCliente, setFiltroCliente] = useState("");
+
   const [dataSelecionada, setDataSelecionada] = useState("");
   const [servicoSelecionado, setServicoSelecionado] = useState("");
   const [clienteSelecionado, setClienteSelecionado] = useState("");
   const [horarioSelecionado, setHorarioSelecionado] = useState("");
   const [pagamentoSelecionado, setPagamentoSelecionado] = useState("");
+  const [cupomSelecionado, setCupomSelecionado] = useState("");
 
   // Simule aqui os imports reais
   // import { listarClientes, listarServicos, exibirHorariosDisponiveis } from '...'
@@ -330,7 +338,35 @@ function RealizarAgendamento({ onClose, onAgendamentoSalvo }) {
             ))}
           </select>
 
+
+          <div className="calendario_box_lbl_inp_popup">
+            <label>Pesquisar cliente:</label>
+            <input
+              type="text"
+              placeholder="Digite o nome do cliente"
+              value={filtroCliente}
+              onChange={(e) => setFiltroCliente(e.target.value)}
+            />
+          </div>
+
           <select
+            value={clienteSelecionado}
+            onChange={(e) => setClienteSelecionado(e.target.value)}
+          >
+            <option value="" disabled hidden>Cliente</option>
+
+            {clientes
+              .filter((cliente) =>
+                cliente.nome.toLowerCase().includes(filtroCliente.toLowerCase())
+              )
+              .map((cliente) => (
+                <option key={cliente.id} value={cliente.id}>
+                  {cliente.nome} - {cliente.email}
+                </option>
+              ))}
+          </select>
+
+          {/* <select
             value={clienteSelecionado}
             onChange={(e) => setClienteSelecionado(e.target.value)}
           >
@@ -338,17 +374,29 @@ function RealizarAgendamento({ onClose, onAgendamentoSalvo }) {
             {clientes.map((cliente) => (
               <option key={cliente.id} value={cliente.id}>{cliente.nome} - {cliente.email}</option>
             ))}
-          </select>
+          </select> */}
 
+          <label>Selecionar horários</label>
           <select
             value={horarioSelecionado}
             onChange={(e) => setHorarioSelecionado(e.target.value)}
+            disabled={!horarios.length}
           >
-            <option value="" disabled hidden>Selecione data e serviço</option>
+            <option value="" disabled hidden>
+              {dataSelecionada
+                ? horarios.length
+                  ? "Selecione um horário"
+                  : "Nenhum horário disponível"
+                : "Selecione uma data"}
+            </option>
+
             {horarios.map((hora, i) => (
-              <option key={i} value={hora.horario}>{hora.horario}</option>
+              <option key={i} value={hora.horario}>
+                {hora.horario}
+              </option>
             ))}
           </select>
+          <label>Selecionar pagamento</label>
 
           <select
             value={pagamentoSelecionado}
@@ -363,23 +411,49 @@ function RealizarAgendamento({ onClose, onAgendamentoSalvo }) {
 
         <div className="calendario_box_lbl_inp_popup">
           <label htmlFor="">CUPOM de desconto:</label>
-          <input type="text" placeholder="Insira o código do cupom" />
+          <input value={cupomSelecionado} onChange={(e) => setCupomSelecionado(e.target.value)} type="text" placeholder="Insira o código do cupom" />
         </div>
 
         <div className="button_box">
           <button className="btn-rosa" onClick={async () => {
             try {
-              await salvarAgendamento(clienteSelecionado, servicoSelecionado, pagamentoSelecionado, dataSelecionada, horarioSelecionado);
+              await salvarAgendamento(clienteSelecionado, servicoSelecionado, cupomSelecionado, pagamentoSelecionado, dataSelecionada, horarioSelecionado);
 
               // 🔄 Atualiza a lista de agendamentos no pai (e o calendário se usar os mesmos dados)
               if (onAgendamentoSalvo) await onAgendamentoSalvo();
 
               onClose()
               mensagemSucesso("Agendamento realizado com sucesso!")
+
+              setTimeout(() => {
+                 window.location.reload();
+              }, 1500);
+             
+
             } catch (error) {
+              // Caso o backend tenha respondido com status (ex: 404)
+              if (error.response) {
+                const status = error.response.status;
+                const mensagem = error.response.data?.message || "Erro desconhecido.";
+
+                if (status === 404) {
+                  onClose()
+                  mensagemErro("Cupom invalido"); // Exibe a mensagem do backend (ex: "Cupom inválido")
+                  return;
+                }
+              }
+
+              // Se for erro de rede, servidor fora do ar etc.
+              if (error.request) {
+                onClose()
+                mensagemErro("Servidor indisponível. Tente novamente mais tarde.");
+                return;
+              }
+
+              // Erro genérico inesperado
               console.error("Erro ao salvar agendamento:", error);
               onClose()
-              mensagemErro("Erro ao salvar agendamento. Verifique os dados e tente novamente.");
+              mensagemErro("Erro ao realizar agendamento. Tente novamente mais tarde.");
             }
 
           }}>
@@ -403,7 +477,7 @@ function RealizarReagendamento({ onClose, dadosAgendamento, onAgendamentoSalvo }
   const servicoId = dadosAgendamento?.servico?.id;
   const agendamentoId = dadosAgendamento?.id;
 
-  // 🔁 Buscar horários quando data muda
+  //🔁 Buscar horários quando data muda
   useEffect(() => {
     async function carregarHorarios() {
       if (dataSelecionada && servicoId) {
@@ -510,7 +584,7 @@ function PopupCadastrarExcecao({ novoHorarioExcecao, setPopupCadastroExcecao, on
       <div className="line">
         <div className="input_pai">
           <p className="paragrafo-2">Status:</p>
-          <select name="status" id="" className="select" style={{ width: '100%' }} value={novoHorarioExcecao.aberto === undefined ? "" : (novoHorarioExcecao.aberto === 1 ? "aberto" : "fechado")}  onChange={(e) => setNovoHorarioExcecao({ ...novoHorarioExcecao, aberto: e.target.value === "aberto" ? 1 : 0 })}>
+          <select name="status" id="" className="select" style={{ width: '100%' }} value={novoHorarioExcecao.aberto === undefined ? "" : (novoHorarioExcecao.aberto === 1 ? "aberto" : "fechado")} onChange={(e) => setNovoHorarioExcecao({ ...novoHorarioExcecao, aberto: e.target.value === "aberto" ? 1 : 0 })}>
             <option value='' selected disabled>Selecione uma opção</option>
             <option value="aberto">Aberto</option>
             <option value="fechado">Fechado</option>
@@ -557,7 +631,7 @@ function validateHorario(obj, tipo) {
 
   console.log("Formulario enviado:", obj);
   // Aceita aberto como 0 ou 1
-  if ((aberto !== 0 && aberto !== 1) || capacidade < 0 || (aberto === 1 && (!inicio || !fim)))  {
+  if ((aberto !== 0 && aberto !== 1) || capacidade < 0 || (aberto === 1 && (!inicio || !fim))) {
     return { ok: false, mensagem: "Preencha todos os campos obrigatórios e use valores válidos." };
   }
   if (tipo === "excecao") {

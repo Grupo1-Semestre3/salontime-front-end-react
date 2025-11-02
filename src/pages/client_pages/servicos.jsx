@@ -85,6 +85,19 @@ export default function Servicos() {
     setPopupMotivoCancelar(true);
   }
 
+  const handleMotivoCancelarFalse = () => {
+    // Lógica para lidar com o motivo do cancelamento
+    setPopupMotivoCancelar(false);
+
+    buscarProximoAgendamento(usuario.id)
+      .then(data => {
+        setProximoAgendamento(data);
+      })
+      .catch(error => {
+        console.error("Erro ao carregar próximo agendamento:", error);
+      });
+  }
+
   const confirmarCancelamento = () => {
     try {
       cancelarAgendamentoJS(proximoAgendamento.id);
@@ -92,6 +105,7 @@ export default function Servicos() {
       setTimeout(() => {
         handleMotivoCancelar();
       }, 1500);
+
     } catch (error) {
       mensagemErro("Erro ao cancelar agendamento. Tente novamente mais tarde.");
       return
@@ -114,6 +128,13 @@ export default function Servicos() {
     try {
       enviarMotivoCancelar({ motivoCancelamento, agendamento: proximoAgendamento });
       mensagemSucesso(`Motivo de cancelamento enviado com sucesso!`)
+      buscarProximoAgendamento(usuario.id)
+        .then(data => {
+          setProximoAgendamento(data);
+        })
+        .catch(error => {
+          console.error("Erro ao carregar próximo agendamento:", error);
+        });
     } catch (error) {
       mensagemErro("Erro ao enviar motivo de cancelamento. Tente novamente mais tarde.");
       return
@@ -226,7 +247,7 @@ export default function Servicos() {
                         placeholder="Digite o motivo do cancelamento..." />
                       <div className="btn-juntos">
                         <button className="btn-rosa" onClick={() => confirmarMotivoCancelar()}>Enviar</button>
-                        <button className="btn-branco" onClick={() => setPopupMotivoCancelar(false)}>Pular</button>
+                        <button className="btn-branco" onClick={() => handleMotivoCancelarFalse()}>Pular</button>
                       </div>
                     </Popup>
                   )}
@@ -402,6 +423,7 @@ function RealizarAgendamento({ servico, onClose }) {
           setHorarios(horariosDisponiveis);
         } catch (error) {
           console.error("Erro ao buscar horários:", error);
+          onClose()
           mensagemErro("Erro ao buscar horários disponíveis.");
         }
       }
@@ -415,18 +437,23 @@ function RealizarAgendamento({ servico, onClose }) {
       const usuario = JSON.parse(localStorage.getItem("usuario"));
 
       if (!usuario || !usuario.id) {
+        onClose()
         mensagemErro("Usuário não encontrado. Faça login novamente.");
         return;
       }
 
       if (!dataSelecionada || !horarioSelecionado || !pagamentoSelecionado) {
+        onClose()
         mensagemErro("Preencha todos os campos obrigatórios.");
+        onClose()
         return;
+        
       }
 
       await salvarAgendamento(
         usuario.id,
         servico.id,
+        cupomSelecionado,
         pagamentoSelecionado,
         dataSelecionada,
         horarioSelecionado
@@ -435,9 +462,31 @@ function RealizarAgendamento({ servico, onClose }) {
       mensagemSucesso("Agendamento realizado com sucesso!");
       onClose(); // fecha o modal
     } catch (error) {
+      // Caso o backend tenha respondido com status (ex: 404)
+      if (error.response) {
+        const status = error.response.status;
+        const mensagem = error.response.data?.message || "Erro desconhecido.";
+
+        if (status === 404) {
+          onClose()
+          mensagemErro("Cupom invalido"); // Exibe a mensagem do backend (ex: "Cupom inválido")
+          return;
+        }
+      }
+
+      // Se for erro de rede, servidor fora do ar etc.
+      if (error.request) {
+        onClose()
+        mensagemErro("Servidor indisponível. Tente novamente mais tarde.");
+        return;
+      }
+
+      // Erro genérico inesperado
       console.error("Erro ao salvar agendamento:", error);
+      onClose()
       mensagemErro("Erro ao realizar agendamento. Tente novamente mais tarde.");
     }
+
   }
 
 
@@ -460,24 +509,27 @@ function RealizarAgendamento({ servico, onClose }) {
             min={new Date().toISOString().split("T")[0]} // impedindo datas passadas
           />
 
-
+          <label>Selecione o horário</label>
           <select
             value={horarioSelecionado}
             onChange={(e) => setHorarioSelecionado(e.target.value)}
             disabled={!horarios.length}
           >
             <option value="" disabled hidden>
-              {dataSelecionada && servico?.id
-                ? "Selecione um horário"
-                : "Selecione data"}
+              {dataSelecionada
+                ? horarios.length
+                  ? "Selecione um horário"
+                  : "Nenhum horário disponível"
+                : "Selecione uma data"}
             </option>
+
             {horarios.map((hora, i) => (
               <option key={i} value={hora.horario}>
                 {hora.horario}
               </option>
             ))}
           </select>
-
+          <label>Selecione o tipo de pagamento</label>
           <select
             value={pagamentoSelecionado}
             onChange={(e) => setPagamentoSelecionado(e.target.value)}

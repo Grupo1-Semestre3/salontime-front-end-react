@@ -6,7 +6,7 @@ import NavCalendario from "/src/components/NavCalendario.jsx";
 import Popup from "../../components/Popup.jsx";
 import "../../css/popup/detalhesAgendamento.css";
 import Swal from 'sweetalert2';
-import {mensagemSucesso, mensagemErro} from "../../js/utils.js"
+import {mensagemSucesso, mensagemErro, formatarDataBR} from "../../js/utils.js"
 import {buscarDadosHistoricoPorIdAgendamento} from "../../js/api/maikon.js"
 
 import { buscarAtendimentosPassadosPorIdFuncionario, concluirAgendamento, buscarDetalhesAgendamento } from "../../js/api/agendamento";
@@ -99,7 +99,7 @@ export default function Calendario_atendimentos() {
                   alt="icone hora"
                   style={{ height: "24px" }}
                 />
-                {agendamento.data} {agendamento.inicio}
+                { formatarDataBR(agendamento.data)} {agendamento.inicio}
               </p>
 
               <div className="atendimentos_passados_infos">
@@ -152,11 +152,6 @@ export default function Calendario_atendimentos() {
 }
 
 
-//Colocar na utils
-function formatarDataBR(dataISO) {
-  const [ano, mes, dia] = dataISO.split("-");
-  return `${dia}/${mes}/${ano}`;
-}
 
 
 function ConcluirAgendamentoPop({ dados, onClose, atualizarAgendamentos  }) {

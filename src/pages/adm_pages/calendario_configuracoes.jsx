@@ -3,7 +3,7 @@ import NavCalendario from "../../components/NavCalendario"
 import Popup from "../../components/Popup";
 import { useState, useEffect } from "react";
 import { buscarFuncionamento, buscarHorarioExcecao, cadastrarExcecao, editarExcecao, deletarExcecao, editarFuncionamento } from "../../js/api/caio";
-import { mensagemErro, mensagemSucesso } from "../../js/utils";
+import { mensagemErro, mensagemSucesso, formatarDataBR } from "../../js/utils";
 
 export default function Calendario_configuracoes() {
 
@@ -277,7 +277,7 @@ function HorarioPadrao(funcionamento) {
       <div className="configuracao_box_info">
         <div>
           <p className="paragrafo-1 calendario_config_semana semibold">
-            {funcionamento.diaSemana}
+            {traduzirDia(funcionamento.diaSemana)}
           </p>
         </div>
 
@@ -404,7 +404,7 @@ function HorarioExcecao(funcionamento) {
 
           <div className="configuracao_horarios_box">
             <div className="configuracao_horario_mini_box">
-              <p>{funcionamento.dataInicio ? funcionamento.dataInicio : "dd/mm/yy"}</p>
+              <p>{formatarDataBR(funcionamento.dataInicio)  ? formatarDataBR(funcionamento.dataInicio) : "dd/mm/yy"}</p>
               <img src="/src/assets/svg/log-in.svg" alt="" />
             </div>
             <div className="configuracao_seta_cinza_box">
@@ -414,7 +414,7 @@ function HorarioExcecao(funcionamento) {
               />
             </div>
             <div className="configuracao_horario_mini_box">
-              <p>{funcionamento.dataFim ? funcionamento.dataFim : "dd/mm/yy"}</p>
+              <p>{ formatarDataBR(funcionamento.dataFim) ? formatarDataBR(funcionamento.dataFim) : "dd/mm/yy"}</p>
               <img src="/src/assets/svg/log-in.svg" alt="" />
             </div>
           </div>
@@ -616,4 +616,19 @@ function validateHorario(obj, tipo) {
     }
   }
   return { ok: true };
+}
+
+const diasSemanaPt = {
+  MONDAY: "Segunda",
+  TUESDAY: "Terça",
+  WEDNESDAY: "Quarta",
+  THURSDAY: "Quinta",
+  FRIDAY: "Sexta",
+  SATURDAY: "Sábado",
+  SUNDAY: "Domingo",
+};
+
+export function traduzirDia(diaIngles) {
+  if (!diaIngles) return "";
+  return diasSemanaPt[diaIngles.toUpperCase()] || diaIngles;
 }

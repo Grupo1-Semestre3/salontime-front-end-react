@@ -2,7 +2,7 @@ import axios from "axios";
 
 export async function listarClientes() {
     try {
-        const response = await axios.get(`http://localhost:8080/usuarios`);
+        const response = await axios.get(`http://localhost:8080/usuarios/lista-clientes`);
         console.log(response.data)
         return response.data;
 
@@ -49,27 +49,34 @@ export async function listarPagamento() {
     }
 }
 
-export async function salvarAgendamento(idCliente, idServico, idPagamento, data, horario) {
-    try {
-        const body = {
-            usuario: idCliente,
-            servico: idServico,
-            statusAgendamento: 1,
-            pagamento: idPagamento,
-            data: data,
-            inicio: horario
-        };
+export async function salvarAgendamento(idCliente, idServico, cupomSelecionado, idPagamento, data, horario) {
+  try {
+    let body = {
+      usuario: idCliente,
+      servico: idServico,
+      statusAgendamento: 1,
+      pagamento: idPagamento,
+      data: data,
+      inicio: horario
+    };
 
-        const response = await axios.post(`http://localhost:8080/agendamento`, body);
-
-        console.log(response.data);
-        return response.data;
-
-    } catch (error) {
-        console.error("Erro ao salvar agendamento:", error);
-        throw error;
+    if (cupomSelecionado) {
+      body.cupom = cupomSelecionado;
     }
+
+    const response = await axios.post(`http://localhost:8080/agendamento`, body);
+
+    // Se o backend retornar erro 400, isso cai no catch automaticamente
+    return response.data;
+
+  } catch (error) {
+    console.error("Erro ao salvar agendamento:", error);
+
+    // Repassa o erro pro handleConfirmarAgendamento()
+    throw error;
+  }
 }
+
 
 export async function buscarDadosHistoricoPorIdAgendamento(idAgendamemto) {
     try {
@@ -103,7 +110,7 @@ export async function reagendarAgendamento(agendamentoId, dataSelecionada, horar
         novaData: dataSelecionada,
         inicio: horarioSelecionado
     }
-    
+
     try {
         const response = await axios.patch(`http://localhost:8080/agendamento/reagendamento/${agendamentoId}`, dados);
         console.log(response.data);
