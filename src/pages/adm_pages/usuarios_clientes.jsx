@@ -10,6 +10,7 @@ import {
   criarUsuarioCliente,
   editarUsuarioCliente,
   deletarUsuarioCliente,
+  getFotoPerfilUsuario
 } from "../../js/api/kaua";
 import { mensagemErro, mensagemSucesso } from "../../js/utils";
 
@@ -25,14 +26,28 @@ export default function Usuarios_clientes() {
   }, []);
 
   const buscarClientes = async () => {
-    try {
-      const data = await listarClientes();
-      setClientes(data);
-    } catch (error) {
-      mensagemErro("Erro ao buscar a lista de clientes.");
-      console.error(error);
-    }
-  };
+  try {
+    const data = await listarClientes();
+
+    const clientesComFoto = await Promise.all(
+      data.map(async (cliente) => {
+        try {
+          const blob = await getFotoPerfilUsuario(cliente.id);
+          const fotoUrl = URL.createObjectURL(blob); // Converte Blob → URL de imagem
+          return { ...cliente, foto: fotoUrl };
+        } catch {
+          // Se der erro (ex: sem foto), adiciona uma imagem padrão
+          return { ...cliente, foto: "src/assets/img/sem-foto.png" };
+        }
+      })
+    );
+
+    setClientes(clientesComFoto);
+  } catch (error) {
+    mensagemErro("Erro ao buscar a lista de clientes.");
+    console.error(error);
+  }
+};
 
   const handleCriarCliente = async (novoCliente) => {
     try {

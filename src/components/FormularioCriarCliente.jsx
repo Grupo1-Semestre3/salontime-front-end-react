@@ -17,20 +17,34 @@ export default function FormularioCliente({
     senha: "",
   });
 
-  // Preenche os dados quando initialData muda
+  // 🧠 Preenche os dados quando initialData muda
   useEffect(() => {
     if (initialData) {
+      console.log("📦 Dados recebidos no initialData:", initialData);
+
       setFormData({
-        nome: initialData.nome || "",
-        email: initialData.email || "",
-        telefone: initialData.telefone || "",
-        cpf: initialData.cpf || "",
-        dataNascimento: initialData.dataNascimento || "",
-        senha: "", // não preenche a senha por segurança
+        nome: initialData.nome ?? "",
+        email: initialData.email ?? "",
+        telefone: initialData.telefone ?? "",
+        cpf: initialData.cpf ?? "",
+        dataNascimento: formatarData(initialData.dataNascimento),
+        senha: "", // nunca preencher senha
       });
     }
   }, [initialData]);
 
+  // 🧩 Função utilitária para padronizar a data (garante compatibilidade com input[type=date])
+  const formatarData = (data) => {
+    if (!data) return "";
+    try {
+      // Aceita tanto "1990-05-15" quanto "1990-05-15T00:00:00"
+      return new Date(data).toISOString().split("T")[0];
+    } catch {
+      return "";
+    }
+  };
+
+  // Atualiza o state ao digitar
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -39,6 +53,7 @@ export default function FormularioCliente({
     }));
   };
 
+  // Envia os dados ao clicar em salvar
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(formData);
@@ -95,7 +110,6 @@ export default function FormularioCliente({
             name="cpf"
             value={formData.cpf}
             onChange={handleChange}
-            // required
           />
         </div>
 
@@ -106,7 +120,6 @@ export default function FormularioCliente({
             name="dataNascimento"
             value={formData.dataNascimento}
             onChange={handleChange}
-            // required
           />
         </div>
 
@@ -114,7 +127,11 @@ export default function FormularioCliente({
           <label>Senha</label>
           <input
             type="password"
-            placeholder={mode === "edit" ? "Deixe em branco para não alterar" : "Digite a senha"}
+            placeholder={
+              mode === "edit"
+                ? "Deixe em branco para não alterar"
+                : "Digite a senha"
+            }
             name="senha"
             value={formData.senha}
             onChange={handleChange}
@@ -137,13 +154,15 @@ export default function FormularioCliente({
               <button type="submit" className="btn-verde">
                 Atualizar
               </button>
-              <button
-                type="button"
-                className="btn-vermelho"
-                onClick={() => onDelete(initialData.id)}
-              >
-                Excluir
-              </button>
+              {onDelete && (
+                <button
+                  type="button"
+                  className="btn-vermelho"
+                  onClick={() => onDelete(initialData.id)}
+                >
+                  Excluir
+                </button>
+              )}
               <button type="button" className="btn-branco" onClick={onCancel}>
                 Cancelar
               </button>

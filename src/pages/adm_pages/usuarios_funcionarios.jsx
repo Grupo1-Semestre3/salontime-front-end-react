@@ -1,17 +1,26 @@
 import { useEffect, useState } from "react";
 import MenuDash from "../../components/MenuDash";
-import UsuariosHeader from "../../components/UsuariosHeader";
 import CardCliente from "../../components/CardCliente";
+import UsuariosHeader from "../../components/UsuariosHeader";
 import FormularioCriarFuncionario from "../../components/FormularioCriarFuncionario";
 import FuncionarioDetalhes from "../../components/FuncionarioDetalhes";
-import { listarFuncionarios } from "../../js/api/kaua";
-import { mensagemErro } from "../../js/utils";
+import {
+  listarFuncionarios,
+  listarUsuarioPorId,
+  criarUsuarioFuncionario,
+  editarUsuarioCliente,
+  deletarUsuarioCliente,
+  getFotoPerfilUsuario,
+} from "../../js/api/kaua";
+import { mensagemErro, mensagemSucesso } from "../../js/utils";
 import "../../css/pages/adm_pages/usuarios/clientes.css";
 
 export default function Usuarios_funcionarios() {
   const [funcionarios, setFuncionarios] = useState([]);
-  const [mostrarForm, setMostrarForm] = useState(false);
-  const [idFuncionarioSelecionado, setIdFuncionarioSelecionado] = useState(null);
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [mostrarDetalhes, setMostrarDetalhes] = useState(false);
+  const [modoFormulario, setModoFormulario] = useState("create");
+  const [funcionarioSelecionado, setFuncionarioSelecionado] = useState(null);
 
   useEffect(() => {
     buscarFuncionarios();
@@ -20,46 +29,152 @@ export default function Usuarios_funcionarios() {
   const buscarFuncionarios = async () => {
     try {
       const data = await listarFuncionarios();
-      setFuncionarios(data);
+
+      // 🔹 Para cada funcionário, buscar a foto de perfil individual
+      const funcionariosComFoto = await Promise.all(
+        data.map(async (funcionario) => {
+          try {
+            const blob = await getFotoPerfilUsuario(funcionario.id);
+            const fotoUrl = URL.createObjectURL(blob);
+            return { ...funcionario, foto: fotoUrl };
+          } catch {
+            // Se não tiver foto, aplica uma padrão
+            return { ...funcionario, foto: "src/assets/img/sem-foto.png" };
+          }
+        })
+      );
+
+      setFuncionarios(funcionariosComFoto);
     } catch (error) {
-      mensagemErro("Erro ao carregar funcionários.");
+      mensagemErro("Erro ao buscar a lista de funcionários.");
+      console.error(error);
     }
+  };
+
+  const handleCriarFuncionario = async (novoFuncionario) => {
+    try {
+      await criarUsuarioFuncionario(novoFuncionario);
+      mensagemSucesso("Funcionário criado com sucesso!");
+      setMostrarFormulario(false);
+      await buscarFuncionarios();
+    } catch (error) {
+      mensagemErro("Erro ao criar funcionário.");
+      console.error(error);
+    }
+  };
+
+  const handleAtualizarFuncionario = async (formData) => {
+    try {
+      const funcionarioAtual = await listarUsuarioPorId(funcionarioSelecionado.id);
+      const dadosParaAtualizar = { ...funcionarioAtual, ...formData };
+
+      if (!dadosParaAtualizar.senha) delete dadosParaAtualizar.senha;
+
+      await editarUsuarioCliente(funcionarioSelecionado.id, dadosParaAtualizar);
+      mensagemSucesso("Funcionário atualizado com sucesso!");
+
+      setMostrarFormulario(false);
+      setFuncionarioSelecionado(null);
+
+      setFuncionarios((prev) =>
+        prev.map((f) =>
+          f.id === funcionarioSelecionado.id ? { ...f, ...dadosParaAtualizar } : f
+        )
+      );
+    } catch (error) {
+      mensagemErro("Erro ao atualizar funcionário.");
+      console.error(error);
+    }
+  };
+
+  const handleExcluirFuncionario = async (id) => {
+    try {
+      await deletarUsuarioCliente(id);
+      mensagemSucesso("Funcionário excluído com sucesso!");
+      setMostrarFormulario(false);
+      setFuncionarioSelecionado(null);
+
+      setFuncionarios((prev) => prev.filter((f) => f.id !== id));
+    } catch (error) {
+      mensagemErro("Erro ao excluir funcionário.");
+      console.error(error);
+    }
+  };
+
+  const handleEditar = (funcionario) => {
+    setFuncionarioSelecionado(funcionario);
+    setModoFormulario("edit");
+    setMostrarFormulario(true);
+  };
+
+  const handleDetalhes = (id) => {
+    setFuncionarioSelecionado({ id });
+    setMostrarDetalhes(true);
   };
 
   return (
     <MenuDash>
       <UsuariosHeader
         tipo="funcionarios"
-        onButtonClick={() => setMostrarForm(true)}
-        iconSrc="/src/assets/icons/plus-icon.svg"
+        onButtonClick={() => {
+          setModoFormulario("create");
+          setFuncionarioSelecionado(null);
+          setMostrarFormulario(true);
+        }}
+        iconSrc="src/assets/svg/plus.svg"
       />
 
-      <div className="dash_section_container" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-        {funcionarios.map((f) => (
-          <CardCliente
-            key={f.id}
-            nome={f.nome}
-            email={f.email}
-            telefone={f.telefone}
-            foto={f.foto || "/src/assets/img/foto_perfil.png"}
-            exibirPendencias={false}
-            onEditar={() => setMostrarForm(true)}
-            onDetalhes={() => setIdFuncionarioSelecionado(f.id)}
-          />
-        ))}
+      <div
+        className="dash_section_container"
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "20px",
+          flexDirection: "row",
+        }}
+      >
+        {funcionarios.length > 0 ? (
+          funcionarios.map((funcionario) => (
+            <CardCliente
+              key={funcionario.id}
+              nome={funcionario.nome}
+              email={funcionario.email}
+              telefone={funcionario.telefone}
+              foto={funcionario.foto}
+              onEditar={() => handleEditar(funcionario)}
+              onDetalhes={() => handleDetalhes(funcionario.id)}
+            />
+          ))
+        ) : (
+          <p style={{ marginTop: "20px", fontSize: "1.2rem" }}>
+            Nenhum funcionário encontrado.
+          </p>
+        )}
       </div>
 
-      {mostrarForm && (
-        <FormularioCriarFuncionario
-          onClose={() => setMostrarForm(false)}
-          atualizarFuncionarios={buscarFuncionarios}
-        />
+      {mostrarFormulario && (
+        <div className="overlay-form">
+          <FormularioCriarFuncionario
+            mode={modoFormulario}
+            initialData={funcionarioSelecionado}
+            onCancel={() => setMostrarFormulario(false)}
+            onSubmit={
+              modoFormulario === "create"
+                ? handleCriarFuncionario
+                : handleAtualizarFuncionario
+            }
+            onDelete={handleExcluirFuncionario}
+          />
+        </div>
       )}
 
-      {idFuncionarioSelecionado && (
+      {mostrarDetalhes && funcionarioSelecionado && (
         <FuncionarioDetalhes
-          idFuncionario={idFuncionarioSelecionado}
-          onClose={() => setIdFuncionarioSelecionado(null)}
+          idFuncionario={funcionarioSelecionado.id}
+          onClose={() => {
+            setMostrarDetalhes(false);
+            setFuncionarioSelecionado(null);
+          }}
         />
       )}
     </MenuDash>

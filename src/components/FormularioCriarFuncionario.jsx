@@ -1,91 +1,160 @@
-import { useState, useEffect } from "react";
-import { criarUsuarioCliente, atualizarUsuario } from "../js/api/kaua";
-import { mensagemErro, mensagemSucesso } from "../js/utils";
-import "../css/pages/adm_pages/usuarios/formularioFuncionario.css";
+import React, { useState, useEffect } from "react";
+import "../css/pages/adm_pages/usuarios/clientes.css";
 
-export default function FormularioCriarFuncionario({ onClose, atualizarFuncionarios }) {
-  const [nome, setNome] = useState("");
-  const [email, setEmail] = useState("");
-  const [telefone, setTelefone] = useState("");
-  const [cpf, setCpf] = useState("");
-  const [senha, setSenha] = useState("");
-  const [servicos, setServicos] = useState([]);
-  const [servicosSelecionados, setServicosSelecionados] = useState([]);
+export default function FormularioCriarFuncionario({
+  mode = "create", // "create" ou "edit"
+  initialData = null, // dados do funcionário quando for editar
+  onCancel,
+  onSubmit,
+  onDelete,
+}) {
+  const [formData, setFormData] = useState({
+    nome: "",
+    email: "",
+    telefone: "",
+    cpf: "",
+    dataNascimento: "",
+    senha: "",
+  });
 
+  // Preenche os dados quando initialData muda
   useEffect(() => {
-    fetchServicos();
-  }, []);
-
-  const fetchServicos = async () => {
-    try {
-      const response = await fetch("http://localhost:8080/servicos");
-      const data = await response.json();
-      setServicos(data);
-    } catch (error) {
-      mensagemErro("Erro ao carregar serviços.");
+    if (initialData) {
+      setFormData({
+        nome: initialData.nome || "",
+        email: initialData.email || "",
+        telefone: initialData.telefone || "",
+        cpf: initialData.cpf || "",
+        dataNascimento: initialData.dataNascimento || "",
+        senha: "", // não preenche a senha por segurança
+      });
     }
+  }, [initialData]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const funcionario = {
-      nome,
-      email,
-      telefone,
-      cpf,
-      senha,
-      servicos: servicosSelecionados, // array de IDs
-      tipoUsuario: "FUNCIONARIO"
-    };
-
-    try {
-      await criarUsuarioCliente(funcionario);
-      mensagemSucesso("Funcionário cadastrado com sucesso!");
-      atualizarFuncionarios();
-      onClose();
-    } catch (error) {
-      mensagemErro("Erro ao cadastrar funcionário.");
-    }
-  };
-
-  const handleSelecionarServico = (id) => {
-    setServicosSelecionados((prev) =>
-      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
-    );
+    onSubmit(formData);
   };
 
   return (
-    <div className="form-overlay">
-      <div className="form-card">
-        <button className="btn-fechar" onClick={onClose}>
-          ✖
-        </button>
+    <div className="form-cliente-container">
+      <p className="paragrafo-1 bold">
+        {mode === "create" ? "Cadastrar Funcionário" : "Editar Funcionário"}
+      </p>
 
-        <h2>Cadastrar Funcionário</h2>
-        <form onSubmit={handleSubmit}>
-          <input type="text" placeholder="Nome" value={nome} onChange={(e) => setNome(e.target.value)} required />
-          <input type="email" placeholder="E-mail" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          <input type="text" placeholder="Telefone" value={telefone} onChange={(e) => setTelefone(e.target.value)} required />
-          <input type="text" placeholder="CPF" value={cpf} onChange={(e) => setCpf(e.target.value)} required />
-          <input type="password" placeholder="Senha" value={senha} onChange={(e) => setSenha(e.target.value)} required />
+      <form className="form-cliente" onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label>Nome do Funcionário</label>
+          <input
+            type="text"
+            placeholder="Digite o nome"
+            name="nome"
+            value={formData.nome}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-          <h4>Serviços do Funcionário:</h4>
-          <div className="servicos-lista">
-            {servicos.map((serv) => (
-              <label key={serv.id} className="servico-item">
-                <input
-                  type="checkbox"
-                  checked={servicosSelecionados.includes(serv.id)}
-                  onChange={() => handleSelecionarServico(serv.id)}
-                />
-                {serv.nome}
-              </label>
-            ))}
-          </div>
+        <div className="form-group">
+          <label>E-mail</label>
+          <input
+            type="email"
+            placeholder="Digite o e-mail"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-          <button type="submit" className="btn-rosa">Salvar</button>
-        </form>
-      </div>
+        <div className="form-group">
+          <label>Telefone</label>
+          <input
+            type="tel"
+            placeholder="Digite o telefone"
+            name="telefone"
+            value={formData.telefone}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label>CPF</label>
+          <input
+            type="text"
+            placeholder="Digite o CPF"
+            name="cpf"
+            value={formData.cpf}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Data de Nascimento</label>
+          <input
+            type="date"
+            name="dataNascimento"
+            value={formData.dataNascimento}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Senha</label>
+          <input
+            type="password"
+            placeholder={
+              mode === "edit"
+                ? "Deixe em branco para não alterar"
+                : "Digite a senha"
+            }
+            name="senha"
+            value={formData.senha}
+            onChange={handleChange}
+            required={mode === "create"}
+          />
+        </div>
+
+        <div className="botoes-form">
+          {mode === "create" ? (
+            <>
+              <button type="submit" className="btn-rosa">
+                Criar
+              </button>
+              <button type="button" className="btn-branco" onClick={onCancel}>
+                Cancelar
+              </button>
+            </>
+          ) : (
+            <>
+              <button type="submit" className="btn-verde">
+                Atualizar
+              </button>
+              {onDelete && (
+                <button
+                  type="button"
+                  className="btn-vermelho"
+                  onClick={() => onDelete(initialData.id)}
+                >
+                  Excluir
+                </button>
+              )}
+              <button type="button" className="btn-branco" onClick={onCancel}>
+                Cancelar
+              </button>
+            </>
+          )}
+        </div>
+      </form>
     </div>
   );
 }

@@ -47,6 +47,19 @@ export async function criarUsuarioCliente(novoUsuario) {
   }
 }
 
+export async function criarUsuarioFuncionario(novoUsuario) {
+  try {
+    const response = await axios.post(
+      "http://localhost:8080/usuarios",
+      novoUsuario
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao criar usuário funcionário:", error);
+    throw error;
+  }
+}
+
 // 🔹 Atualizar usuário (PUT)
 export async function editarUsuarioCliente(id, usuarioAtualizado) {
   try {
@@ -112,13 +125,13 @@ export async function editarInfoSalaoCompleto(infoSalao) {
 
 // Atualiza um usuário existente
 export async function atualizarUsuario(id, usuarioAtualizado) {
-    try {
-        const response = await axios.put(`http://localhost:8080/usuarios/${id}`, usuarioAtualizado);
-        return response.data;
-    } catch (error) {
-        console.error("Erro ao atualizar usuário:", error);
-        throw error;
-    }
+  try {
+    const response = await axios.put(`http://localhost:8080/usuarios/${id}`, usuarioAtualizado);
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao atualizar usuário:", error);
+    throw error;
+  }
 }
 
 export async function agendamentosPassadosUsuario(id) {
@@ -137,6 +150,59 @@ export async function agendamentosPassadosFuncionario(id) {
     return response.data;
   } catch (error) {
     console.error("Erro ao buscar agendamentos passados do funcionário:", error);
+    throw error;
+  }
+}
+
+export async function listarServicosPorFuncionario(id) {
+  try {
+    const response = await axios.get(`http://localhost:8080/funcionario-competencia/funcionario/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar serviços por funcionário:", error);
+    throw error;
+  }
+}
+
+export async function listarServicos() {
+  try {
+    const response = await axios.get("http://localhost:8080/servicos");
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar serviços:", error);
+    throw error;
+  }
+}
+
+// Deletar um serviço de um funcionário (DELETE)
+export async function deletarServicoFuncionario(idCompetencia) {
+  try {
+    const response = await axios.delete(`http://localhost:8080/funcionario-competencia/${idCompetencia}`);
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao deletar serviço do funcionário:", error);
+    throw error;
+  }
+}
+
+export async function criarServicoFuncionario(funcionarioCompetencia) {
+  try {
+    const response = await axios.post(`http://localhost:8080/funcionario-competencia`, funcionarioCompetencia);
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao criar serviço do funcionário:", error);
+    throw error;
+  }
+}
+
+export async function getFotoPerfilUsuario(id) {
+  try {
+    const response = await axios.get(`http://localhost:8080/usuarios/foto/${id}`, {
+      responseType: "blob",
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar foto de perfil do usuário:", error);
     throw error;
   }
 }
