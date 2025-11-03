@@ -275,7 +275,7 @@ function HorarioPadrao(funcionamento) {
   return (
     <div className="configuracao_line_box">
       <div className="configuracao_box_info">
-        <div>
+        <div style={{minWidth:"190px"}}>
           <p className="paragrafo-1 calendario_config_semana semibold">
             {traduzirDia(funcionamento.diaSemana)}
           </p>
@@ -619,11 +619,11 @@ function validateHorario(obj, tipo) {
 }
 
 const diasSemanaPt = {
-  MONDAY: "Segunda",
-  TUESDAY: "Terça",
-  WEDNESDAY: "Quarta",
-  THURSDAY: "Quinta",
-  FRIDAY: "Sexta",
+  MONDAY: "Segunda-feira",
+  TUESDAY: "Terça-feira",
+  WEDNESDAY: "Quarta-feira",
+  THURSDAY: "Quinta-feira",
+  FRIDAY: "Sexta-feira",
   SATURDAY: "Sábado",
   SUNDAY: "Domingo",
 };
