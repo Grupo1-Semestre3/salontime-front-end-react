@@ -83,7 +83,7 @@ export default function Controle_cancelamentos() {
               <ControleItemCard
                 key={c.id}
                 tipo="cancelamento"
-                fotoUrl={c.fotoUrl}
+                fotoUrl={c.id}
                 clienteNome={c.clienteNome}
                 servicoNome={c.servicoNome}
                 dataHoraISO={c.dataHoraISO}

@@ -63,9 +63,11 @@ export async function criarUsuarioFuncionario(novoUsuario) {
 // 🔹 Atualizar usuário (PUT)
 export async function editarUsuarioCliente(id, usuarioAtualizado) {
   try {
+    const usuarioAtual = await axios.get(`http://localhost:8080/usuarios/${id}`);
+    const dadosParaAtualizar = { ...usuarioAtual.data, ...usuarioAtualizado };
     const response = await axios.put(
       `http://localhost:8080/usuarios/${id}`,
-      usuarioAtualizado
+      dadosParaAtualizar
     );
     return response.data;
   } catch (error) {
@@ -126,7 +128,9 @@ export async function editarInfoSalaoCompleto(infoSalao) {
 // Atualiza um usuário existente
 export async function atualizarUsuario(id, usuarioAtualizado) {
   try {
-    const response = await axios.put(`http://localhost:8080/usuarios/${id}`, usuarioAtualizado);
+    const usuarioAtual = await axios.get(`http://localhost:8080/usuarios/${id}`);
+    const dadosParaAtualizar = { ...usuarioAtual.data, ...usuarioAtualizado };
+    const response = await axios.put(`http://localhost:8080/usuarios/${id}`, dadosParaAtualizar);
     return response.data;
   } catch (error) {
     console.error("Erro ao atualizar usuário:", error);

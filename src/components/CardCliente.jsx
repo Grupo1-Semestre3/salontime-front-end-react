@@ -3,15 +3,19 @@ export default function CardCliente({
   nome,
   email,
   telefone,
-  foto = "/src/assets/img/foto_perfil.png",
+  foto,
   pendencias = 0,
   onEditar,
   onDetalhes,
-  exibirPendencias = true, // novo: permite ocultar "Pendências"
+  exibirPendencias = false, // novo: permite ocultar "Pendências"
 }) {
   return (
     <div className="card usuarios_card">
-      <img className="card-foto-cliente" src={foto} alt={`Foto de ${nome}`} />
+      <img 
+      className="card-foto-cliente" 
+      src={`http://localhost:8080/usuarios/foto/${foto}`}
+      onError={(e) => { e.target.src = "/src/assets/img/usuario_foto_def.png"; }}
+      alt={`Foto de ${nome}`} />
 
       <div className="card-info">
         <p className="paragrafo-1 bold">{nome}</p>

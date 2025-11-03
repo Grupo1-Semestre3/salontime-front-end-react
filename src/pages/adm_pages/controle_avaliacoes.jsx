@@ -84,7 +84,7 @@ export default function Controle_avaliacoes() {
               <ControleItemCard
                 key={a.id}
                 tipo="avaliacao"
-                fotoUrl={a.fotoUrl}
+                fotoUrl={a.id}
                 clienteNome={a.clienteNome}
                 servicoNome={a.servicoNome}
                 dataHoraISO={a.dataHoraISO}

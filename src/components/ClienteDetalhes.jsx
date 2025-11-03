@@ -53,11 +53,12 @@ export default function ClienteDetalhes({ idCliente, onClose }) {
   return (
     <div className="cliente-detalhes-overlay">
       <div className="cliente-detalhes-card">
-        <button className="btn-fechar" onClick={onClose}>✖</button>
+        {/* <button className="btn-fechar" onClick={onClose}>✖</button> */}
 
         <div className="cliente-info-header">
           <img
-            src={fotoCliente}
+            src={`http://localhost:8080/usuarios/foto/${idCliente}`}
+            onError={(e) => { e.target.src = "/src/assets/img/usuario_foto_def.png"; }}
             alt={`Foto de ${cliente?.nome}`}
             className="foto-cliente"
           />
@@ -91,7 +92,7 @@ export default function ClienteDetalhes({ idCliente, onClose }) {
               </div>
             ))
           ) : (
-            <p>Nenhum atendimento encontrado.</p>
+            <p className="italic">Nenhum atendimento encontrado.</p>
           )}
         </div>
 

@@ -94,10 +94,14 @@ export default function FuncionarioDetalhes({ idFuncionario, onClose }) {
   return (
     <div className="cliente-detalhes-overlay">
       <div className="cliente-detalhes-card">
-        <button className="btn-fechar" onClick={onClose}>✖</button>
+        {/* <button className="btn-fechar" onClick={onClose}>✖</button> */}
 
         <div className="cliente-info-header">
-          <img src={fotoPerfil} alt="Foto do funcionário" className="foto-cliente" />
+          <img 
+          src={`http://localhost:8080/usuarios/foto/${idFuncionario}`}
+          onError={(e) => { e.target.src = "/src/assets/img/usuario_foto_def.png"; }}
+          alt="Foto do funcionário" 
+          className="foto-cliente" />
           <div className="cliente-info">
             <h3 className="bold">{funcionario.nome}</h3>
             <p>📧 {funcionario.email}</p>
@@ -128,7 +132,7 @@ export default function FuncionarioDetalhes({ idFuncionario, onClose }) {
 
         <button className="btn-verde" onClick={atualizarServicos}>Atualizar</button>
 
-        <h4>Atendimentos Passados:</h4>
+        <h4 style={{ marginTop: "20px" }}>Atendimentos Passados:</h4>
         <div className="agendamentos-lista">
           {agendamentos.length > 0 ? (
             agendamentos.map((ag) => (
@@ -144,7 +148,7 @@ export default function FuncionarioDetalhes({ idFuncionario, onClose }) {
               </div>
             ))
           ) : (
-            <p>Nenhum atendimento encontrado.</p>
+            <p className="italic">Nenhum atendimento encontrado.</p>
           )}
         </div>
 

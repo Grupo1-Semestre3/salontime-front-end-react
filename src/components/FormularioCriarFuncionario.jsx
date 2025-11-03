@@ -86,13 +86,16 @@ export default function FormularioCriarFuncionario({
             required
           />
         </div>
-
+{mode != "create" && (
+          <>
         <div className="form-group">
           <label>CPF</label>
           <input
-            type="text"
+            type="number"
             placeholder="Digite o CPF"
             name="cpf"
+            minLength={11}
+            maxLength={11}
             value={formData.cpf}
             onChange={handleChange}
           />
@@ -107,7 +110,8 @@ export default function FormularioCriarFuncionario({
             onChange={handleChange}
           />
         </div>
-
+        </>
+        )}
         <div className="form-group">
           <label>Senha</label>
           <input

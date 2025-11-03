@@ -37,7 +37,7 @@ export default function Usuarios_clientes() {
           return { ...cliente, foto: fotoUrl };
         } catch {
           // Se der erro (ex: sem foto), adiciona uma imagem padrão
-          return { ...cliente, foto: "src/assets/img/sem-foto.png" };
+          return { ...cliente, foto: "src/assets/img/usuario_foto_def.png" };
         }
       })
     );
@@ -138,7 +138,7 @@ export default function Usuarios_clientes() {
               nome={cliente.nome}
               email={cliente.email}
               telefone={cliente.telefone}
-              foto={cliente.foto}
+              foto={cliente.id}
               pendencias={cliente.pendencias}
               onEditar={() => handleEditar(cliente)}
               onDetalhes={() => handleDetalhes(cliente.id)}

@@ -140,9 +140,10 @@ export default function Usuarios_funcionarios() {
               nome={funcionario.nome}
               email={funcionario.email}
               telefone={funcionario.telefone}
-              foto={funcionario.foto}
+              foto={funcionario.id}
               onEditar={() => handleEditar(funcionario)}
               onDetalhes={() => handleDetalhes(funcionario.id)}
+              exibirPendencias={false}
             />
           ))
         ) : (
