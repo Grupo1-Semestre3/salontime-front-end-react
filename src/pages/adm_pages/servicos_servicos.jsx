@@ -2,14 +2,16 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import MenuDash from "../../components/MenuDash";
 import NavServicos from "../../components/NavServicos";
-import { buscarServicos, atualizarServico, buscarFuncionariosCompetentes, criarServico } from "../../js/api/elerson.js";
+import { buscarServicos, buscarServicosDesativados, atualizarServico, buscarFuncionariosCompetentes, criarServico } from "../../js/api/elerson.js";
 import InfoCard from "../../components/InfoCard.jsx";
 import Popup from "../../components/Popup.jsx";
 import { mensagemErro, mensagemSucesso } from "../../js/utils.js";
 
 export default function Servicos_servicos() {
   const navigate = useNavigate();
-  const [servicos, setServicos] = useState([]);
+  const [servicosAtivos, setServicosAtivos] = useState([]);
+  const [servicosInativos, setServicosInativos] = useState([]);
+  const [filtroStatus, setFiltroStatus] = useState("ATIVO"); // "ATIVO" ou "INATIVO"
   const [loading, setLoading] = useState(true);
   const [servicoSelecionado, setServicoSelecionado] = useState(null);
   const [modalAberto, setModalAberto] = useState(false);
@@ -33,7 +35,8 @@ export default function Servicos_servicos() {
 
   // Handlers for button actions
   const handleEditService = (id) => {
-    const servico = servicos.find(s => s.id === id);
+    const servicosCompletos = [...servicosAtivos, ...servicosInativos];
+    const servico = servicosCompletos.find(s => s.id === id);
     setServicoSelecionado(servico);
     setModalAberto(true);
   };
@@ -41,22 +44,31 @@ export default function Servicos_servicos() {
   const handleToggleServiceStatus = async (id) => {
     try {
       // Toggle service status (ATIVO/INATIVO)
-      const servicosAtualizados = servicos.map(s => {
-        if (s.id === id) {
-          return {
-            ...s,
-            status: s.status === "ATIVO" ? "INATIVO" : "ATIVO"
-          };
-        }
-        return s;
-      });
-      setServicos(servicosAtualizados);
+      const servicosCompletos = [...servicosAtivos, ...servicosInativos];
+      const servico = servicosCompletos.find(s => s.id === id);
+      
+      if (!servico) return;
 
-      // API call to update status would go here
-      // Example: await atualizarStatusServico(id, novoStatus);
+      const novoStatus = servico.status === "ATIVO" ? "INATIVO" : "ATIVO";
+      
+      // Atualizar via API
+      await atualizarServico(id, { ...servico, status: novoStatus });
+      
+      // Atualizar estados locais
+      if (novoStatus === "INATIVO") {
+        // Move de ativos para inativos
+        setServicosAtivos(servicosAtivos.filter(s => s.id !== id));
+        setServicosInativos([...servicosInativos, { ...servico, status: novoStatus }]);
+      } else {
+        // Move de inativos para ativos
+        setServicosInativos(servicosInativos.filter(s => s.id !== id));
+        setServicosAtivos([...servicosAtivos, { ...servico, status: novoStatus }]);
+      }
 
+      mensagemSucesso(`Serviço ${novoStatus === "ATIVO" ? "ativado" : "desativado"} com sucesso!`);
     } catch (error) {
       console.error("Erro ao atualizar status do serviço:", error);
+      mensagemErro("Erro ao atualizar status do serviço");
     }
   };
 
@@ -71,15 +83,31 @@ export default function Servicos_servicos() {
 
   // Handler for after a service is successfully updated
   const handleServicoAtualizado = (servicoAtualizado) => {
-    setServicos(servicos.map(s =>
-      s.id === servicoAtualizado.id ? servicoAtualizado : s
-    ));
+    // Atualizar no array apropriado baseado no status
+    if (servicoAtualizado.status === "ATIVO") {
+      setServicosAtivos(servicosAtivos.map(s =>
+        s.id === servicoAtualizado.id ? servicoAtualizado : s
+      ));
+      // Remover dos inativos se estava lá
+      setServicosInativos(servicosInativos.filter(s => s.id !== servicoAtualizado.id));
+    } else {
+      setServicosInativos(servicosInativos.map(s =>
+        s.id === servicoAtualizado.id ? servicoAtualizado : s
+      ));
+      // Remover dos ativos se estava lá
+      setServicosAtivos(servicosAtivos.filter(s => s.id !== servicoAtualizado.id));
+    }
     handleCloseModal();
   };
 
   // Handler for after a service is successfully created
   const handleServicoCriado = (novoServico) => {
-    setServicos([...servicos, novoServico]);
+    // Adicionar no array apropriado baseado no status
+    if (novoServico.status === "ATIVO") {
+      setServicosAtivos([...servicosAtivos, novoServico]);
+    } else {
+      setServicosInativos([...servicosInativos, novoServico]);
+    }
     handleCloseModalCriar();
   };
 
@@ -87,10 +115,15 @@ export default function Servicos_servicos() {
     const carregarServicos = async () => {
       try {
         setLoading(true);
-        const dados = await buscarServicos();
-        setServicos(dados);
+        const [ativos, inativos] = await Promise.all([
+          buscarServicos(),
+          buscarServicosDesativados()
+        ]);
+        setServicosAtivos(ativos);
+        setServicosInativos(inativos);
       } catch (error) {
         console.error("Erro ao carregar serviços:", error);
+        mensagemErro("Erro ao carregar serviços");
       } finally {
         setLoading(false);
       }
@@ -116,55 +149,70 @@ export default function Servicos_servicos() {
             </button>
           </div>
 
+          {/* Filtro de Status */}
+          <div className="dash_servico_filtro" style={{ marginBottom: '20px', display: 'flex', gap: '12px' }}>
+            <button
+              className={filtroStatus === "ATIVO" ? "btn-rosa" : "btn-branco"}
+              onClick={() => setFiltroStatus("ATIVO")}
+              style={{ minWidth: '120px' }}
+            >
+              Ativos ({servicosAtivos.length})
+            </button>
+            <button
+              className={filtroStatus === "INATIVO" ? "btn-rosa" : "btn-branco"}
+              onClick={() => setFiltroStatus("INATIVO")}
+              style={{ minWidth: '120px' }}
+            >
+              Inativos ({servicosInativos.length})
+            </button>
+          </div>
+
           <div className="dash_servico_servico_pai">
             {loading ? (
               <p>Carregando serviços...</p>
-            ) : servicos.length > 0 ? (
-              servicos.map((servico) => (
-                <InfoCard
-                  key={servico.id}
-                  title={servico.nome}
-                  description={servico.descricao}
-                  infoItems={[
-                    {
-                      icon: "/src/assets/svg/time-sharp.svg",
-                      label: "Tempo médio: ",
-                      value: formatarTempo(servico.tempo)
-                    },
-                    {
-                      icon: "/src/assets/svg/cash-sharp.svg",
-                      label: "A partir de: R$",
-                      value: formatarPreco(servico.preco)
-                    },
-                    {
-                      icon: "/src/assets/svg/flag-sharp.svg",
-                      label: "Status: ",
-                      value: servico.simultaneo ? "Simultâneo" : "Individual"
-                    },
-                    {
-                      icon: "/src/assets/svg/star.svg",
-                      label: "Avaliação: ",
-                      value: servico.mediaAvaliacao > 0
-                        ? `${servico.mediaAvaliacao.toFixed(1)} / 5.0`
-                        : "Sem avaliação"
-                    }
-                  ]}
-                  buttons={{
-                    primary: { text: "Editar", width: "120px" },
-                    secondary: {
-                      text: servico.status === "ATIVO" ? "Desativar" : "Ativar",
-                      width: "120px",
-                      dynamic: true,
-                      condition: servico.status === "ATIVO"
-                    }
-                  }}
-                  onPrimaryClick={() => handleEditService(servico.id)}
-                  onSecondaryClick={() => handleToggleServiceStatus(servico.id)}
-                />
-              ))
-            ) : (
-              <p>Nenhum serviço encontrado.</p>
-            )}
+            ) : (() => {
+              const servicosExibidos = filtroStatus === "ATIVO" ? servicosAtivos : servicosInativos;
+              
+              return servicosExibidos.length > 0 ? (
+                servicosExibidos.map((servico) => (
+                  <InfoCard
+                    key={servico.id}
+                    title={servico.nome}
+                    description={servico.descricao}
+                    infoItems={[
+                      {
+                        icon: "/src/assets/svg/time-sharp.svg",
+                        label: "Tempo médio: ",
+                        value: formatarTempo(servico.tempo)
+                      },
+                      {
+                        icon: "/src/assets/svg/cash-sharp.svg",
+                        label: "A partir de: R$",
+                        value: formatarPreco(servico.preco)
+                      },
+                      {
+                        icon: "/src/assets/svg/flag-sharp.svg",
+                        label: "Status: ",
+                        value: servico.simultaneo ? "Simultâneo" : "Individual"
+                      },
+                      {
+                        icon: "/src/assets/svg/star.svg",
+                        label: "Avaliação: ",
+                        value: servico.mediaAvaliacao > 0
+                          ? `${servico.mediaAvaliacao.toFixed(1)} / 5.0`
+                          : "Sem avaliação"
+                      }
+                    ]}
+                    buttons={{
+                      primary: { text: "Editar", width: "120px" }
+                    }}
+                    onPrimaryClick={() => handleEditService(servico.id)}
+                  />
+                ))
+              ) : (
+                <p>Nenhum serviço {filtroStatus === "ATIVO" ? "ativo" : "inativo"} encontrado.</p>
+              );
+            })()}
           </div>
         </div>
       </MenuDash>
@@ -212,9 +260,8 @@ function EditarServico({ servico, onClose, onSave }) {
         // Mapear os dados para ter apenas as informações necessárias
         const funcionariosFormatados = funcionariosData.map(item => ({
           id: item.funcionario.id,
-          nome: item.funcionario.nome,
-          foto: item.funcionario.foto !== "null" ? item.funcionario.foto : '/src/assets/img/default-user.png'
-          // Removido a propriedade selecionado
+          nome: item.funcionario.nome
+          // A foto será buscada diretamente do endpoint via URL
         }));
 
         // Definir funcionários disponíveis
@@ -435,7 +482,9 @@ function EditarServico({ servico, onClose, onSave }) {
                       onClick={() => toggleProfissional(profissional.id)}
                     >
                       <img
-                        src={profissional.foto == null ? "/src/assets/img/usuario_foto_def.png" : `data:image/jpeg;base64,${profissional.foto}`}
+                        src={`http://localhost:8080/usuarios/foto/${profissional.id}`}
+                        onError={(e) => { e.target.src = "/src/assets/img/usuario_foto_def.png"; }}
+                        alt={profissional.nome}
                         className="profissional-avatar"
                       />
                       <span>{profissional.nome}</span>

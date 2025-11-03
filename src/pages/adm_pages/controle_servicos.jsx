@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import MenuDash from "../../components/MenuDash";
 import ControleMensal from "../../components/NavControleMensal";
-import { buscarKPI, buscarKPIUsuarios, buscarAtendimentoGrafico } from "../../js/api/elerson";
+import { buscarKPI, buscarKPIUsuarios, buscarAtendimentoGrafico, buscarAtendimentoServico } from "../../js/api/elerson";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -33,6 +33,7 @@ export default function Controle_servicos() {
   const [kpiData, setKpiData] = useState(null);
   const [kpiUsuariosData, setKpiUsuariosData] = useState(null);
   const [atendimentoGraficoData, setAtendimentoGraficoData] = useState(null);
+  const [atendimentoServicoData, setAtendimentoServicoData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState(null);
 
@@ -65,12 +66,21 @@ export default function Controle_servicos() {
         } else {
           setAtendimentoGraficoData(null);
         }
+
+        // Buscar dados de atendimento por serviço
+        const dadosServico = await buscarAtendimentoServico(ano, mes);
+        if (dadosServico && dadosServico.length > 0) {
+          setAtendimentoServicoData(dadosServico);
+        } else {
+          setAtendimentoServicoData(null);
+        }
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
         setErro("Erro ao carregar dados do KPI");
         setKpiData(null);
         setKpiUsuariosData(null);
         setAtendimentoGraficoData(null);
+        setAtendimentoServicoData(null);
       } finally {
         setLoading(false);
       }
@@ -107,11 +117,17 @@ export default function Controle_servicos() {
       };
     }
 
-    const diasMes = atendimentoGraficoData.map((item) =>
-      `${String(item.diaMesAtual).padStart(2, "0")}/01`
+    // Garantir que os pontos estejam ordenados pelo dia do mês
+    const dadosOrdenados = [...atendimentoGraficoData].sort(
+      (a, b) => Number(a.diaMesAtual) - Number(b.diaMesAtual)
     );
-    const qtdAtual = atendimentoGraficoData.map((item) => item.qtdAtual);
-    const qtdAnterior = atendimentoGraficoData.map((item) => item.qtdAnterior);
+
+    // Formatar labels como DD/MM usando o mês selecionado (estado `mes`)
+    const diasMes = dadosOrdenados.map((item) =>
+      `${String(item.diaMesAtual).padStart(2, "0")}/${String(mes).padStart(2, "0")}`
+    );
+    const qtdAtual = dadosOrdenados.map((item) => item.qtdAtual);
+    const qtdAnterior = dadosOrdenados.map((item) => item.qtdAnterior);
 
     return {
       labels: diasMes,
@@ -171,21 +187,53 @@ export default function Controle_servicos() {
     },
   };
 
-  const servicosData = {
-    labels: ["Serviço A", "Serviço B", "Serviço C", "Serviço D"],
-    datasets: [
-      {
-        label: "Mês selecionado",
-        data: [80, 75, 70, 65],
-        backgroundColor: "black",
-      },
-      {
-        label: "Mês anterior",
-        data: [95, 90, 88, 92],
-        backgroundColor: "lightgray",
-      },
-    ],
+  // Processar dados do gráfico de serviços
+  const processarDadosServicos = () => {
+    if (!atendimentoServicoData || atendimentoServicoData.length === 0) {
+      return {
+        labels: [],
+        datasets: [
+          {
+            label: "Mês selecionado",
+            data: [],
+            backgroundColor: "black",
+          },
+          {
+            label: "Mês anterior",
+            data: [],
+            backgroundColor: "lightgray",
+          },
+        ],
+      };
+    }
+
+    // Ordenar por quantidade atual (decrescente) para mostrar os mais populares primeiro
+    const dadosOrdenados = [...atendimentoServicoData].sort(
+      (a, b) => b.qtdAtual - a.qtdAtual
+    );
+
+    const labels = dadosOrdenados.map(item => item.nomeServico);
+    const qtdAtual = dadosOrdenados.map(item => item.qtdAtual);
+    const qtdAnterior = dadosOrdenados.map(item => item.qtdAnterior);
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: "Mês selecionado",
+          data: qtdAtual,
+          backgroundColor: "black",
+        },
+        {
+          label: "Mês anterior",
+          data: qtdAnterior,
+          backgroundColor: "lightgray",
+        },
+      ],
+    };
   };
+
+  const servicosData = processarDadosServicos();
 
   const servicosOptions = {
     indexAxis: "y",
@@ -304,7 +352,7 @@ export default function Controle_servicos() {
 
           <div className="section_controle_servico_column_pai card" style={{ gap: "16px" }}>
             <p className="paragrafo-2 semibold" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <img src="../../assets/svg/icon_ia.svg" alt="icon-ia" />
+              <img src="/src/assets/svg/icon_ia.svg" alt="icon-ia" />
               Análise de Desempenho
             </p>
             <p className="paragrafo-2">

@@ -31,6 +31,16 @@ export async function buscarServicos() {
   }
 }
 
+export async function buscarServicosDesativados() {
+  try {
+    const response = await axios.get("http://localhost:8080/servicos/listar-desativados");
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar serviços desativados:", error);
+    throw error;
+  }
+}
+
 export async function criarServico(dadosServico) {
   try {
     const servicoData = {
@@ -143,6 +153,19 @@ export async function buscarAtendimentoGrafico(ano, mes) {
     return response.data;
   } catch (error) {
     console.error("Erro ao buscar dados de atendimento para gráfico:", error);
+    throw error;
+  }
+}
+
+export async function buscarAtendimentoServico(ano, mes) {
+  try {
+    const response = await axios.get(
+      `http://localhost:8080/dashboard/atendimento-servico/${ano}/${mes}`
+    );
+    console.log("Atendimento por Serviço Data:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar dados de atendimento por serviço:", error);
     throw error;
   }
 }
