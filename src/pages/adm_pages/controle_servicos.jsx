@@ -296,7 +296,9 @@ export default function Controle_servicos() {
             <div className="section_controle_servico_kpis_card_column">
               <p className="paragrafo-1 semibold">{kpiData?.totalAtendimentos ?? "—"}</p>
               <p className="paragrafo-2 section_controle_servico_kpis_card_value">
-                {kpiData?.totalAtendimentosTaxa ? `+${kpiData.totalAtendimentosTaxa}%` : "—"}
+                {kpiData?.totalAtendimentosTaxa 
+                  ? `${kpiData.totalAtendimentosTaxa > 0 ? '+' : ''}${kpiData.totalAtendimentosTaxa}%` 
+                  : "—"}
               </p>
             </div>
           </div>
@@ -309,7 +311,9 @@ export default function Controle_servicos() {
                 className="paragrafo-2 section_controle_servico_kpis_card_value"
                 style={{ backgroundColor: "var(--vermelho)" }}
               >
-                {kpiData?.totalCanceladosTaxa ? `+${kpiData.totalCanceladosTaxa}%` : "—"}
+                {kpiData?.totalCanceladosTaxa 
+                  ? `${kpiData.totalCanceladosTaxa > 0 ? '+' : ''}${kpiData.totalCanceladosTaxa}%` 
+                  : "—"}
               </p>
             </div>
           </div>
@@ -319,7 +323,9 @@ export default function Controle_servicos() {
             <div className="section_controle_servico_kpis_card_column">
               <p className="paragrafo-1 semibold">{kpiUsuariosData?.totalCadastros ?? "—"}</p>
               <p className="paragrafo-2 section_controle_servico_kpis_card_value">
-                {kpiUsuariosData?.variacaoPercentual ? `+${kpiUsuariosData.variacaoPercentual}%` : "—"}
+                {kpiUsuariosData?.variacaoPercentual 
+                  ? `${kpiUsuariosData.variacaoPercentual > 0 ? '+' : ''}${kpiUsuariosData.variacaoPercentual}%` 
+                  : "—"}
               </p>
             </div>
           </div>
@@ -331,7 +337,9 @@ export default function Controle_servicos() {
                 {kpiData?.faturamentoTotal ? `R$${kpiData.faturamentoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "—"}
               </p>
               <p className="paragrafo-2 section_controle_servico_kpis_card_value">
-                {kpiData?.faturamentoTotalTaxa ? `+${kpiData.faturamentoTotalTaxa}%` : "—"}
+                {kpiData?.faturamentoTotalTaxa 
+                  ? `${kpiData.faturamentoTotalTaxa > 0 ? '+' : ''}${kpiData.faturamentoTotalTaxa}%` 
+                  : "—"}
               </p>
             </div>
           </div>

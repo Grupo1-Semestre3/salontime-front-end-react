@@ -7,7 +7,10 @@ import { buscarAvaliacoes } from "../../js/api/elerson.js";
 
 export default function Controle_avaliacoes() {
   const navigate = useNavigate();
-  const [mesSelecionado, setMesSelecionado] = useState("jan");
+  // Obter mês atual
+  const mesAtual = ["jan", "fev", "mar", "abr", "mai", "jun", 
+                    "jul", "ago", "set", "out", "nov", "dez"][new Date().getMonth()];
+  const [mesSelecionado, setMesSelecionado] = useState(mesAtual);
   const [avaliacoes, setAvaliacoes] = useState([]);
   const [loading, setLoading] = useState(true);
 
