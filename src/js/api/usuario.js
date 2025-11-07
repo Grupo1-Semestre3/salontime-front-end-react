@@ -23,24 +23,33 @@ export function cadastrarCliente(form, navigate) {
       },
       body: JSON.stringify({ nome, email, senha, telefone })
     })
-      .then(resposta => resposta.json())
+      .then(resposta => {
+        if (resposta.status === 400) {
+          mensagemErro("Usuário já cadastrado");
+          throw new Error("Usuário já cadastrado");
+        }
+        return resposta.json();
+      })
       .then(dados => {
         mensagemSucesso("Cadastro realizado com sucesso!");
         setTimeout(() => {
-          login(email, senha, navigate, true); // Loga o usuário após o cadastro
+          login(email, senha, navigate, true);
         }, 1500);
       })
       .catch(erro => {
         console.error("Erro no cadastro:", erro);
-        mensagemErro("Erro ao cadastrar. Tente novamente.");
+        if (erro.message !== "Usuário já cadastrado") {
+          mensagemErro("Erro ao cadastrar. Tente novamente.");
+        }
       });
+
 
   }
 
 }
 
 export function login(email, senha, navigate, posCadastro = false) {
-  
+
   return fetch("http://localhost:8080/usuarios/login", {
     method: "PATCH",
     headers: {
@@ -53,7 +62,7 @@ export function login(email, senha, navigate, posCadastro = false) {
       if (dados) {
         localStorage.setItem("usuario", JSON.stringify(dados));
         localStorage.setItem("usuarioLogado", "1");
- 
+
         if (dados.tipoUsuario.descricao === "CLIENTE") {
           // Espera um tempo se quiser mostrar mensagem
           if (posCadastro == false) {

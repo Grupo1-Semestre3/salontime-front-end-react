@@ -66,7 +66,7 @@ function AvaliacaoCard({ nome, data, estrelas, servico, comentario, imagem }) {
           {Array.from({ length: 5 }).map((_, i) => (
             <img
               key={i}
-              src={`/src/assets/svg/${i < estrelas ? "icon_star_filled.svg" : "icon_star_outline.svg"}`}
+              src={`/src/assets/svg/${i < estrelas ? "icon_star_outline.svg " : "icon_star_filled.svg"}`}
               alt="estrela"
             />
           ))}
