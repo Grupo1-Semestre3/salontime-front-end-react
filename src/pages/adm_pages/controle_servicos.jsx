@@ -14,6 +14,7 @@ import {
   Legend,
 } from "chart.js";
 import { Line, Bar } from "react-chartjs-2";
+import { perguntarIA } from "../../js/api/ai";
 
 // Registrar módulos do Chart.js
 ChartJS.register(
@@ -36,6 +37,9 @@ export default function Controle_servicos() {
   const [atendimentoServicoData, setAtendimentoServicoData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState(null);
+  const [iaLoading, setIaLoading] = useState(false);
+  const [iaResposta, setIaResposta] = useState("");
+  const [iaErro, setIaErro] = useState("");
 
   // Buscar dados do KPI quando ano ou mês mudar
   useEffect(() => {
@@ -258,6 +262,42 @@ export default function Controle_servicos() {
     },
   };
 
+  async function gerarAnaliseIA() {
+    setIaLoading(true);
+    setIaErro("");
+    setIaResposta("");
+    try {
+      // Monta um contexto resumido com alguns KPIs e top serviços
+      const contextoServicos = (atendimentoServicoData || [])
+        .sort((a,b) => b.qtdAtual - a.qtdAtual)
+        .slice(0,5)
+        .map(s => `${s.nomeServico}: ${s.qtdAtual}`)
+        .join("; ");
+
+      const prompt = `Você é um assistente que gera insights para gestão de um salão de beleza.
+Mês: ${mes}/${ano}
+Total atendimentos: ${kpiData?.totalAtendimentos ?? "NA"}
+Cancelados: ${kpiData?.totalCancelados ?? "NA"}
+Clientes cadastrados: ${kpiUsuariosData?.totalCadastros ?? "NA"}
+Faturamento: ${kpiData?.faturamentoTotal ?? "NA"}
+Top serviços (qtd mês atual): ${contextoServicos || "Sem dados"}
+
+Objetivo: gere uma análise em português, com:
+- Tendências principais
+- Possíveis causas
+- Sugestões práticas para aumentar receita e reduzir cancelamentos
+- Oportunidades de marketing
+Use bullets curtos e tom profissional.`;
+
+      const resposta = await perguntarIA(prompt);
+      setIaResposta(resposta);
+    } catch (e) {
+      setIaErro(e.message || "Erro ao gerar análise");
+    } finally {
+      setIaLoading(false);
+    }
+  }
+
   return (
     <MenuDash>
      
@@ -363,10 +403,39 @@ export default function Controle_servicos() {
               <img src="/src/assets/svg/icon_ia.svg" alt="icon-ia" />
               Análise de Desempenho
             </p>
-            <p className="paragrafo-2">
-              Análise gerada por inteligência artificial generativa.  
-              Aqui você pode integrar futuramente uma API que explique os dados automaticamente.
-            </p>
+            <div style={{ display:"flex", flexDirection:"column", gap:"8px" }}>
+              <p className="paragrafo-2">Gere insights automáticos com base nos KPIs do mês.</p>
+              <button 
+                onClick={gerarAnaliseIA} 
+                disabled={iaLoading} 
+                className="paragrafo-2 semibold" 
+                style={{
+                  padding:"8px 12px",
+                  background:"black",
+                  color:"white",
+                  borderRadius:"6px",
+                  width:"fit-content",
+                  cursor: iaLoading?"not-allowed":"pointer",
+                  opacity: iaLoading?0.7:1
+                }}>
+                {iaLoading ? "Gerando análise..." : "Gerar análise IA"}
+              </button>
+              {iaErro && <p style={{ color:"var(--vermelho)", whiteSpace:"pre-wrap" }}>{iaErro}</p>}
+              {iaResposta && (
+                <div style={{
+                  maxHeight:"240px",
+                  overflowY:"auto",
+                  padding:"8px 12px",
+                  border:"1px solid #ddd",
+                  borderRadius:"6px",
+                  background:"#fafafa",
+                  whiteSpace:"pre-wrap",
+                  fontSize:"0.85rem"
+                }}>
+                  {iaResposta}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       

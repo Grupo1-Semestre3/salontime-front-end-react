@@ -69,7 +69,9 @@ export default function MenuConfig({ children }) {
                 <div className="nav_institucional_coluna">
                     <img src="src/assets/svg/logo_black.svg" alt="logo" className="logo_navbar"/>
                 </div>
-                <div className="nav_institucional_coluna">
+                
+                <div className="nav_institucional_coluna" >
+                    <button className="btn-rosa display_none" onClick={() => navigate("/servicos")}>Voltar</button>
                     <div className="hamburguer_menu">
                         <button
                             ref={btnRef}
