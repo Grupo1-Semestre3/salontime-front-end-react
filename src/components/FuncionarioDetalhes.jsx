@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
-import { 
-  listarUsuarioPorId, 
-  agendamentosPassadosFuncionario, 
-  listarServicosPorFuncionario, 
-  listarServicos, 
+import {
+  listarUsuarioPorId,
+  agendamentosPassadosFuncionario,
+  listarServicosPorFuncionario,
+  listarServicos,
   deletarServicoFuncionario,
   criarServicoFuncionario,
-  getFotoPerfilUsuario
+  getFotoPerfilUsuario,
+  buscarDadosHistoricoPorIdAgendamento
 } from "../js/api/kaua";
-import { mensagemErro, mensagemSucesso } from "../js/utils";
+import { mensagemErro, mensagemSucesso, formatarDataBR } from "../js/utils";
 import "../css/pages/adm_pages/usuarios/clienteDetalhes.css";
 import ConcluirAgendamentoPop from "./ConcluirAgendamentoPop";
-import VerDetalhesPop from "./VerDetalhesPop";
+import "../css/popup/detalhesAgendamento.css";
+import Popup from "./Popup";
 
 export default function FuncionarioDetalhes({ idFuncionario, onClose }) {
   const [funcionario, setFuncionario] = useState(null);
@@ -21,8 +23,17 @@ export default function FuncionarioDetalhes({ idFuncionario, onClose }) {
   const [servicosSelecionados, setServicosSelecionados] = useState([]);
   const [competenciasFuncionario, setCompetenciasFuncionario] = useState([]);
   const [popupConcluir, setPopupConcluir] = useState(null);
-  const [popupDetalhes, setPopupDetalhes] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [modalDetalhes, setModalDetalhes] = useState(false);
+  const [dadosHistorico, setDadosHistorico] = useState([]);
+
+  const carregarDadosHistorico = (idAgendamento) => {
+    if (idAgendamento) {
+      buscarDadosHistoricoPorIdAgendamento(idAgendamento)
+        .then(data => setDadosHistorico(data))
+        .catch(error => console.error("Erro ao carregar historico agendamentos:", error));
+    }
+  };
 
   useEffect(() => {
     if (idFuncionario) {
@@ -97,11 +108,11 @@ export default function FuncionarioDetalhes({ idFuncionario, onClose }) {
         {/* <button className="btn-fechar" onClick={onClose}>✖</button> */}
 
         <div className="cliente-info-header">
-          <img 
-          src={`http://localhost:8080/usuarios/foto/${idFuncionario}`}
-          onError={(e) => { e.target.src = "/src/assets/img/usuario_foto_def.png"; }}
-          alt="Foto do funcionário" 
-          className="foto-cliente" />
+          <img
+            src={`http://localhost:8080/usuarios/foto/${idFuncionario}`}
+            onError={(e) => { e.target.src = "/src/assets/img/usuario_foto_def.png"; }}
+            alt="Foto do funcionário"
+            className="foto-cliente" />
           <div className="cliente-info">
             <h3 className="bold">{funcionario.nome}</h3>
             <p>📧 {funcionario.email}</p>
@@ -143,7 +154,10 @@ export default function FuncionarioDetalhes({ idFuncionario, onClose }) {
 
                 <div className="botoes-agendamento">
                   <button className="btn-rosa" onClick={() => setPopupConcluir(ag)}>Concluir</button>
-                  <button className="btn-branco" onClick={() => setPopupDetalhes([ag])}>Detalhes</button>
+                  <button className="btn-branco" onClick={() => {
+                    carregarDadosHistorico(ag.id)
+                    setModalDetalhes(true);
+                  }}>Detalhes</button>
                 </div>
               </div>
             ))
@@ -163,12 +177,43 @@ export default function FuncionarioDetalhes({ idFuncionario, onClose }) {
         />
       )}
 
-      {popupDetalhes && (
+      {modalDetalhes && (
         <VerDetalhesPop
-          dados={popupDetalhes}
-          onClose={() => setPopupDetalhes(null)}
+          dados={dadosHistorico}
+          onClose={() => {
+            setModalDetalhes(false);
+            setDadosHistorico(null);
+          }}
         />
       )}
+
     </div>
+  );
+}
+
+function VerDetalhesPop({ dados, onClose }) {
+  if (!dados || dados.length === 0) return null;
+
+  return (
+    <Popup>
+      <div className="calendario_box_popup_concluir_agendamento">
+        <h1>Detalhes do atendimento</h1>
+
+        {dados.map((item, index) => (
+          <div key={index} className="calendario_box_info_historico_detalhes_agendamento">
+            <div>
+              <span className="calendario_bolinha calendario_bolinha_cinza"></span>
+            </div>
+
+            <div className="calendario_box_infos_status_data">
+              <h4>{item.statusAgendamento}</h4>
+              <p>{formatarDataBR(item.dataHora.split("T")[0])} {item.dataHora.split("T")[1]?.slice(0, 5)}h</p>
+            </div>
+          </div>
+        ))}
+
+        <button className="btn-rosa" onClick={onClose}>Voltar</button>
+      </div>
+    </Popup>
   );
 }

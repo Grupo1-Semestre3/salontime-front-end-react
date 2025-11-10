@@ -100,6 +100,18 @@ export async function listarUsuarioPorId(id) {
   }
 }
 
+export async function buscarDadosHistoricoPorIdAgendamento(idAgendamemto) {
+    try {
+        const response = await axios.get(`http://localhost:8080/agendamento/historico/${idAgendamemto}`);
+        console.log(response.data)
+        return response.data;
+
+    } catch (error) {
+        console.error("Erro ao buscar dado historico:", error);
+        throw error;
+    }
+}
+
 // 🔹 Mudar senha
 export async function mudarSenha(id, newSenha, oldSenha) {
   try {
