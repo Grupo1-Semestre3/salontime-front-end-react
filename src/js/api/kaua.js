@@ -1,9 +1,9 @@
-import axios from "axios";
+import api from "./api_port";
 
 // 🔹 Listar informações do salão
 export async function listarInfoSalao() {
   try {
-    const response = await axios.get("http://localhost:8080/info-salao");
+    const response = await api.get("http://localhost:8080/info-salao");
     return response.data;
   } catch (error) {
     console.error("Erro ao buscar informações do salão:", error);
@@ -14,7 +14,7 @@ export async function listarInfoSalao() {
 // 🔹 Listar clientes
 export async function listarClientes() {
   try {
-    const response = await axios.get("http://localhost:8080/usuarios/lista-clientes");
+    const response = await api.get("http://localhost:8080/usuarios/lista-clientes");
     return response.data;
   } catch (error) {
     console.error("Erro ao buscar clientes:", error);
@@ -25,7 +25,7 @@ export async function listarClientes() {
 // 🔹 Listar funcionários
 export async function listarFuncionarios() {
   try {
-    const response = await axios.get("http://localhost:8080/usuarios/lista-funcionarios");
+    const response = await api.get("http://localhost:8080/usuarios/lista-funcionarios");
     return response.data;
   } catch (error) {
     console.error("Erro ao buscar funcionários:", error);
@@ -36,7 +36,7 @@ export async function listarFuncionarios() {
 // 🔹 Criar usuário cliente
 export async function criarUsuarioCliente(novoUsuario) {
   try {
-    const response = await axios.post(
+    const response = await api.post(
       "http://localhost:8080/usuarios/cadastro",
       novoUsuario
     );
@@ -49,7 +49,7 @@ export async function criarUsuarioCliente(novoUsuario) {
 
 export async function criarUsuarioFuncionario(novoUsuario) {
   try {
-    const response = await axios.post(
+    const response = await api.post(
       "http://localhost:8080/usuarios",
       novoUsuario
     );
@@ -63,9 +63,9 @@ export async function criarUsuarioFuncionario(novoUsuario) {
 // 🔹 Atualizar usuário (PUT)
 export async function editarUsuarioCliente(id, usuarioAtualizado) {
   try {
-    const usuarioAtual = await axios.get(`http://localhost:8080/usuarios/${id}`);
+    const usuarioAtual = await api.get(`http://localhost:8080/usuarios/${id}`);
     const dadosParaAtualizar = { ...usuarioAtual.data, ...usuarioAtualizado };
-    const response = await axios.put(
+    const response = await api.put(
       `http://localhost:8080/usuarios/${id}`,
       dadosParaAtualizar
     );
@@ -79,7 +79,7 @@ export async function editarUsuarioCliente(id, usuarioAtualizado) {
 // 🔹 Deletar usuário
 export async function deletarUsuarioCliente(id) {
   try {
-    const response = await axios.patch(
+    const response = await api.patch(
       `http://localhost:8080/usuarios/deletar/${id}`
     );
     return response.data;
@@ -92,7 +92,7 @@ export async function deletarUsuarioCliente(id) {
 // 🔹 Buscar usuário por ID
 export async function listarUsuarioPorId(id) {
   try {
-    const response = await axios.get(`http://localhost:8080/usuarios/${id}`);
+    const response = await api.get(`http://localhost:8080/usuarios/${id}`);
     return response.data;
   } catch (error) {
     console.error("Erro ao buscar usuário:", error);
@@ -102,7 +102,7 @@ export async function listarUsuarioPorId(id) {
 
 export async function buscarDadosHistoricoPorIdAgendamento(idAgendamemto) {
     try {
-        const response = await axios.get(`http://localhost:8080/agendamento/historico/${idAgendamemto}`);
+        const response = await api.get(`http://localhost:8080/agendamento/historico/${idAgendamemto}`);
         console.log(response.data)
         return response.data;
 
@@ -115,7 +115,7 @@ export async function buscarDadosHistoricoPorIdAgendamento(idAgendamemto) {
 // 🔹 Mudar senha
 export async function mudarSenha(id, newSenha, oldSenha) {
   try {
-    const response = await axios.patch(
+    const response = await api.patch(
       `http://localhost:8080/usuarios/mudarSenha/${id}`,
       { senhaAtual: oldSenha, novaSenha: newSenha }
     );
@@ -129,7 +129,7 @@ export async function mudarSenha(id, newSenha, oldSenha) {
 // 🔹 Atualizar informações do salão
 export async function editarInfoSalaoCompleto(infoSalao) {
   try {
-    const response = await axios.put("http://localhost:8080/info-salao", infoSalao);
+    const response = await api.put("http://localhost:8080/info-salao", infoSalao);
     return response.data;
   } catch (error) {
     console.error("Erro ao atualizar informações do salão:", error);
@@ -140,9 +140,9 @@ export async function editarInfoSalaoCompleto(infoSalao) {
 // Atualiza um usuário existente
 export async function atualizarUsuario(id, usuarioAtualizado) {
   try {
-    const usuarioAtual = await axios.get(`http://localhost:8080/usuarios/${id}`);
+    const usuarioAtual = await api.get(`http://localhost:8080/usuarios/${id}`);
     const dadosParaAtualizar = { ...usuarioAtual.data, ...usuarioAtualizado };
-    const response = await axios.put(`http://localhost:8080/usuarios/${id}`, dadosParaAtualizar);
+    const response = await api.put(`http://localhost:8080/usuarios/${id}`, dadosParaAtualizar);
     return response.data;
   } catch (error) {
     console.error("Erro ao atualizar usuário:", error);
@@ -152,7 +152,7 @@ export async function atualizarUsuario(id, usuarioAtualizado) {
 
 export async function agendamentosPassadosUsuario(id) {
   try {
-    const response = await axios.get(`http://localhost:8080/agendamento/passados-usuario/${id}`);
+    const response = await api.get(`http://localhost:8080/agendamento/passados-usuario/${id}`);
     return response.data;
   } catch (error) {
     console.error("Erro ao buscar agendamentos passados do usuário:", error);
@@ -162,7 +162,7 @@ export async function agendamentosPassadosUsuario(id) {
 
 export async function agendamentosPassadosFuncionario(id) {
   try {
-    const response = await axios.get(`http://localhost:8080/agendamento/passados-funcionario/${id}`);
+    const response = await api.get(`http://localhost:8080/agendamento/passados-funcionario/${id}`);
     return response.data;
   } catch (error) {
     console.error("Erro ao buscar agendamentos passados do funcionário:", error);
@@ -172,7 +172,7 @@ export async function agendamentosPassadosFuncionario(id) {
 
 export async function listarServicosPorFuncionario(id) {
   try {
-    const response = await axios.get(`http://localhost:8080/funcionario-competencia/funcionario/${id}`);
+    const response = await api.get(`http://localhost:8080/funcionario-competencia/funcionario/${id}`);
     return response.data;
   } catch (error) {
     console.error("Erro ao buscar serviços por funcionário:", error);
@@ -182,7 +182,7 @@ export async function listarServicosPorFuncionario(id) {
 
 export async function listarServicos() {
   try {
-    const response = await axios.get("http://localhost:8080/servicos");
+    const response = await api.get("http://localhost:8080/servicos");
     return response.data;
   } catch (error) {
     console.error("Erro ao buscar serviços:", error);
@@ -193,7 +193,7 @@ export async function listarServicos() {
 // Deletar um serviço de um funcionário (DELETE)
 export async function deletarServicoFuncionario(idCompetencia) {
   try {
-    const response = await axios.delete(`http://localhost:8080/funcionario-competencia/${idCompetencia}`);
+    const response = await api.delete(`http://localhost:8080/funcionario-competencia/${idCompetencia}`);
     return response.data;
   } catch (error) {
     console.error("Erro ao deletar serviço do funcionário:", error);
@@ -203,7 +203,7 @@ export async function deletarServicoFuncionario(idCompetencia) {
 
 export async function criarServicoFuncionario(funcionarioCompetencia) {
   try {
-    const response = await axios.post(`http://localhost:8080/funcionario-competencia`, funcionarioCompetencia);
+    const response = await api.post(`http://localhost:8080/funcionario-competencia`, funcionarioCompetencia);
     return response.data;
   } catch (error) {
     console.error("Erro ao criar serviço do funcionário:", error);
@@ -213,7 +213,7 @@ export async function criarServicoFuncionario(funcionarioCompetencia) {
 
 export async function getFotoPerfilUsuario(id) {
   try {
-    const response = await axios.get(`http://localhost:8080/usuarios/foto/${id}`, {
+    const response = await api.get(`http://localhost:8080/usuarios/foto/${id}`, {
       responseType: "blob",
     });
     return response.data;

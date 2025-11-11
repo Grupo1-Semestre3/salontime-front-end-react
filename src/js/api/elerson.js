@@ -1,9 +1,8 @@
-import axios from "axios";
-// ...existing code...
+import api from "./api_port";
 
 export async function buscarCancelamentosDashboard() {
   try {
-    const response = await axios.get("http://localhost:8080/cancelamentos");
+    const response = await api.get("http://localhost:8080/cancelamentos");
     return response.data;
   } catch (error) {
     console.error("Erro ao buscar cancelamentos do dashboard:", error);
@@ -13,7 +12,7 @@ export async function buscarCancelamentosDashboard() {
 
 export async function buscarAvaliacoes() {
   try {
-    const response = await axios.get("http://localhost:8080/avaliacao");
+    const response = await api.get("http://localhost:8080/avaliacao");
     return response.data;
   } catch (error) {
     console.error("Erro ao buscar avaliações:", error);
@@ -23,7 +22,7 @@ export async function buscarAvaliacoes() {
 
 export async function buscarServicos() {
   try {
-    const response = await axios.get("http://localhost:8080/servicos");
+    const response = await api.get("http://localhost:8080/servicos");
     return response.data;
   } catch (error) {
     console.error("Erro ao buscar serviços:", error);
@@ -33,7 +32,7 @@ export async function buscarServicos() {
 
 export async function buscarServicosDesativados() {
   try {
-    const response = await axios.get("http://localhost:8080/servicos/listar-desativados");
+    const response = await api.get("http://localhost:8080/servicos/listar-desativados");
     return response.data;
   } catch (error) {
     console.error("Erro ao buscar serviços desativados:", error);
@@ -52,7 +51,7 @@ export async function criarServico(dadosServico) {
       descricao: dadosServico.descricao || ''
     };
 
-    const response = await axios.post("http://localhost:8080/servicos", servicoData, {
+    const response = await api.post("http://localhost:8080/servicos", servicoData, {
       headers: {
         'Content-Type': 'application/json',
       }
@@ -94,7 +93,7 @@ export const atualizarServico = async (id, dadosServico, arquivo = null) => {
     }
     
     // Enviar como JSON puro em vez de FormData
-    const response = await axios.put(`http://localhost:8080/servicos/${id}`, servicoData, {
+    const response = await api.put(`http://localhost:8080/servicos/${id}`, servicoData, {
       headers: {
         'Content-Type': 'application/json',
       }
@@ -109,7 +108,7 @@ export const atualizarServico = async (id, dadosServico, arquivo = null) => {
 
 export async function buscarFuncionariosCompetentes(servicoId) {
   try {
-    const response = await axios.get(`http://localhost:8080/funcionario-competencia/servico/${servicoId}`);
+    const response = await api.get(`http://localhost:8080/funcionario-competencia/servico/${servicoId}`);
     console.log("Funcionários competentes:", response.data);
     return response.data;
   } catch (error) {
@@ -120,7 +119,7 @@ export async function buscarFuncionariosCompetentes(servicoId) {
 
 export async function buscarKPI(ano, mes) {
   try {
-    const response = await axios.get(
+    const response = await api.get(
       `http://localhost:8080/dashboard/kpi/${ano}/${mes}`
     );
     console.log("KPI Data:", response.data);
@@ -133,7 +132,7 @@ export async function buscarKPI(ano, mes) {
 
 export async function buscarKPIUsuarios(ano, mes) {
   try {
-    const response = await axios.get(
+    const response = await api.get(
       `http://localhost:8080/dashboard/kpi-usuarios/${ano}/${mes}`
     );
     console.log("KPI Usuários Data:", response.data);
@@ -146,7 +145,7 @@ export async function buscarKPIUsuarios(ano, mes) {
 
 export async function buscarAtendimentoGrafico(ano, mes) {
   try {
-    const response = await axios.get(
+    const response = await api.get(
       `http://localhost:8080/dashboard/atendimento-grafico/${ano}/${mes}`
     );
     console.log("Atendimento Gráfico Data:", response.data);
@@ -159,7 +158,7 @@ export async function buscarAtendimentoGrafico(ano, mes) {
 
 export async function buscarAtendimentoServico(ano, mes) {
   try {
-    const response = await axios.get(
+    const response = await api.get(
       `http://localhost:8080/dashboard/atendimento-servico/${ano}/${mes}`
     );
     console.log("Atendimento por Serviço Data:", response.data);

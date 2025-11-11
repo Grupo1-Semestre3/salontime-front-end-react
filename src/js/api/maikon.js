@@ -1,8 +1,8 @@
-import axios from "axios";
+import api from "./api_port";
 
 export async function listarClientes() {
     try {
-        const response = await axios.get(`http://localhost:8080/usuarios/lista-clientes`);
+        const response = await api.get(`http://localhost:8080/usuarios/lista-clientes`);
         console.log(response.data)
         return response.data;
 
@@ -14,7 +14,7 @@ export async function listarClientes() {
 
 export async function listarServicos() {
     try {
-        const response = await axios.get(`http://localhost:8080/servicos`);
+        const response = await api.get(`http://localhost:8080/servicos`);
         console.log(response.data)
         return response.data;
 
@@ -27,7 +27,7 @@ export async function listarServicos() {
 export async function exibirHorariosDisponiveis(idServico, data) {
     try {
         const id = Number(idServico);
-        const response = await axios.get(`http://localhost:8080/agendamento/horarios-disponiveis/${id}/${data}`);
+        const response = await api.get(`http://localhost:8080/agendamento/horarios-disponiveis/${id}/${data}`);
         console.log(response.data)
         return response.data;
 
@@ -39,7 +39,7 @@ export async function exibirHorariosDisponiveis(idServico, data) {
 
 export async function listarPagamento() {
     try {
-        const response = await axios.get(`http://localhost:8080/pagamento`);
+        const response = await api.get(`http://localhost:8080/pagamento`);
         console.log(response.data)
         return response.data;
 
@@ -64,7 +64,7 @@ export async function salvarAgendamento(idCliente, idServico, cupomSelecionado, 
       body.cupom = cupomSelecionado;
     }
 
-    const response = await axios.post(`http://localhost:8080/agendamento`, body);
+    const response = await api.post(`http://localhost:8080/agendamento`, body);
 
     // Se o backend retornar erro 400, isso cai no catch automaticamente
     return response.data;
@@ -80,7 +80,7 @@ export async function salvarAgendamento(idCliente, idServico, cupomSelecionado, 
 
 export async function buscarDadosHistoricoPorIdAgendamento(idAgendamemto) {
     try {
-        const response = await axios.get(`http://localhost:8080/agendamento/historico/${idAgendamemto}`);
+        const response = await api.get(`http://localhost:8080/agendamento/historico/${idAgendamemto}`);
         console.log(response.data)
         return response.data;
 
@@ -93,7 +93,7 @@ export async function buscarDadosHistoricoPorIdAgendamento(idAgendamemto) {
 export async function realizarAvaliacao(dados) {
     try {
 
-        const response = await axios.post(`http://localhost:8080/avaliacao`, dados);
+        const response = await api.post(`http://localhost:8080/avaliacao`, dados);
 
         console.log(response.data);
         return response.data;
@@ -112,7 +112,7 @@ export async function reagendarAgendamento(agendamentoId, dataSelecionada, horar
     }
 
     try {
-        const response = await axios.patch(`http://localhost:8080/agendamento/reagendamento/${agendamentoId}`, dados);
+        const response = await api.patch(`http://localhost:8080/agendamento/reagendamento/${agendamentoId}`, dados);
         console.log(response.data);
         return response.data;
 

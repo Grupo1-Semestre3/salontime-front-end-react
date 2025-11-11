@@ -137,6 +137,8 @@ export default function ClienteDetalhes({ idCliente, onClose }) {
 function VerDetalhesPop({ dados, onClose }) {
   if (!dados || dados.length === 0) return null;
 
+  console.log("Dados do histórico para detalhes:", dados);
+
   return (
     <Popup>
       <div className="calendario_box_popup_concluir_agendamento">
