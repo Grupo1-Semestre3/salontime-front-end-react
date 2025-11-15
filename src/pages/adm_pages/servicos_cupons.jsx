@@ -419,6 +419,26 @@ export default function Servicos_cupons() {
   const [modalAberto, setModalAberto] = useState(false);
   const [showCriarCupom, setShowCriarCupom] = useState(false);
 
+  // Marina Points form state
+  const [mpForm, setMpForm] = useState({
+    pontosPorAgendamento: 1,
+    descontoPercentual: 1,
+  });
+  const [mpInitial, setMpInitial] = useState({
+    pontosPorAgendamento: 1,
+    descontoPercentual: 1,
+  });
+  const mpChanged =
+    mpForm.pontosPorAgendamento !== mpInitial.pontosPorAgendamento ||
+    mpForm.descontoPercentual !== mpInitial.descontoPercentual;
+
+  const handleMpSubmit = (e) => {
+    e.preventDefault();
+    // TODO: integrar com API quando disponível
+    setMpInitial(mpForm);
+    mensagemSucesso("Configurações de Marina Points atualizadas!");
+  };
+
   useEffect(() => {
     const carregarCupons = async () => {
       try {
@@ -464,6 +484,48 @@ export default function Servicos_cupons() {
       <MenuDash>
         <NavServicos />
         <div className="dash_section_container">
+
+            <h1 className="titulo-1">Marina Points:</h1>
+            <div className="dash_marina_points_line">
+              <form className="paragrafo-2 semibold form_marina_p" onSubmit={handleMpSubmit}>
+                Qtd. de pontos p/Agendamento:
+                <input
+                  type="number"
+                  min={1}
+                  step={1}
+                  className="input_marina_points"
+                  name="pontosPorAgendamento"
+                  id="pontosPorAgendamento"
+                  value={mpForm.pontosPorAgendamento}
+                  onChange={(e) =>
+                    setMpForm((f) => ({ ...f, pontosPorAgendamento: Number(e.target.value) }))
+                  }
+                />
+                % de Desconto
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  step={1}
+                  className="input_marina_points"
+                  name="descontoPercentual"
+                  id="descontoPercentual"
+                  value={mpForm.descontoPercentual}
+                  onChange={(e) =>
+                    setMpForm((f) => ({ ...f, descontoPercentual: Number(e.target.value) }))
+                  }
+                />
+                <button
+                  type="submit"
+                  className="btn-verde"
+                  disabled={!mpChanged}
+                  style={{ opacity: mpChanged ? 1 : 0.6, cursor: mpChanged ? 'pointer' : 'not-allowed', backgroundColor: mpChanged ? '' : 'gray' }}
+                >
+                  Atualizar
+                </button>
+              </form>
+            </div>
+
           <div className="dash_servico_section_2">
             <h1 className="titulo-1">Gerenciar CUPONS</h1>
             <button className="btn-rosa" onClick={() => setShowCriarCupom(true)}>

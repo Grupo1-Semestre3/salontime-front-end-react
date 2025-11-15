@@ -162,6 +162,8 @@ export default function Controle_servicos() {
 
   const atendimentosOptions = {
     responsive: true,
+    maintainAspectRatio: true, // preserve aspect ratio to avoid vertical stretch
+    aspectRatio: 3, // width / height; tweak (e.g., 2.5~3.5) to taste
     plugins: {
       legend: {
         labels: {
@@ -286,8 +288,9 @@ Objetivo: gere uma análise em português, com:
 - Tendências principais
 - Possíveis causas
 - Sugestões práticas para aumentar receita e reduzir cancelamentos
-- Oportunidades de marketing
-Use bullets curtos e tom profissional.`;
+Use bullets curtos e tom profissional.
+
+Lembre-se que sua resposta será uma variavel string exibida diretamente dentro de uma div de um site, então não utilize formatações de texto (bold/italic/title/etc).`;
 
       const resposta = await perguntarIA(prompt);
       setIaResposta(resposta);
@@ -386,9 +389,9 @@ Use bullets curtos e tom profissional.`;
         </div>
 
         {/* Gráfico de Atendimentos por Dia */}
-        <div className="section_controle_servico_grafico card">
-          <p className="paragrafo-2 semibold">Atendimentos por Dia</p>
-          <Line data={atendimentosData} options={atendimentosOptions} />
+        <div className="section_controle_servico_grafico card" style={{ width: "100%" }}>
+          <p className="paragrafo-2 semibold" style={{ alignSelf: "flex-start", textAlign: "start" }}>Atendimentos por Dia</p>
+          <Line data={atendimentosData} options={atendimentosOptions} style={{ width: "100%", justifyContent: "center"}} />
         </div>
 
         {/* Linha com gráfico e análise IA */}
@@ -404,7 +407,7 @@ Use bullets curtos e tom profissional.`;
               Análise de Desempenho
             </p>
             <div style={{ display:"flex", flexDirection:"column", gap:"8px" }}>
-              <p className="paragrafo-2">Gere insights automáticos com base nos KPIs do mês.</p>
+              <p className="paragrafo-2">Gere insights automáticos com base nos dados apresentados.</p>
               <button 
                 onClick={gerarAnaliseIA} 
                 disabled={iaLoading} 
@@ -423,7 +426,7 @@ Use bullets curtos e tom profissional.`;
               {iaErro && <p style={{ color:"var(--vermelho)", whiteSpace:"pre-wrap" }}>{iaErro}</p>}
               {iaResposta && (
                 <div style={{
-                  maxHeight:"240px",
+                  maxHeight:"180px",
                   overflowY:"auto",
                   padding:"8px 12px",
                   border:"1px solid #ddd",

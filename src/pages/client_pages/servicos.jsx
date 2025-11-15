@@ -355,7 +355,7 @@ export default function Servicos() {
                         src="/src/assets/vector/icon_horariio/ionicons/sharp/time-sharp.svg"
                         alt="icon-horario"
                       />
-                      <p className="paragrafo-2">{dado.tempo}</p>
+                      <p className="paragrafo-2">Tempo médio: {dado.tempo}</p>
                     </div>
                     <div className="info">
                       <img
