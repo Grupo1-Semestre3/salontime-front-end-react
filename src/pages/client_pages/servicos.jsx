@@ -15,6 +15,8 @@ import { mensagemSucesso, mensagemErro, formatarDataBR } from "../../js/utils.js
 import { buscarServicos } from "../../js/api/servico.js"
 import { buscarProximoAgendamento, cancelarAgendamentoJS, enviarMotivoCancelar } from "../../js/api/caio.js"
 import "../../css/popup/padraoPopup.css";
+import { buscarMarinaPoints } from "../../js/api/caio";
+
 
 
 export default function Servicos() {
@@ -30,6 +32,7 @@ export default function Servicos() {
   const [motivoCancelamento, setMotivoCancelamento] = useState("");
   const [dadosParaReagendar, setDadosParaReagendar] = useState(null)
   const [modalRealizarReagendamento, setModalRealizarReagendamento] = useState(false);
+  const [marinaP, setMarinaP] = useState(null);
 
   useEffect(() => {
     const usuario = localStorage.getItem("usuario");
@@ -37,6 +40,21 @@ export default function Servicos() {
       setUsuario(JSON.parse(usuario));
     }
   }, []);
+
+
+  useEffect(() => {
+    if (usuario && usuario.id) {
+      buscarMarinaPoints(usuario.id)
+        .then(data => {
+          setMarinaP(data)
+          console.log("MARINA POINTS DATA:", data)
+        })
+        .catch(error => {
+          console.error("Erro ao carregar Marina Points:", error);
+        });
+    }
+  }, [usuario]);
+
 
   useEffect(() => {
     buscarServicos()
@@ -48,6 +66,92 @@ export default function Servicos() {
       });
 
   }, []); // 👈 useEffect fechado corretamente
+
+  // Helper para obter pontos parcial (o que a usuária já tem) e total (meta para resgatar)
+  // Usa o contrato PointsDto: { pointsParcial: Long, pointsTotal: Long, porcentagemCupom: Int }
+  // Retorna objeto { parcial, total } com valores numéricos e fallbacks.
+  const getMarinaPoints = () => {
+    if (!marinaP) return { parcial: 0, total: 5 };
+
+    const parcialRaw = marinaP.pointsParcial ?? marinaP.points ?? marinaP.pontos ?? marinaP.parcial;
+    const totalRaw = marinaP.pointsTotal ?? marinaP.total ?? marinaP.quantidade ?? marinaP.meta;
+
+    let parcial = Number.parseInt(parcialRaw, 10);
+    let total = Number.parseInt(totalRaw, 10);
+
+    if (Number.isNaN(parcial)) parcial = 0;
+    if (Number.isNaN(total) || total <= 0) total = 5; // default 5
+
+    // cap para evitar criar muitos itens no DOM por engano
+    const SAFE_CAP = 20;
+    if (total > SAFE_CAP) total = SAFE_CAP;
+
+    return { parcial: Math.max(0, parcial), total: total };
+  };
+
+  // Formata o campo tempo para exibição amigável: sem segundos, mostra em 'h' se >= 60min, caso contrário em 'm'
+  const formatTempo = (tempo) => {
+    if (tempo === null || tempo === undefined || tempo === "") return "--";
+
+    // se for string no formato HH:MM:SS ou H:MM:SS ou MM:SS
+    if (typeof tempo === "string" && tempo.includes(':')) {
+      const parts = tempo.split(':').map(p => parseInt(p, 10) || 0);
+      if (parts.length === 3) {
+        const [hh, mm, ss] = parts;
+        let totalMinutes = hh * 60 + mm + (ss >= 30 ? 1 : 0);
+        if (totalMinutes >= 60) {
+          const h = Math.floor(totalMinutes / 60);
+          const m = totalMinutes % 60;
+          return m === 0 ? `${h}h` : `${h}h ${m}m`;
+        }
+        return `${totalMinutes}m`;
+      } else if (parts.length === 2) {
+        const [mm, ss] = parts;
+        let totalMinutes = mm + (ss >= 30 ? 1 : 0);
+        return totalMinutes >= 60 ? `${Math.floor(totalMinutes/60)}h` : `${totalMinutes}m`;
+      }
+    }
+
+    // se for número (pode ser minutos ou segundos). Heurística: valores grandes provavelmente estão em segundos
+    if (typeof tempo === 'number' || (!isNaN(Number(tempo)) && tempo !== '')) {
+      const num = Number(tempo);
+      let totalMinutes;
+      if (num > 180) {
+        // provavelmente segundos -> converter
+        totalMinutes = Math.round(num / 60);
+      } else {
+        // provavelmente minutos
+        totalMinutes = Math.round(num);
+      }
+
+      if (totalMinutes >= 60) {
+        const h = Math.floor(totalMinutes / 60);
+        const m = totalMinutes % 60;
+        return m === 0 ? `${h}h` : `${h}h ${m}m`;
+      }
+      return `${totalMinutes}m`;
+    }
+
+    // fallback: retorna original sem segundos (remove :ss se existir)
+    try {
+      const s = String(tempo);
+      const maybe = s.replace(/:\d{2}$/, '');
+      return maybe;
+    } catch (e) {
+      return String(tempo);
+    }
+  };
+
+  // Estado para alternar entre ícone de cupom e texto de porcentagem
+  const [showCupomIcon, setShowCupomIcon] = useState(true);
+
+  // Alterna a cada 2 segundos quando temos dados de marinaP
+  useEffect(() => {
+    if (!marinaP) return; // não inicia até termos dados
+    const INTERVAL_MS = 6000; // tempo em ms entre alternâncias (ajuste se quiser)
+    const id = setInterval(() => setShowCupomIcon(prev => !prev), INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [marinaP]);
 
   useEffect(() => {
     if (usuario && usuario.id) {
@@ -156,6 +260,7 @@ export default function Servicos() {
         <RealizarAgendamento
           servico={servicoSelecionado}
           onClose={() => setModalAberto(false)}
+          onAgendamentoSalvo={() => carregarProximoAgendamento(usuario?.id)}
         />
       )}
 
@@ -269,50 +374,83 @@ export default function Servicos() {
           <div className="marina_points_title">
             <p className="titulo-1" style={{ color: "var(--rosa-2)" }}>Marina Points!</p>
             <div className="marina_points_dec">
-              <p className="paragrafo-1 bold" style={{ color: "var(--rosa-2)" }}>Complete a trilha para receber um cupom de desconto!
+              <p className="paragrafo-1 bold" style={{ color: "var(--rosa-2)" }}>
+                Complete a trilha para receber um cupom de desconto!
               </p>
               <p className="paragrafo-2" style={{ color: "var(--rosa-2)" }}>A cada agendamento realizado 1 ponto é registrado.</p>
             </div>
           </div>
+
           <div className="marina_points_bar">
             <div className="marina_points_etapas">
+              {(() => {
+                const { parcial, total } = getMarinaPoints();
+                // const { parcial, total } = {parcial: 5, total: 5};
+                return Array.from({ length: total }, (_, i) => {
+                  const n = i + 1;
+                  const active = n <= parcial;
+                  return (
+                    <div
+                      key={n}
+                      className={active ? "marina_points_etapa_ativa" : "marina_points_etapa_inativa"}
+                    >
+                      <div className="marina_points_circle">
+                        <p className="subtitulo bold" style={{ color: active ? "var(--rosa-4)" : "var(--rosa-1)" }}>
+                          {n}
+                        </p>
+                      </div>
+                      <div className="marina_points_conexao"></div>
+                    </div>
+                  );
+                });
+              })()}
+            </div>
 
-              <div className="marina_points_etapa_ativa">
-                <div className="marina_points_circle">
-                  <p className="subtitulo bold" style={{ color: "var(--rosa-4)" }}>1</p>
-                </div>
-                <div className="marina_points_conexao"></div>
+            {/* alterna entre ícone e porcentagem (cross-fade, fixed-size container) */}
+            <div className="marina_points_toggle" aria-live="polite">
+              <div className={`marina_points_toggle_item ${showCupomIcon ? 'visible' : ''} ${(getMarinaPoints().parcial >= getMarinaPoints().total) ? 'complete' : ''}`}>
+                <img
+                  src="/src/assets/vector/icon_cupom/bootstrap/filled/tags-fill.svg"
+                  alt="icon-cupom"
+                  className="icon-cupom-max"
+                />
               </div>
 
-              <div className="marina_points_etapa_ativa">
-                <div className="marina_points_circle">
-                  <p className="subtitulo bold" style={{ color: "var(--rosa-4)" }}>2</p>
-                </div>
-                <div className="marina_points_conexao"></div>
-              </div>
-
-              <div className="marina_points_etapa_inativa">
-                <div className="marina_points_circle">
-                  <p className="subtitulo bold" style={{ color: "var(--rosa-1)" }}>3</p>
-                </div>
-                <div className="marina_points_conexao"></div>
-              </div>
-
-              <div className="marina_points_etapa_inativa">
-                <div className="marina_points_circle">
-                  <p className="subtitulo bold" style={{ color: "var(--rosa-1)" }}>4</p>
-                </div>
-                <div className="marina_points_conexao"></div>
-              </div>
-
-              <div className="marina_points_etapa_inativa">
-                <div className="marina_points_circle">
-                  <p className="subtitulo bold" style={{ color: "var(--rosa-1)" }}>5</p>
-                </div>
-                <div className="marina_points_conexao"></div>
+              <div className={`marina_points_toggle_item ${!showCupomIcon ? 'visible' : ''}`}>
+                <p className="subtitulo bold marina_points_toggle_text" aria-hidden={showCupomIcon}>
+                  {marinaP?.porcentagemCupom ?? ''}% OFF
+                </p>
               </div>
             </div>
-            <img src="/src/assets/vector/icon_cupom/bootstrap/filled/tags-fill.svg" alt="icon-cupom" className="icon-cupom-max" />
+          </div>
+
+          <div className="marina_points_info" style={{ marginTop: "12px", display: "flex", alignItems: "center", gap: "12px" }}>
+            {(() => {
+              const { parcial, total } = getMarinaPoints();
+              // const { parcial, total } = {parcial: 5, total: 5};
+
+              return (
+                <>
+                  <p className="paragrafo-2 semibold italic" style={{ color: "var(--rosa-2)", margin: 0 }}>
+                    {parcial >= total
+                      ? "Parabéns! Você completou a trilha e ganhou um cupom 🎉"
+                      : `Você tem ${parcial} de ${total} pontos.`}
+                  </p>
+
+                  {parcial >= total && (
+                    <button
+                      className="btn-rosa"
+                      onClick={() => {
+                        // navega para página de cupons (ajuste a rota se necessário)
+                        navigate("/config-cupons");
+                      }}
+                    >
+                      Ver cupons
+                    </button>
+                  )}
+                </>
+              );
+            })()}
           </div>
         </section>
       )}
@@ -355,7 +493,7 @@ export default function Servicos() {
                         src="/src/assets/vector/icon_horariio/ionicons/sharp/time-sharp.svg"
                         alt="icon-horario"
                       />
-                      <p className="paragrafo-2">Tempo médio: {dado.tempo}</p>
+                      <p className="paragrafo-2">Tempo médio: {formatTempo(dado.tempo)}</p>
                     </div>
                     <div className="info">
                       <img
@@ -388,7 +526,7 @@ export default function Servicos() {
   );
 }
 
-function RealizarAgendamento({ servico, onClose }) {
+function RealizarAgendamento({ servico, onClose, onAgendamentoSalvo }) {
 
   const [pagamentos, setPagamento] = useState([]);
 
@@ -447,7 +585,7 @@ function RealizarAgendamento({ servico, onClose }) {
         mensagemErro("Preencha todos os campos obrigatórios.");
         onClose()
         return;
-        
+
       }
 
       await salvarAgendamento(
@@ -460,6 +598,15 @@ function RealizarAgendamento({ servico, onClose }) {
       );
 
       mensagemSucesso("Agendamento realizado com sucesso!");
+      // notify parent to refresh next appointment, if provided
+      if (onAgendamentoSalvo) {
+        try {
+          await onAgendamentoSalvo();
+        } catch (e) {
+          // non-fatal: still close the modal
+          console.error('Erro ao notificar agendamento salvo:', e);
+        }
+      }
       onClose(); // fecha o modal
     } catch (error) {
       // Caso o backend tenha respondido com status (ex: 404)

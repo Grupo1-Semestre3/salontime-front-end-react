@@ -80,6 +80,18 @@ export async function buscarAtendimentosPassados(id) {
     const response = await api.get(`http://localhost:8080/agendamento/passados-usuario/${id}`);
     console.log("Historico de agendamentos!!!")
     console.log(response.data)
+    // ordenar por campo 'data' (formato yyyy-mm-dd) — mais recente primeiro
+    if (Array.isArray(response.data)) {
+      response.data.sort((a, b) => {
+        const da = a?.data ?? '';
+        const db = b?.data ?? '';
+        // criar Date a partir de yyyy-mm-dd (constrói corretamente no formato ISO)
+        const ta = da ? new Date(da) : 0;
+        const tb = db ? new Date(db) : 0;
+        return tb - ta; // mais recente primeiro
+      });
+    }
+
     return response.data;
 
   } catch (error) {
@@ -207,4 +219,38 @@ export function deletarExcecao(id) {
     return false;
   }
   return true;
+}
+
+export async function buscarMarinaPoints(id){
+  try {
+    const response = await api.get(`http://localhost:8080/cupons/points/${id}`);
+    console.log("Marina Points buscados com sucesso!", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar Marina Points:", error);
+    throw error;
+  }
+}
+
+export async function atualizarMarinaPoints(data){
+  try {
+    await api.put(`http://localhost:8080/cupom-configuracao`, data);
+    console.log("Marina Points atualizados com sucesso!");
+    mensagemSucesso("Marina Points atualizados com sucesso!");
+  } catch (error) {
+    console.error("Erro ao atualizar Marina Points:", error);
+    mensagemErro("Erro ao atualizar Marina Points.");
+    throw error;
+  }
+}
+
+export async function buscarMarinaPointsConfig(){
+  try {
+    const response = await api.get(`http://localhost:8080/cupom-configuracao`);
+    console.log("Configuração do Marina Points buscada com sucesso!", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar configuração do Marina Points:", error);
+    throw error;
+  }
 }

@@ -4,6 +4,7 @@ import NavServicos from "../../components/NavServicos";
 import { buscarCupom, atualizarCupom, desativarCupom, criarCupom } from "../../js/api/anna";
 import Popup, { PopupAlerta } from "../../components/Popup";
 import { mensagemErro, mensagemSucesso } from "../../js/utils";
+import { atualizarMarinaPoints, buscarMarinaPointsConfig } from "../../js/api/caio";
 
 function CriarCupom({ onClose, onSave }) {
   const [formData, setFormData] = useState({
@@ -421,22 +422,57 @@ export default function Servicos_cupons() {
 
   // Marina Points form state
   const [mpForm, setMpForm] = useState({
-    pontosPorAgendamento: 1,
-    descontoPercentual: 1,
+    intervaloAtendimento: 1,
+    porcentagemDesconto: 1,
   });
   const [mpInitial, setMpInitial] = useState({
-    pontosPorAgendamento: 1,
-    descontoPercentual: 1,
+    intervaloAtendimento: 1,
+    porcentagemDesconto: 1,
   });
-  const mpChanged =
-    mpForm.pontosPorAgendamento !== mpInitial.pontosPorAgendamento ||
-    mpForm.descontoPercentual !== mpInitial.descontoPercentual;
+  useEffect(() => {
+    const carregarMarinaPoints = async () => {
+      try {
+        const resp = await buscarMarinaPointsConfig();
+        // O backend às vezes retorna um array com o objeto de configuração,
+        // então normalizamos para suportar ambos os formatos.
+        const cfg = Array.isArray(resp) ? resp[0] : resp;
+        const data = {
+          intervaloAtendimento: Number(cfg?.intervaloAtendimento ?? 1),
+          porcentagemDesconto: Number(cfg?.porcentagemDesconto ?? 1),
+        };
+        console.log('MarinaPoints config (raw):', resp, '-> normalized:', data);
+        setMpForm(data);
+        setMpInitial(data);
+      } catch (error) {
+        console.error("Erro ao carregar cupons:", error);
+        setError("Erro ao carregar cupons. Tente novamente mais tarde.");
+      }
+    };
 
-  const handleMpSubmit = (e) => {
+    carregarMarinaPoints();
+  }, []);
+  const mpChanged =
+    mpForm.intervaloAtendimento !== mpInitial.intervaloAtendimento ||
+    mpForm.porcentagemDesconto !== mpInitial.porcentagemDesconto;
+  const handleMpSubmit = async (e) => {
     e.preventDefault();
-    // TODO: integrar com API quando disponível
-    setMpInitial(mpForm);
-    mensagemSucesso("Configurações de Marina Points atualizadas!");
+    // Não reatribuir a variável de estado `mpForm` (é um const retornado pelo useState).
+    // Cria um objeto payload separado e use-o para enviar ao backend e atualizar o estado inicial.
+    const payload = {
+      id: 1,
+      intervaloAtendimento: Number(mpForm.intervaloAtendimento),
+      porcentagemDesconto: Number(mpForm.porcentagemDesconto),
+    };
+
+    try {
+      await atualizarMarinaPoints(payload);
+      setMpInitial(payload);
+      setMpForm(payload); // mantém o form sincronizado com o que foi salvo
+      mensagemSucesso("Marina Points atualizados com sucesso!");
+    } catch (err) {
+      console.error("Erro ao atualizar Marina Points:", err);
+      mensagemErro("Erro ao atualizar Marina Points. Tente novamente.");
+    }
   };
 
   useEffect(() => {
@@ -494,11 +530,11 @@ export default function Servicos_cupons() {
                   min={1}
                   step={1}
                   className="input_marina_points"
-                  name="pontosPorAgendamento"
-                  id="pontosPorAgendamento"
-                  value={mpForm.pontosPorAgendamento}
+                  name="intervaloAtendimento"
+                  id="intervaloAtendimento"
+                  value={mpForm.intervaloAtendimento}
                   onChange={(e) =>
-                    setMpForm((f) => ({ ...f, pontosPorAgendamento: Number(e.target.value) }))
+                    setMpForm((f) => ({ ...f, intervaloAtendimento: Number(e.target.value) }))
                   }
                 />
                 % de Desconto
@@ -508,11 +544,11 @@ export default function Servicos_cupons() {
                   max={100}
                   step={1}
                   className="input_marina_points"
-                  name="descontoPercentual"
-                  id="descontoPercentual"
-                  value={mpForm.descontoPercentual}
+                  name="porcentagemDesconto"
+                  id="porcentagemDesconto"
+                  value={mpForm.porcentagemDesconto}
                   onChange={(e) =>
-                    setMpForm((f) => ({ ...f, descontoPercentual: Number(e.target.value) }))
+                    setMpForm((f) => ({ ...f, porcentagemDesconto: Number(e.target.value) }))
                   }
                 />
                 <button
