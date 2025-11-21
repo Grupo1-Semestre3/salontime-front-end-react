@@ -29,8 +29,20 @@ ChartJS.register(
 );
 
 export default function Controle_servicos() {
-  const [ano, setAno] = useState(new Date().getFullYear());
-  const [mes, setMes] = useState(new Date().getMonth() + 1);
+  // helper: formata Date -> YYYY-MM-DD para inputs type=date e chamadas à API
+  const toISODate = (d) => {
+    const date = d instanceof Date ? d : new Date(d);
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  };
+
+  // padrão: intervalo dos últimos 7 dias
+  const hoje = new Date();
+  const seteDiasAtras = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const [dataInicio, setDataInicio] = useState(toISODate(seteDiasAtras));
+  const [dataFim, setDataFim] = useState(toISODate(hoje));
   const [kpiData, setKpiData] = useState(null);
   const [kpiUsuariosData, setKpiUsuariosData] = useState(null);
   const [atendimentoGraficoData, setAtendimentoGraficoData] = useState(null);
@@ -41,57 +53,75 @@ export default function Controle_servicos() {
   const [iaResposta, setIaResposta] = useState("");
   const [iaErro, setIaErro] = useState("");
 
-  // Buscar dados do KPI quando ano ou mês mudar
-  useEffect(() => {
-    const carregarDados = async () => {
-      setLoading(true);
+  // Função que carrega todos os dados do dashboard para o intervalo selecionado
+  const carregarDados = async () => {
+    setLoading(true);
+    setErro(null);
+    const errors = [];
+
+    // Run all requests in parallel but handle each result individually so one failing
+    // endpoint doesn't prevent the others from rendering.
+    const pKpi = buscarKPI(dataInicio, dataFim);
+    const pKpiUsuarios = buscarKPIUsuarios(dataInicio, dataFim);
+    const pGrafico = buscarAtendimentoGrafico(dataInicio, dataFim);
+    const pServico = buscarAtendimentoServico(dataInicio, dataFim);
+
+    const results = await Promise.allSettled([pKpi, pKpiUsuarios, pGrafico, pServico]);
+
+    // KPI geral
+    if (results[0].status === "fulfilled") {
+      const dados = results[0].value;
+      if (dados && dados.length > 0) setKpiData(dados[0]);
+      else setKpiData(null);
+    } else {
+      console.error("buscarKPI failed:", results[0].reason);
+      setKpiData(null);
+      errors.push("KPI geral");
+    }
+
+    // KPI usuários
+    if (results[1].status === "fulfilled") {
+      setKpiUsuariosData(results[1].value || null);
+    } else {
+      console.error("buscarKPIUsuarios failed:", results[1].reason);
+      setKpiUsuariosData(null);
+      errors.push("KPI usuários");
+    }
+
+    // Gráfico de atendimentos
+    if (results[2].status === "fulfilled") {
+      const dadosGrafico = results[2].value;
+      setAtendimentoGraficoData(dadosGrafico && dadosGrafico.length > 0 ? dadosGrafico : null);
+    } else {
+      console.error("buscarAtendimentoGrafico failed:", results[2].reason);
+      setAtendimentoGraficoData(null);
+      errors.push("Atendimentos (gráfico)");
+    }
+
+    // Atendimentos por serviço
+    if (results[3].status === "fulfilled") {
+      const dadosServico = results[3].value;
+      setAtendimentoServicoData(dadosServico && dadosServico.length > 0 ? dadosServico : null);
+    } else {
+      console.error("buscarAtendimentoServico failed:", results[3].reason);
+      setAtendimentoServicoData(null);
+      errors.push("Atendimentos por serviço");
+    }
+
+    if (errors.length > 0) {
+      setErro(`Falha ao carregar: ${errors.join(", ")}.`);
+    } else {
       setErro(null);
-      try {
-        // Buscar dados de KPI geral
-        const dados = await buscarKPI(ano, mes);
-        if (dados && dados.length > 0) {
-          setKpiData(dados[0]);
-        } else {
-          setKpiData(null);
-        }
+    }
 
-        // Buscar dados de KPI de usuários
-        const dadosUsuarios = await buscarKPIUsuarios(ano, mes);
-        if (dadosUsuarios) {
-          setKpiUsuariosData(dadosUsuarios);
-        } else {
-          setKpiUsuariosData(null);
-        }
+    setLoading(false);
+  };
 
-        // Buscar dados de atendimento para gráfico
-        const dadosGrafico = await buscarAtendimentoGrafico(ano, mes);
-        if (dadosGrafico && dadosGrafico.length > 0) {
-          setAtendimentoGraficoData(dadosGrafico);
-        } else {
-          setAtendimentoGraficoData(null);
-        }
-
-        // Buscar dados de atendimento por serviço
-        const dadosServico = await buscarAtendimentoServico(ano, mes);
-        if (dadosServico && dadosServico.length > 0) {
-          setAtendimentoServicoData(dadosServico);
-        } else {
-          setAtendimentoServicoData(null);
-        }
-      } catch (error) {
-        console.error("Erro ao carregar dados:", error);
-        setErro("Erro ao carregar dados do KPI");
-        setKpiData(null);
-        setKpiUsuariosData(null);
-        setAtendimentoGraficoData(null);
-        setAtendimentoServicoData(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
+  // Carrega inicialmente ao montar
+  useEffect(() => {
     carregarDados();
-  }, [ano, mes]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Processar dados do gráfico de atendimentos
   const processarDadosGrafico = () => {
@@ -100,23 +130,14 @@ export default function Controle_servicos() {
         labels: [],
         datasets: [
           {
-            label: "Mês selecionado",
+            label: "Periodo selecionado",
             data: [],
             borderColor: "black",
             backgroundColor: "#211F1E",
             fill: false,
             pointBackgroundColor: "black",
             tension: 0.3,
-          },
-          {
-            label: "Mês anterior",
-            data: [],
-            borderColor: "lightgray",
-            backgroundColor: "lightgray",
-            fill: false,
-            pointBackgroundColor: "lightgray",
-            tension: 0.3,
-          },
+          }
         ],
       };
     }
@@ -126,9 +147,10 @@ export default function Controle_servicos() {
       (a, b) => Number(a.diaMesAtual) - Number(b.diaMesAtual)
     );
 
-    // Formatar labels como DD/MM usando o mês selecionado (estado `mes`)
+    // Formatar labels como DD/MM usando o mês de dataInicio
+    const mesNum = new Date(dataInicio).getMonth() + 1;
     const diasMes = dadosOrdenados.map((item) =>
-      `${String(item.diaMesAtual).padStart(2, "0")}/${String(mes).padStart(2, "0")}`
+      `${String(item.diaMesAtual).padStart(2, "0")}/${String(mesNum).padStart(2, "0")}`
     );
     const qtdAtual = dadosOrdenados.map((item) => item.qtdAtual);
     const qtdAnterior = dadosOrdenados.map((item) => item.qtdAnterior);
@@ -144,16 +166,7 @@ export default function Controle_servicos() {
           fill: false,
           pointBackgroundColor: "black",
           tension: 0.3,
-        },
-        {
-          label: "Mês anterior",
-          data: qtdAnterior,
-          borderColor: "lightgray",
-          backgroundColor: "lightgray",
-          fill: false,
-          pointBackgroundColor: "lightgray",
-          tension: 0.3,
-        },
+        }
       ],
     };
   };
@@ -200,15 +213,10 @@ export default function Controle_servicos() {
         labels: [],
         datasets: [
           {
-            label: "Mês selecionado",
+            label: "Período selecionado",
             data: [],
             backgroundColor: "black",
-          },
-          {
-            label: "Mês anterior",
-            data: [],
-            backgroundColor: "lightgray",
-          },
+          }
         ],
       };
     }
@@ -220,21 +228,15 @@ export default function Controle_servicos() {
 
     const labels = dadosOrdenados.map(item => item.nomeServico);
     const qtdAtual = dadosOrdenados.map(item => item.qtdAtual);
-    const qtdAnterior = dadosOrdenados.map(item => item.qtdAnterior);
 
     return {
       labels,
       datasets: [
         {
-          label: "Mês selecionado",
+          label: "Periodo selecionado",
           data: qtdAtual,
           backgroundColor: "black",
-        },
-        {
-          label: "Mês anterior",
-          data: qtdAnterior,
-          backgroundColor: "lightgray",
-        },
+        }
       ],
     };
   };
@@ -270,19 +272,18 @@ export default function Controle_servicos() {
     setIaResposta("");
     try {
       // Monta um contexto resumido com alguns KPIs e top serviços
-      const contextoServicos = (atendimentoServicoData || [])
+  const contextoServicos = (atendimentoServicoData || [])
         .sort((a,b) => b.qtdAtual - a.qtdAtual)
         .slice(0,5)
         .map(s => `${s.nomeServico}: ${s.qtdAtual}`)
         .join("; ");
-
-      const prompt = `Você é um assistente que gera insights para gestão de um salão de beleza.
-Mês: ${mes}/${ano}
+  const prompt = `Você é um assistente que gera insights para gestão de um salão de beleza.
+Período: ${dataInicio} a ${dataFim}
 Total atendimentos: ${kpiData?.totalAtendimentos ?? "NA"}
 Cancelados: ${kpiData?.totalCancelados ?? "NA"}
 Clientes cadastrados: ${kpiUsuariosData?.totalCadastros ?? "NA"}
 Faturamento: ${kpiData?.faturamentoTotal ?? "NA"}
-Top serviços (qtd mês atual): ${contextoServicos || "Sem dados"}
+Top serviços (qtd no período): ${contextoServicos || "Sem dados"}
 
 Objetivo: gere uma análise em português, com:
 - Tendências principais
@@ -306,27 +307,44 @@ Lembre-se que sua resposta será uma variavel string exibida diretamente dentro 
      
         {/* Título + Select */}
         <div className="section_controle_servico_title">
-          <p className="titulo-1">Mês Selecionado</p>
-          <select 
-            className="paragrafo-1 select semibold" 
-            name="mes" 
-            id="mes_select"
-            value={mes}
-            onChange={(e) => setMes(parseInt(e.target.value))}
-          >
-            <option value="1">Janeiro</option>
-            <option value="2">Fevereiro</option>
-            <option value="3">Março</option>
-            <option value="4">Abril</option>
-            <option value="5">Maio</option>
-            <option value="6">Junho</option>
-            <option value="7">Julho</option>
-            <option value="8">Agosto</option>
-            <option value="9">Setembro</option>
-            <option value="10">Outubro</option>
-            <option value="11">Novembro</option>
-            <option value="12">Dezembro</option>
-          </select>
+          <p className="titulo-1">Período Selecionado:</p>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginLeft: '24px' }}>
+            <label className="paragrafo-1" style={{marginTop:"4px"}} htmlFor="dataInicio_input">De</label>
+            <input
+              id="dataInicio_input"
+              type="date"
+              className="paragrafo-2 input select_data_range_dash semibold"
+              value={dataInicio}
+              onChange={(e) => setDataInicio(e.target.value)}
+              onFocus={() => setErro(null)}
+            />
+
+            <label className="paragrafo-1" style={{marginTop:"4px"}} htmlFor="dataFim_input">Até</label>
+            <input
+              id="dataFim_input"
+              type="date"
+              className="paragrafo-2 input select_data_range_dash semibold"
+              value={dataFim}
+              onChange={(e) => setDataFim(e.target.value)}
+              onFocus={() => setErro(null)}
+            />
+
+            <button
+              className="btn-rosa paragrafo-2"
+              onClick={() => {
+                // validação simples: dataInicio <= dataFim
+                if (new Date(dataInicio) > new Date(dataFim)) {
+                  setErro('Data inicial não pode ser maior que data final.');
+                  return;
+                }
+                setErro(null);
+                carregarDados();
+              }}
+              style={{ marginLeft: '12px' }}
+            >
+              Atualizar
+            </button>
+          </div>
         </div>
 
         {/* Mini Nav */}
@@ -338,11 +356,11 @@ Lembre-se que sua resposta será uma variavel string exibida diretamente dentro 
             <p className="paragrafo-2 italic">Total de Atendimentos</p>
             <div className="section_controle_servico_kpis_card_column">
               <p className="paragrafo-1 semibold">{kpiData?.totalAtendimentos ?? "—"}</p>
-              <p className="paragrafo-2 section_controle_servico_kpis_card_value">
+              {/* <p className="paragrafo-2 section_controle_servico_kpis_card_value">
                 {kpiData?.totalAtendimentosTaxa 
                   ? `${kpiData.totalAtendimentosTaxa > 0 ? '+' : ''}${kpiData.totalAtendimentosTaxa}%` 
                   : "—"}
-              </p>
+              </p> */}
             </div>
           </div>
 
@@ -350,14 +368,14 @@ Lembre-se que sua resposta será uma variavel string exibida diretamente dentro 
             <p className="paragrafo-2 italic">Atendimentos Cancelados</p>
             <div className="section_controle_servico_kpis_card_column">
               <p className="paragrafo-1 semibold">{kpiData?.totalCancelados ?? "—"}</p>
-              <p
+              {/* <p
                 className="paragrafo-2 section_controle_servico_kpis_card_value"
                 style={{ backgroundColor: "var(--vermelho)" }}
               >
                 {kpiData?.totalCanceladosTaxa 
                   ? `${kpiData.totalCanceladosTaxa > 0 ? '+' : ''}${kpiData.totalCanceladosTaxa}%` 
                   : "—"}
-              </p>
+              </p> */}
             </div>
           </div>
 
@@ -365,11 +383,11 @@ Lembre-se que sua resposta será uma variavel string exibida diretamente dentro 
             <p className="paragrafo-2 italic">Clientes Cadastrados</p>
             <div className="section_controle_servico_kpis_card_column">
               <p className="paragrafo-1 semibold">{kpiUsuariosData?.totalCadastros ?? "—"}</p>
-              <p className="paragrafo-2 section_controle_servico_kpis_card_value">
+              {/* <p className="paragrafo-2 section_controle_servico_kpis_card_value">
                 {kpiUsuariosData?.variacaoPercentual 
                   ? `${kpiUsuariosData.variacaoPercentual > 0 ? '+' : ''}${kpiUsuariosData.variacaoPercentual}%` 
                   : "—"}
-              </p>
+              </p> */}
             </div>
           </div>
 
@@ -379,11 +397,11 @@ Lembre-se que sua resposta será uma variavel string exibida diretamente dentro 
               <p className="paragrafo-1 semibold">
                 {kpiData?.faturamentoTotal ? `R$${kpiData.faturamentoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "—"}
               </p>
-              <p className="paragrafo-2 section_controle_servico_kpis_card_value">
+              {/* <p className="paragrafo-2 section_controle_servico_kpis_card_value">
                 {kpiData?.faturamentoTotalTaxa 
                   ? `${kpiData.faturamentoTotalTaxa > 0 ? '+' : ''}${kpiData.faturamentoTotalTaxa}%` 
                   : "—"}
-              </p>
+              </p> */}
             </div>
           </div>
         </div>

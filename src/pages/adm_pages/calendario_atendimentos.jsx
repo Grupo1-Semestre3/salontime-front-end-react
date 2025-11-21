@@ -79,7 +79,7 @@ export default function Calendario_atendimentos() {
         {agendamentos.length > 0 ? (
           agendamentos.map((agendamento, index) => (
         <div key={index} className="dash_section_container">
-          <div className="atendimento_passados_card_box card">
+          <div className={`atendimento_passados_card_box card ${agendamento.statusAgendamento.status === "PAGAMENTO_PENDENTE" ? "card_pagamento_pendente" : "card_agendamento_concluido" }`}>
             <div className="info_box_atendimento_passados_card_box">
               <p className="paragrafo-1 semibold info">
                 <img
@@ -104,8 +104,8 @@ export default function Calendario_atendimentos() {
 
               <div className="atendimentos_passados_infos">
                 <p className="paragrafo-2">
-                  <a className="semibold">Status:</a>{" "}
-                  <i> {agendamento.statusAgendamento.status}</i>
+                  <a className="semibold">Status: </a>{" "}
+                  <i className= {agendamento.statusAgendamento.status === "PAGAMENTO_PENDENTE" ? "pagamento_pendente" : "controle_agendamento_concluido"} >{agendamento.statusAgendamento.status}</i>
                 </p>
                 <p className="paragrafo-2">
                   <a className="semibold">Valor:</a> <i>R${agendamento.preco}</i>

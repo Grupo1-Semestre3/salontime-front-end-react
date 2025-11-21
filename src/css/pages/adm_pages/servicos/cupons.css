@@ -47,8 +47,10 @@
   }
 
 .form_marina_p{
-  width: 100vw !important;
+  /* width: 100vw !important; */
+  min-width: 55vw !important;
   display: flex;
   flex-direction: row;
   align-items: center;
+  margin-left: 24px;
 }

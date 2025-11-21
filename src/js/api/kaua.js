@@ -143,6 +143,7 @@ export async function atualizarUsuario(id, usuarioAtualizado) {
     const usuarioAtual = await api.get(`http://localhost:8080/usuarios/${id}`);
     const dadosParaAtualizar = { ...usuarioAtual.data, ...usuarioAtualizado };
     const response = await api.put(`http://localhost:8080/usuarios/${id}`, dadosParaAtualizar);
+    localStorage.setItem("usuario", JSON.stringify(dadosParaAtualizar));
     return response.data;
   } catch (error) {
     console.error("Erro ao atualizar usuário:", error);

@@ -20,6 +20,7 @@ export default function Controle_avaliacoes() {
       try {
         setLoading(true);
         const dados = await buscarAvaliacoes();
+        console.log("Avaliações recebidas da API:", dados);
         
         // Transformar os dados da API para o formato esperado pelo componente
         const avaliacoesFormatadas = dados.map((item) => ({
@@ -87,7 +88,7 @@ export default function Controle_avaliacoes() {
               <ControleItemCard
                 key={a.id}
                 tipo="avaliacao"
-                fotoUrl={a.id}
+                fotoUrl={(a.id + 1)}
                 clienteNome={a.clienteNome}
                 servicoNome={a.servicoNome}
                 dataHoraISO={a.dataHoraISO}

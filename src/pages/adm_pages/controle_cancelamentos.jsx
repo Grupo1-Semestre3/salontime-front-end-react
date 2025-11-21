@@ -33,6 +33,7 @@ export default function Controle_cancelamentos() {
         }));
         
         setCancelamentos(cancelamentosFormatados);
+        console.log("Cancelamentos carregados com sucesso!", dados);
       } catch (error) {
         console.error("Erro ao carregar cancelamentos:", error);
       } finally {
@@ -86,7 +87,7 @@ export default function Controle_cancelamentos() {
               <ControleItemCard
                 key={c.id}
                 tipo="cancelamento"
-                fotoUrl={c.id}
+                fotoUrl={c.id + 1} // Usar ID para foto de perfil
                 clienteNome={c.clienteNome}
                 servicoNome={c.servicoNome}
                 dataHoraISO={c.dataHoraISO}

@@ -117,10 +117,10 @@ export async function buscarFuncionariosCompetentes(servicoId) {
   }
 }
 
-export async function buscarKPI(ano, mes) {
+export async function buscarKPI(dataInicio, dataFim) {
   try {
     const response = await api.get(
-      `http://localhost:8080/dashboard/kpi/${ano}/${mes}`
+      `http://localhost:8080/dashboard/kpi-personalizado/${dataInicio}/${dataFim}`
     );
     console.log("KPI Data:", response.data);
     return response.data;
@@ -130,10 +130,10 @@ export async function buscarKPI(ano, mes) {
   }
 }
 
-export async function buscarKPIUsuarios(ano, mes) {
+export async function buscarKPIUsuarios(dataInicio, dataFim) {
   try {
     const response = await api.get(
-      `http://localhost:8080/dashboard/kpi-usuarios/${ano}/${mes}`
+      `http://localhost:8080/dashboard/kpi-usuarios-personalizado/${dataInicio}/${dataFim}`
     );
     console.log("KPI Usuários Data:", response.data);
     return response.data;
@@ -143,10 +143,10 @@ export async function buscarKPIUsuarios(ano, mes) {
   }
 }
 
-export async function buscarAtendimentoGrafico(ano, mes) {
+export async function buscarAtendimentoGrafico(dataInicio, dataFim) {
   try {
     const response = await api.get(
-      `http://localhost:8080/dashboard/atendimento-grafico/${ano}/${mes}`
+      `http://localhost:8080/dashboard/atendimento-grafico/${dataInicio}/${dataFim}`
     );
     console.log("Atendimento Gráfico Data:", response.data);
     return response.data;
@@ -156,10 +156,10 @@ export async function buscarAtendimentoGrafico(ano, mes) {
   }
 }
 
-export async function buscarAtendimentoServico(ano, mes) {
+export async function buscarAtendimentoServico(dataInicio, dataFim) {
   try {
     const response = await api.get(
-      `http://localhost:8080/dashboard/atendimento-servico/${ano}/${mes}`
+      `http://localhost:8080/dashboard/atendimento-servico/${dataInicio}/${dataFim}`
     );
     console.log("Atendimento por Serviço Data:", response.data);
     return response.data;
