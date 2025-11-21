@@ -5,6 +5,9 @@ import NavbarLandingPage from "/src/components/NavbarLandingPage.jsx";
 import Footer from "/src/components/Footer.jsx";
 import { buscarAvaliacoes } from "../../js/api/avaliacao.js"
 import { buscarInfoSalao } from "../../js/api/info_salao.js"
+import BotpressChat from "../../components/BotpressChat.jsx";
+
+
 
 // --- COMPONENTE ESPECIALIDADE ---
 function EspecialidadeCard({ icon, titulo, descricao }) {
@@ -128,7 +131,6 @@ export default function Index() {
   return (
     <>
       <NavbarLandingPage />
-
       {/* Home */}
       <section className="home_section_pai">
         <div className="home_section_title">
@@ -307,6 +309,9 @@ export default function Index() {
           </div>
         </div>
       </section>
+
+
+      <BotpressChat/>
 
       {/* Footer */}
       <Footer />

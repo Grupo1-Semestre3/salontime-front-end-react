@@ -2,7 +2,7 @@ import api from "./api_port";
 
 export async function buscarInfoSalao() {
   try {
-    const response = await axios.get(`http://localhost:8080/info-salao`);
+    const response = await api.get(`http://localhost:8080/info-salao`);
     console.log(response.data)
     // Formata o campo telefone para (XX) XXXXX-XXXX, mantendo os outros campos
     let data = response.data;
