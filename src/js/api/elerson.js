@@ -117,7 +117,59 @@ export async function buscarFuncionariosCompetentes(servicoId) {
   }
 }
 
-export async function buscarKPI(dataInicio, dataFim) {
+export async function buscarKPI(mesSelecionado, anoSelecionado) {
+  try {
+    const response = await api.get(
+      `http://localhost:8080/dashboard/kpi/${mesSelecionado}/${anoSelecionado}`
+    );
+    console.log("KPI Data:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar KPI:", error);
+    throw error;
+  }
+}
+
+export async function buscarKPIUsuarios(mesSelecionado, anoSelecionado) {
+  try {
+    const response = await api.get(
+      `http://localhost:8080/dashboard/kpi-usuarios/${mesSelecionado}/${anoSelecionado}`
+    );
+    console.log("KPI Usuários Data:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar KPI de usuários:", error);
+    throw error;
+  }
+}
+
+export async function buscarAtendimentoGrafico(mesSelecionado, anoSelecionado) {
+  try {
+    const response = await api.get(
+      `http://localhost:8080/dashboard/atendimento-grafico/${mesSelecionado}/${anoSelecionado}`
+    );
+    console.log("Atendimento Gráfico Data:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar dados de atendimento para gráfico:", error);
+    throw error;
+  }
+}
+
+export async function buscarAtendimentoServico(mesSelecionado, anoSelecionado) {
+  try {
+    const response = await api.get(
+      `http://localhost:8080/dashboard/atendimento-servico/${mesSelecionado}/${anoSelecionado}`
+    );
+    console.log("Atendimento por Serviço Data:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar dados de atendimento por serviço:", error);
+    throw error;
+  }
+}
+
+export async function buscarKPIPersonalizado(dataInicio, dataFim) {
   try {
     const response = await api.get(
       `http://localhost:8080/dashboard/kpi-personalizado/${dataInicio}/${dataFim}`
@@ -130,7 +182,7 @@ export async function buscarKPI(dataInicio, dataFim) {
   }
 }
 
-export async function buscarKPIUsuarios(dataInicio, dataFim) {
+export async function buscarKPIUsuariosPersonalizado(dataInicio, dataFim) {
   try {
     const response = await api.get(
       `http://localhost:8080/dashboard/kpi-usuarios-personalizado/${dataInicio}/${dataFim}`
@@ -143,10 +195,10 @@ export async function buscarKPIUsuarios(dataInicio, dataFim) {
   }
 }
 
-export async function buscarAtendimentoGrafico(dataInicio, dataFim) {
+export async function buscarAtendimentoGraficoPersonalizado(dataInicio, dataFim) {
   try {
     const response = await api.get(
-      `http://localhost:8080/dashboard/atendimento-grafico/${dataInicio}/${dataFim}`
+      `http://localhost:8080/dashboard/atendimento-grafico-personalizado/${dataInicio}/${dataFim}`
     );
     console.log("Atendimento Gráfico Data:", response.data);
     return response.data;
@@ -156,10 +208,10 @@ export async function buscarAtendimentoGrafico(dataInicio, dataFim) {
   }
 }
 
-export async function buscarAtendimentoServico(dataInicio, dataFim) {
+export async function buscarAtendimentoServicoPersonalizado(dataInicio, dataFim) {
   try {
     const response = await api.get(
-      `http://localhost:8080/dashboard/atendimento-servico/${dataInicio}/${dataFim}`
+      `http://localhost:8080/dashboard/atendimento-servico-personalizado/${dataInicio}/${dataFim}`
     );
     console.log("Atendimento por Serviço Data:", response.data);
     return response.data;

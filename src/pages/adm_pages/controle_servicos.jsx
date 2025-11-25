@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
 import MenuDash from "../../components/MenuDash";
 import ControleMensal from "../../components/NavControleMensal";
-import { buscarKPI, buscarKPIUsuarios, buscarAtendimentoGrafico, buscarAtendimentoServico } from "../../js/api/elerson";
+import { buscarKPI, 
+  buscarKPIUsuarios, 
+  buscarAtendimentoGrafico, 
+  buscarAtendimentoServico,
+  buscarKPIPersonalizado,
+  buscarKPIUsuariosPersonalizado,
+  buscarAtendimentoGraficoPersonalizado,
+  buscarAtendimentoServicoPersonalizado
+ } from "../../js/api/elerson";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -29,7 +37,7 @@ ChartJS.register(
 );
 
 export default function Controle_servicos() {
-  // helper: formata Date -> YYYY-MM-DD para inputs type=date e chamadas à API
+  // Helper: formata Date -> YYYY-MM-DD para inputs `type=date` e chamadas à API
   const toISODate = (d) => {
     const date = d instanceof Date ? d : new Date(d);
     const y = date.getFullYear();
@@ -38,6 +46,11 @@ export default function Controle_servicos() {
     return `${y}-${m}-${day}`;
   };
 
+  const [isPersonalizado, setIsPersonalizado] = useState(false);
+  // mês/ano selecionados (modo mensal)
+  const now = new Date();
+  const [mesSelecionado, setMesSelecionado] = useState(now.getMonth() + 1); // 1-12
+  const [anoSelecionado, setAnoSelecionado] = useState(now.getFullYear());
   // padrão: intervalo dos últimos 7 dias
   const hoje = new Date();
   const seteDiasAtras = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
@@ -59,14 +72,26 @@ export default function Controle_servicos() {
     setErro(null);
     const errors = [];
 
-    // Run all requests in parallel but handle each result individually so one failing
-    // endpoint doesn't prevent the others from rendering.
-    const pKpi = buscarKPI(dataInicio, dataFim);
-    const pKpiUsuarios = buscarKPIUsuarios(dataInicio, dataFim);
-    const pGrafico = buscarAtendimentoGrafico(dataInicio, dataFim);
-    const pServico = buscarAtendimentoServico(dataInicio, dataFim);
+    // Executa requisições em paralelo; trata cada resultado individualmente
+    // para que um endpoint com erro não impeça os demais de renderizarem.
+    let promises;
+    if (isPersonalizado) {
+      const pKpi = buscarKPIPersonalizado(dataInicio, dataFim);
+      const pKpiUsuarios = buscarKPIUsuariosPersonalizado(dataInicio, dataFim);
+      const pGrafico = buscarAtendimentoGraficoPersonalizado(dataInicio, dataFim);
+      const pServico = buscarAtendimentoServicoPersonalizado(dataInicio, dataFim);
+      promises = [pKpi, pKpiUsuarios, pGrafico, pServico];
+    } else {
+      // Garante mês com dois dígitos (ex: '01'..'12') para o backend
+      const mesParam = String(mesSelecionado).padStart(2, "0");
+      const pKpi = buscarKPI(mesParam, anoSelecionado);
+      const pKpiUsuarios = buscarKPIUsuarios(mesParam, anoSelecionado);
+      const pGrafico = buscarAtendimentoGrafico(mesParam, anoSelecionado);
+      const pServico = buscarAtendimentoServico(mesParam, anoSelecionado);
+      promises = [pKpi, pKpiUsuarios, pGrafico, pServico];
+    }
 
-    const results = await Promise.allSettled([pKpi, pKpiUsuarios, pGrafico, pServico]);
+    const results = await Promise.allSettled(promises);
 
     // KPI geral
     if (results[0].status === "fulfilled") {
@@ -117,57 +142,95 @@ export default function Controle_servicos() {
     setLoading(false);
   };
 
-  // Carrega inicialmente ao montar
+  // Recarrega dados quando muda o modo (mensal/personalizado), mês, ano ou intervalo.
+  // Para o modo personalizado, atualiza automaticamente ao alterar as datas.
   useEffect(() => {
-    carregarDados();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Processar dados do gráfico de atendimentos
-  const processarDadosGrafico = () => {
-    if (!atendimentoGraficoData || atendimentoGraficoData.length === 0) {
-      return {
-        labels: [],
-        datasets: [
-          {
-            label: "Periodo selecionado",
-            data: [],
-            borderColor: "black",
-            backgroundColor: "#211F1E",
-            fill: false,
-            pointBackgroundColor: "black",
-            tension: 0.3,
-          }
-        ],
-      };
+    if (isPersonalizado) {
+      // valida intervalo
+      if (new Date(dataInicio) > new Date(dataFim)) {
+        setErro('Data inicial não pode ser maior que data final.');
+        return;
+      }
+      setErro(null);
+      carregarDados();
+      return;
     }
 
-    // Garantir que os pontos estejam ordenados pelo dia do mês
+    // modo mensal: recarrega quando mês/ano mudarem
+    carregarDados();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPersonalizado, mesSelecionado, anoSelecionado, dataInicio, dataFim]);
+
+  // Processa os dados para o gráfico de atendimentos
+  const processarDadosGrafico = () => {
+    if (!atendimentoGraficoData || atendimentoGraficoData.length === 0) {
+      const baseDataset = {
+        label: isPersonalizado ? "Período selecionado" : "Mês selecionado",
+        data: [],
+        borderColor: "black",
+        backgroundColor: "#211F1E",
+        fill: false,
+        pointBackgroundColor: "black",
+        tension: 0.3,
+      };
+
+      const datasets = [baseDataset];
+      if (!isPersonalizado) {
+        datasets.push({
+          label: "Mês anterior",
+          data: [],
+          borderColor: "lightgray",
+          backgroundColor: "lightgray",
+          fill: false,
+          pointBackgroundColor: "lightgray",
+          tension: 0.3,
+        });
+      }
+
+      return { labels: [], datasets };
+    }
+
+    // Ordena pontos pelo dia do mês
     const dadosOrdenados = [...atendimentoGraficoData].sort(
       (a, b) => Number(a.diaMesAtual) - Number(b.diaMesAtual)
     );
-
-    // Formatar labels como DD/MM usando o mês de dataInicio
-    const mesNum = new Date(dataInicio).getMonth() + 1;
+    // Formata labels como DD/MM: se personalizado usa dataInicio, caso contrário usa mesSelecionado
+    const mesNum = isPersonalizado ? (new Date(dataInicio).getMonth() + 1) : mesSelecionado;
     const diasMes = dadosOrdenados.map((item) =>
       `${String(item.diaMesAtual).padStart(2, "0")}/${String(mesNum).padStart(2, "0")}`
     );
     const qtdAtual = dadosOrdenados.map((item) => item.qtdAtual);
     const qtdAnterior = dadosOrdenados.map((item) => item.qtdAnterior);
 
+    // Inclui dataset do período atual
+    const datasets = [
+      {
+        label: isPersonalizado ? "Período selecionado" : "Mês selecionado",
+        data: qtdAtual,
+        borderColor: "#211F1E",
+        backgroundColor: "#211F1E",
+        fill: false,
+        pointBackgroundColor: "#211F1E",
+        tension: 0.3,
+      }
+    ];
+    // No modo mensal, também inclui a série do mês anterior (mesmo que vazia)
+    if (!isPersonalizado) {
+      datasets.push({
+        label: "Mês anterior",
+        data: qtdAnterior || [],
+        borderColor: "lightgray",
+        backgroundColor: "lightgray",
+        fill: false,
+        pointBackgroundColor: "lightgray",
+        borderDash: [6,4],
+        tension: 0.3,
+      });
+    }
+
     return {
       labels: diasMes,
-      datasets: [
-        {
-          label: "Mês selecionado",
-          data: qtdAtual,
-          borderColor: "black",
-          backgroundColor: "#211F1E",
-          fill: false,
-          pointBackgroundColor: "black",
-          tension: 0.3,
-        }
-      ],
+      datasets,
     };
   };
 
@@ -202,42 +265,57 @@ export default function Controle_servicos() {
           display: true,
           text: "Número de atendimentos",
         },
+        ticks: {
+          precision: 0,
+        },
       },
     },
   };
 
-  // Processar dados do gráfico de serviços
+  // Processa os dados para o gráfico de serviços
   const processarDadosServicos = () => {
     if (!atendimentoServicoData || atendimentoServicoData.length === 0) {
-      return {
-        labels: [],
-        datasets: [
-          {
-            label: "Período selecionado",
-            data: [],
-            backgroundColor: "black",
-          }
-        ],
+      const base = {
+        label: isPersonalizado ? "Período selecionado" : "Mês selecionado",
+        data: [],
+        backgroundColor: "#211F1E",
       };
+      const datasets = [base];
+      if (!isPersonalizado) {
+        datasets.push({ label: "Mês anterior", data: [], backgroundColor: "lightgray" });
+      }
+      return { labels: [], datasets };
     }
 
-    // Ordenar por quantidade atual (decrescente) para mostrar os mais populares primeiro
+    // Ordena por quantidade atual (decrescente) para listar os serviços mais populares primeiro
     const dadosOrdenados = [...atendimentoServicoData].sort(
       (a, b) => b.qtdAtual - a.qtdAtual
     );
 
     const labels = dadosOrdenados.map(item => item.nomeServico);
     const qtdAtual = dadosOrdenados.map(item => item.qtdAtual);
+    const qtdAnterior = dadosOrdenados.map(item => item.qtdAnterior);
+
+    // Inclui dataset do período atual
+    const datasets = [
+      {
+        label: isPersonalizado ? "Período selecionado" : "Mês selecionado",
+        data: qtdAtual,
+        backgroundColor: "#211F1E",
+      }
+    ];
+    // Incluir mês anterior no modo mensal (mesmo que vazio)
+    if (!isPersonalizado) {
+      datasets.push({
+        label: "Mês anterior",
+        data: qtdAnterior || [],
+        backgroundColor: "lightgray",
+      });
+    }
 
     return {
       labels,
-      datasets: [
-        {
-          label: "Periodo selecionado",
-          data: qtdAtual,
-          backgroundColor: "black",
-        }
-      ],
+      datasets,
     };
   };
 
@@ -262,6 +340,9 @@ export default function Controle_servicos() {
           display: true,
           text: "Quantidade",
         },
+        ticks: {
+          precision: 0,
+        },
       },
     },
   };
@@ -277,21 +358,42 @@ export default function Controle_servicos() {
         .slice(0,5)
         .map(s => `${s.nomeServico}: ${s.qtdAtual}`)
         .join("; ");
-  const prompt = `Você é um assistente que gera insights para gestão de um salão de beleza.
-Período: ${dataInicio} a ${dataFim}
-Total atendimentos: ${kpiData?.totalAtendimentos ?? "NA"}
-Cancelados: ${kpiData?.totalCancelados ?? "NA"}
-Clientes cadastrados: ${kpiUsuariosData?.totalCadastros ?? "NA"}
-Faturamento: ${kpiData?.faturamentoTotal ?? "NA"}
+  const prompt = isPersonalizado ?
+  
+`Você é um assistente que interpreta uma dashboard mensal para gestão de um salão de beleza.
+Mes selecionado: ${mesSelecionado}/${anoSelecionado}
+Total atendimentos: ${kpiData?.totalAtendimentos ?? "0"}
+Cancelados: ${kpiData?.totalCancelados ?? "0"}
+Clientes cadastrados: ${kpiUsuariosData?.totalCadastros ?? "0"}
+Faturamento: ${kpiData?.faturamentoTotal ?? "0"}
 Top serviços (qtd no período): ${contextoServicos || "Sem dados"}
 
 Objetivo: gere uma análise em português, com:
+- Resumo dos dados para melhor interpretação
 - Tendências principais
 - Possíveis causas
-- Sugestões práticas para aumentar receita e reduzir cancelamentos
-Use bullets curtos e tom profissional.
+Seja breve e utilize tom profissional.
 
-Lembre-se que sua resposta será uma variavel string exibida diretamente dentro de uma div de um site, então não utilize formatações de texto (bold/italic/title/etc).`;
+Lembre-se que sua resposta será uma variavel string exibida diretamente dentro de uma div de um site, então não utilize formatações de texto (bold/italic/title/etc).`
+
+:
+
+`Você é um assistente que interpreta uma dashboard para gestão de um salão de beleza.
+Período: ${dataInicio} a ${dataFim}
+Total atendimentos: ${kpiData?.totalAtendimentos ?? "0"}
+Cancelados: ${kpiData?.totalCancelados ?? "0"}
+Clientes cadastrados: ${kpiUsuariosData?.totalCadastros ?? "0"}
+Faturamento: ${kpiData?.faturamentoTotal ?? "0"}
+Top serviços (qtd no período): ${contextoServicos || "Sem dados"}
+
+Objetivo: gere uma análise em português, com:
+- Resumo dos dados para melhor interpretação
+- Tendências principais
+- Possíveis causas
+Seja breve e utilize tom profissional.
+
+Lembre-se que sua resposta será uma variavel string exibida diretamente dentro de uma div de um site, então não utilize formatações de texto (bold/italic/title/etc).`
+;
 
       const resposta = await perguntarIA(prompt);
       setIaResposta(resposta);
@@ -301,13 +403,43 @@ Lembre-se que sua resposta será uma variavel string exibida diretamente dentro 
       setIaLoading(false);
     }
   }
-
   return (
     <MenuDash>
      
         {/* Título + Select */}
         <div className="section_controle_servico_title">
-          <p className="titulo-1">Período Selecionado:</p>
+          <p className="titulo-1">{isPersonalizado ? 'Período Selecionado:' : 'Mês Selecionado'}</p>
+          <select
+            name="select_mes"
+            id="select_mes"
+            className="paragrafo-2 select semibold"
+            value={isPersonalizado ? 'personalizado' : String(mesSelecionado)}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v === 'personalizado') {
+                setIsPersonalizado(true);
+              } else {
+                setIsPersonalizado(false);
+                setMesSelecionado(Number(v));
+              }
+            }}
+          >
+            <option value="personalizado">Personalizado</option>
+            {/* show month label with year, e.g. "Jan/2025" */}
+            <option value="1">Janeiro/{anoSelecionado}</option>
+            <option value="2">Fevereiro/{anoSelecionado}</option>
+            <option value="3">Março/{anoSelecionado}</option>
+            <option value="4">Abril/{anoSelecionado}</option>
+            <option value="5">Maio/{anoSelecionado}</option>
+            <option value="6">Junho/{anoSelecionado}</option>
+            <option value="7">Julho/{anoSelecionado}</option>
+            <option value="8">Agosto/{anoSelecionado}</option>
+            <option value="9">Setembro/{anoSelecionado}</option>
+            <option value="10">Outubro/{anoSelecionado}</option>
+            <option value="11">Novembro/{anoSelecionado}</option>
+            <option value="12">Dezembro/{anoSelecionado}</option>
+          </select>
+          {isPersonalizado && (
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginLeft: '24px' }}>
             <label className="paragrafo-1" style={{marginTop:"4px"}} htmlFor="dataInicio_input">De</label>
             <input
@@ -328,23 +460,8 @@ Lembre-se que sua resposta será uma variavel string exibida diretamente dentro 
               onChange={(e) => setDataFim(e.target.value)}
               onFocus={() => setErro(null)}
             />
-
-            <button
-              className="btn-rosa paragrafo-2"
-              onClick={() => {
-                // validação simples: dataInicio <= dataFim
-                if (new Date(dataInicio) > new Date(dataFim)) {
-                  setErro('Data inicial não pode ser maior que data final.');
-                  return;
-                }
-                setErro(null);
-                carregarDados();
-              }}
-              style={{ marginLeft: '12px' }}
-            >
-              Atualizar
-            </button>
           </div>
+          )}
         </div>
 
         {/* Mini Nav */}
@@ -355,39 +472,47 @@ Lembre-se que sua resposta será uma variavel string exibida diretamente dentro 
           <div className="section_controle_servico_kpis card">
             <p className="paragrafo-2 italic">Total de Atendimentos</p>
             <div className="section_controle_servico_kpis_card_column">
-              <p className="paragrafo-1 semibold">{kpiData?.totalAtendimentos ?? "—"}</p>
-              {/* <p className="paragrafo-2 section_controle_servico_kpis_card_value">
+              <p className="paragrafo-1 semibold">{kpiData?.totalAtendimentos ?? "0"}</p>
+              {!isPersonalizado && (
+              <p className="paragrafo-2 section_controle_servico_kpis_card_value">
                 {kpiData?.totalAtendimentosTaxa 
                   ? `${kpiData.totalAtendimentosTaxa > 0 ? '+' : ''}${kpiData.totalAtendimentosTaxa}%` 
                   : "—"}
-              </p> */}
+              </p>
+              )}
             </div>
           </div>
 
           <div className="section_controle_servico_kpis card">
             <p className="paragrafo-2 italic">Atendimentos Cancelados</p>
             <div className="section_controle_servico_kpis_card_column">
-              <p className="paragrafo-1 semibold">{kpiData?.totalCancelados ?? "—"}</p>
-              {/* <p
+              <p className="paragrafo-1 semibold">{kpiData?.totalCancelados ?? "0"}</p>
+              
+              {!isPersonalizado && (
+              <p
                 className="paragrafo-2 section_controle_servico_kpis_card_value"
                 style={{ backgroundColor: "var(--vermelho)" }}
               >
                 {kpiData?.totalCanceladosTaxa 
                   ? `${kpiData.totalCanceladosTaxa > 0 ? '+' : ''}${kpiData.totalCanceladosTaxa}%` 
                   : "—"}
-              </p> */}
+              </p>
+              )}
             </div>
           </div>
 
           <div className="section_controle_servico_kpis card">
             <p className="paragrafo-2 italic">Clientes Cadastrados</p>
             <div className="section_controle_servico_kpis_card_column">
-              <p className="paragrafo-1 semibold">{kpiUsuariosData?.totalCadastros ?? "—"}</p>
-              {/* <p className="paragrafo-2 section_controle_servico_kpis_card_value">
+              <p className="paragrafo-1 semibold">{kpiUsuariosData?.totalCadastros ?? "0"}</p>
+              
+              {!isPersonalizado && (
+              <p className="paragrafo-2 section_controle_servico_kpis_card_value">
                 {kpiUsuariosData?.variacaoPercentual 
                   ? `${kpiUsuariosData.variacaoPercentual > 0 ? '+' : ''}${kpiUsuariosData.variacaoPercentual}%` 
                   : "—"}
-              </p> */}
+              </p>
+              )}
             </div>
           </div>
 
@@ -395,13 +520,15 @@ Lembre-se que sua resposta será uma variavel string exibida diretamente dentro 
             <p className="paragrafo-2 italic">Faturamento Total</p>
             <div className="section_controle_servico_kpis_card_column">
               <p className="paragrafo-1 semibold">
-                {kpiData?.faturamentoTotal ? `R$${kpiData.faturamentoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "—"}
+                {kpiData?.faturamentoTotal ? `R$${kpiData.faturamentoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "R$0"}
               </p>
-              {/* <p className="paragrafo-2 section_controle_servico_kpis_card_value">
+              {!isPersonalizado && (
+              <p className="paragrafo-2 section_controle_servico_kpis_card_value">
                 {kpiData?.faturamentoTotalTaxa 
                   ? `${kpiData.faturamentoTotalTaxa > 0 ? '+' : ''}${kpiData.faturamentoTotalTaxa}%` 
                   : "—"}
-              </p> */}
+              </p>
+              )}
             </div>
           </div>
         </div>
@@ -425,7 +552,7 @@ Lembre-se que sua resposta será uma variavel string exibida diretamente dentro 
               Análise de Desempenho
             </p>
             <div style={{ display:"flex", flexDirection:"column", gap:"8px" }}>
-              <p className="paragrafo-2">Gere insights automáticos com base nos dados apresentados.</p>
+              <p className="paragrafo-2">Gere resumos automáticos com base nos dados apresentados.</p>
               <button 
                 onClick={gerarAnaliseIA} 
                 disabled={iaLoading} 
