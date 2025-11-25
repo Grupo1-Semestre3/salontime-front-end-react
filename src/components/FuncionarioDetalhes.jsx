@@ -153,7 +153,9 @@ export default function FuncionarioDetalhes({ idFuncionario, onClose }) {
                 <p><strong>Status:</strong> {ag.statusAgendamento.status}</p>
 
                 <div className="botoes-agendamento">
+                  {ag.statusAgendamento.status === "CONCLUIDO" ? null : (
                   <button className="btn-rosa" onClick={() => setPopupConcluir(ag)}>Concluir</button>
+                  )}
                   <button className="btn-branco" onClick={() => {
                     carregarDadosHistorico(ag.id)
                     setModalDetalhes(true);

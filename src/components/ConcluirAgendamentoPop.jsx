@@ -2,6 +2,8 @@ import { useState } from "react";
 import Popup from "../components/Popup"; // se o seu wrapper estiver em outro local, ajuste o import
 import { mensagemErro, mensagemSucesso, formatarDataBR } from "../js/utils";
 import "../css/popup/concluirAgendamento.css";
+import { concluirAgendamento } from "../js/api/agendamento";
+
 export default function ConcluirAgendamentoPop({ dados, onClose, atualizarAgendamentos }) {
   if (!dados) return null;
   const [valorPago, setValorPago] = useState("");
