@@ -413,6 +413,7 @@ Lembre-se que sua resposta será uma variavel string exibida diretamente dentro 
             name="select_mes"
             id="select_mes"
             className="paragrafo-2 select semibold"
+            style={{width:`${!isPersonalizado? 'auto': ''}`}}
             value={isPersonalizado ? 'personalizado' : String(mesSelecionado)}
             onChange={(e) => {
               const v = e.target.value;
