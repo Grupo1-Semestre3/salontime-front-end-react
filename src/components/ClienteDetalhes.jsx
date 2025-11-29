@@ -75,10 +75,10 @@ export default function ClienteDetalhes({ idCliente, onClose }) {
           />
           <div className="cliente-info">
             <h3 className="bold">{cliente.nome}</h3>
-            <p>📧 {cliente.email}</p>
-            <p>📞 {cliente.telefone}</p>
-            <p>🎂 {cliente.dataNascimento}</p>
-            <p>🆔 CPF: {cliente.cpf}</p>
+            <div className="info"><img src="/src/assets/svg/icon_mail.svg" alt="" /> {cliente.email}</div>
+            <div className="info"><img src="/src/assets/svg/icon_phone.svg" alt="" /> {cliente.telefone}</div>
+            <div className="info"><img src="/src/assets/svg/icon_aniver.svg" alt="" /> {cliente.dataNascimento}</div>
+            <div className="info"><img src="/src/assets/svg/icon_cpf.svg" alt="" /> {cliente.cpf}</div>
           </div>
         </div>
 

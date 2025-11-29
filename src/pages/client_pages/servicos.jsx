@@ -202,20 +202,19 @@ export default function Servicos() {
       });
   }
 
-  const confirmarCancelamento = () => {
+  const confirmarCancelamento = async () => {
     try {
-      cancelarAgendamentoJS(proximoAgendamento.id);
-      mensagemSucesso(`Agendamento cancelado com sucesso!`)
+      await cancelarAgendamentoJS(proximoAgendamento.id);
+      mensagemSucesso(`Agendamento cancelado com sucesso!`);
       setTimeout(() => {
         handleMotivoCancelar();
       }, 1500);
-
     } catch (error) {
       mensagemErro("Erro ao cancelar agendamento. Tente novamente mais tarde.");
-      return
+      console.error(error);
+      return;
     }
     setPopupAlertaAberto(false);
-
   };
 
 
@@ -228,24 +227,29 @@ export default function Servicos() {
     }
   };
 
-  const confirmarMotivoCancelar = () => {
+  const confirmarMotivoCancelar = async () => {
+    if (!motivoCancelamento || motivoCancelamento.trim() === "") {
+      mensagemErro("Por favor, descreva o motivo do cancelamento antes de enviar.");
+      return;
+    }
+
     try {
-      enviarMotivoCancelar({ motivoCancelamento, agendamento: proximoAgendamento });
-      mensagemSucesso(`Motivo de cancelamento enviado com sucesso!`)
-      buscarProximoAgendamento(usuario.id)
-        .then(data => {
-          setProximoAgendamento(data);
-        })
-        .catch(error => {
-          console.error("Erro ao carregar próximo agendamento:", error);
-        });
+      await enviarMotivoCancelar({ descricao: motivoCancelamento, agendamento: proximoAgendamento });
+      mensagemSucesso(`Motivo de cancelamento enviado com sucesso!`);
+
+      try {
+        const data = await buscarProximoAgendamento(usuario.id);
+        setProximoAgendamento(data);
+      } catch (err) {
+        console.error("Erro ao carregar próximo agendamento:", err);
+      }
     } catch (error) {
       mensagemErro("Erro ao enviar motivo de cancelamento. Tente novamente mais tarde.");
-      return
+      console.error(error);
     }
-    setPopupMotivoCancelar(false);
 
-  }
+    setPopupMotivoCancelar(false);
+  };
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   useEffect(() => {

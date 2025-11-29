@@ -83,17 +83,22 @@ export default function CalendarioVisaoGeral() {
     setPopupCadastroExcecao(true);
   };
   const confirmarMotivoCancelar = () => {
-    try {
-      const descricao = document.getElementById("motivo-cancelamento").value;
-      enviarMotivoCancelar({
-        descricao,
-        agendamento: agendamentoParaCancelar
-      });
-      mensagemSucesso("Motivo de cancelamento enviado com sucesso!");
-    } catch (error) {
-      mensagemErro("Erro ao enviar motivo de cancelamento. Tente novamente mais tarde.");
-    }
-    setPopupMotivoCancelar(false);
+    (async () => {
+      try {
+        const descricao = document.getElementById("motivo-cancelamento").value;
+        if (!descricao || descricao.trim() === "") {
+          mensagemErro("Por favor, informe o motivo do cancelamento.");
+          return;
+        }
+        await enviarMotivoCancelar({ descricao, agendamento: agendamentoParaCancelar });
+        mensagemSucesso("Motivo de cancelamento enviado com sucesso!");
+      } catch (error) {
+        mensagemErro("Erro ao enviar motivo de cancelamento. Tente novamente mais tarde.");
+        console.error(error);
+      } finally {
+        setPopupMotivoCancelar(false);
+      }
+    })();
   };
 
   const confirmarCancelamento = async () => {

@@ -115,9 +115,9 @@ export default function FuncionarioDetalhes({ idFuncionario, onClose }) {
             className="foto-cliente" />
           <div className="cliente-info">
             <h3 className="bold">{funcionario.nome}</h3>
-            <p>📧 {funcionario.email}</p>
-            <p>📞 {funcionario.telefone}</p>
-            <p>🆔 CPF: {funcionario.cpf}</p>
+            <div className="info"><img src="/src/assets/svg/icon_mail.svg" alt="" /> {funcionario.email}</div>
+            <div className="info"><img src="/src/assets/svg/icon_phone.svg" alt="" /> {funcionario.telefone}</div>
+            <div className="info"><img src="/src/assets/svg/icon_cpf.svg" alt="" /> {funcionario.cpf? funcionario.cpf : "CPF não informado"}</div>
           </div>
         </div>
 

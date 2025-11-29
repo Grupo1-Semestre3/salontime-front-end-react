@@ -66,7 +66,7 @@ function AvaliacaoCard({ nome, data, estrelas, servico, comentario, imagem }) {
       <div className="avaliacao_section_card_infos">
           <img
             className="card-foto-cliente-dashboard" 
-            src={`http://localhost:8080/usuarios/foto/${nome}`}
+            src={`http://localhost:8080/usuarios/foto/${imagem}`}
             onError={(e) => { e.target.src = "/src/assets/img/usuario_foto_def.png"; }}
             alt="icon_perfil" 
           />
@@ -298,7 +298,7 @@ export default function Index() {
                 estrelas={dado.notaServico}
                 servico={dado.nomeServico}
                 comentario={dado.descricaoServico}
-                imagem={dado.imagem || '/src/assets/img/mock_avaliacao/Team-member.png'}
+                imagem={dado.idUsuario}
               />
             ))}
           </div>
@@ -311,7 +311,7 @@ export default function Index() {
                 estrelas={dado.notaServico}
                 servico={dado.nomeServico}
                 comentario={dado.descricaoServico}
-                imagem={dado.imagem || '/src/assets/img/mock_avaliacao/Team-member.png'}
+                imagem={dado.idUsuario}
               />
             ))}
           </div>
