@@ -119,8 +119,9 @@ export async function buscarFuncionariosCompetentes(servicoId) {
 
 export async function buscarKPI(mesSelecionado, anoSelecionado) {
   try {
+    // backend expects /dashboard/kpi/{ano}/{mes}
     const response = await api.get(
-      `http://localhost:8080/dashboard/kpi/${mesSelecionado}/${anoSelecionado}`
+      `http://localhost:8080/dashboard/kpi/${anoSelecionado}/${mesSelecionado}`
     );
     console.log("KPI Data:", response.data);
     return response.data;
@@ -132,8 +133,9 @@ export async function buscarKPI(mesSelecionado, anoSelecionado) {
 
 export async function buscarKPIUsuarios(mesSelecionado, anoSelecionado) {
   try {
+    // backend expects /dashboard/kpi-usuarios/{ano}/{mes}
     const response = await api.get(
-      `http://localhost:8080/dashboard/kpi-usuarios/${mesSelecionado}/${anoSelecionado}`
+      `http://localhost:8080/dashboard/kpi-usuarios/${anoSelecionado}/${mesSelecionado}`
     );
     console.log("KPI Usuários Data:", response.data);
     return response.data;
@@ -145,8 +147,9 @@ export async function buscarKPIUsuarios(mesSelecionado, anoSelecionado) {
 
 export async function buscarAtendimentoGrafico(mesSelecionado, anoSelecionado) {
   try {
+    // backend expects /dashboard/atendimento-grafico/{ano}/{mes}
     const response = await api.get(
-      `http://localhost:8080/dashboard/atendimento-grafico/${mesSelecionado}/${anoSelecionado}`
+      `http://localhost:8080/dashboard/atendimento-grafico/${anoSelecionado}/${mesSelecionado}`
     );
     console.log("Atendimento Gráfico Data:", response.data);
     return response.data;
@@ -158,8 +161,9 @@ export async function buscarAtendimentoGrafico(mesSelecionado, anoSelecionado) {
 
 export async function buscarAtendimentoServico(mesSelecionado, anoSelecionado) {
   try {
+    // backend expects /dashboard/atendimento-servico/{ano}/{mes}
     const response = await api.get(
-      `http://localhost:8080/dashboard/atendimento-servico/${mesSelecionado}/${anoSelecionado}`
+      `http://localhost:8080/dashboard/atendimento-servico/${anoSelecionado}/${mesSelecionado}`
     );
     console.log("Atendimento por Serviço Data:", response.data);
     return response.data;

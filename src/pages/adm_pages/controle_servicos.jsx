@@ -126,7 +126,36 @@ export default function Controle_servicos() {
     // Atendimentos por serviço
     if (results[3].status === "fulfilled") {
       const dadosServico = results[3].value;
-      setAtendimentoServicoData(dadosServico && dadosServico.length > 0 ? dadosServico : null);
+      if (dadosServico && dadosServico.length > 0) {
+        setAtendimentoServicoData(dadosServico);
+      } else if (!isPersonalizado) {
+        // Se o mês atual estiver vazio, tentar buscar os dados do mês anterior
+        try {
+          const mesNum = Number(mesSelecionado);
+          const prevMonthNum = mesNum === 1 ? 12 : mesNum - 1;
+          const prevYear = mesNum === 1 ? Number(anoSelecionado) - 1 : Number(anoSelecionado);
+          const prevMonthParam = String(prevMonthNum).padStart(2, '0');
+          const prevData = await buscarAtendimentoServico(prevMonthParam, prevYear);
+
+          if (prevData && prevData.length > 0) {
+            // sintetiza objetos no formato esperado pelo gráfico: nomeServico, qtdAtual, qtdAnterior
+            const synthesized = prevData.map(item => ({
+              nomeServico: item.nomeServico ?? item.nome ?? 'Serviço',
+              qtdAtual: 0,
+              qtdAnterior: item.qtdAtual ?? item.qtdAnterior ?? 0,
+            }));
+            setAtendimentoServicoData(synthesized);
+          } else {
+            setAtendimentoServicoData(null);
+          }
+        } catch (e) {
+          console.error('Erro ao buscar atendimentos do mês anterior:', e);
+          setAtendimentoServicoData(null);
+          errors.push("Atendimentos por serviço");
+        }
+      } else {
+        setAtendimentoServicoData(null);
+      }
     } else {
       console.error("buscarAtendimentoServico failed:", results[3].reason);
       setAtendimentoServicoData(null);
@@ -140,6 +169,18 @@ export default function Controle_servicos() {
     }
 
     setLoading(false);
+  };
+
+  // Parser ISO -> Date no horário local para evitar shifts de timezone
+  // Recebe string no formato YYYY-MM-DD e retorna Date corresondente no horário local (00:00)
+  const parseISODateLocal = (iso) => {
+    if (!iso) return null;
+    // aceita formatos como '2025-11-30' ou '2025-11-30T00:00:00'
+    const datePart = iso.split('T')[0];
+    const parts = datePart.split('-').map(p => Number(p));
+    if (parts.length < 3 || parts.some(isNaN)) return new Date(iso);
+    const [y, m, d] = parts;
+    return new Date(y, m - 1, d);
   };
 
   // Recarrega dados quando muda o modo (mensal/personalizado), mês, ano ou intervalo.
@@ -189,20 +230,47 @@ export default function Controle_servicos() {
 
       return { labels: [], datasets };
     }
+    // Detecta formato dos itens e extrai label/data correta
+    const dadosOrdenados = [...atendimentoGraficoData].slice();
 
-    // Ordena pontos pelo dia do mês
-    const dadosOrdenados = [...atendimentoGraficoData].sort(
-      (a, b) => Number(a.diaMesAtual) - Number(b.diaMesAtual)
-    );
-    // Formata labels como DD/MM: se personalizado usa dataInicio, caso contrário usa mesSelecionado
+    // Se os itens tiverem campo 'data' (ex: "2025-11-01"), usaremos a data completa
+    const hasFullDate = dadosOrdenados.some(item => item.data || item.dataAtual || item.date);
+
+    if (hasFullDate) {
+      // Ordena por data completa -- usar parser local para evitar shift de timezone
+      dadosOrdenados.sort((a, b) => parseISODateLocal(a.data || a.dataAtual || a.date) - parseISODateLocal(b.data || b.dataAtual || b.date));
+      const dias = dadosOrdenados.map(item => {
+        const d = parseISODateLocal(item.data || item.dataAtual || item.date);
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        return `${dd}/${mm}`;
+      });
+      const qtdAtual = dadosOrdenados.map(item => item.qtdAtual ?? 0);
+
+      const datasets = [
+        {
+          label: "Período selecionado",
+          data: qtdAtual,
+          borderColor: "#211F1E",
+          backgroundColor: "#211F1E",
+          fill: false,
+          pointBackgroundColor: "#211F1E",
+          tension: 0.3,
+        }
+      ];
+
+      return { labels: dias, datasets };
+    }
+
+    // Caso padrão (modo mensal): itens têm 'diaMesAtual' e possivelmente 'qtdAnterior'
+    dadosOrdenados.sort((a, b) => Number(a.diaMesAtual) - Number(b.diaMesAtual));
     const mesNum = isPersonalizado ? (new Date(dataInicio).getMonth() + 1) : mesSelecionado;
     const diasMes = dadosOrdenados.map((item) =>
       `${String(item.diaMesAtual).padStart(2, "0")}/${String(mesNum).padStart(2, "0")}`
     );
-    const qtdAtual = dadosOrdenados.map((item) => item.qtdAtual);
-    const qtdAnterior = dadosOrdenados.map((item) => item.qtdAnterior);
+    const qtdAtual = dadosOrdenados.map((item) => item.qtdAtual ?? 0);
+    const qtdAnterior = dadosOrdenados.map((item) => item.qtdAnterior ?? 0);
 
-    // Inclui dataset do período atual
     const datasets = [
       {
         label: isPersonalizado ? "Período selecionado" : "Mês selecionado",
@@ -214,7 +282,6 @@ export default function Controle_servicos() {
         tension: 0.3,
       }
     ];
-    // No modo mensal, também inclui a série do mês anterior (mesmo que vazia)
     if (!isPersonalizado) {
       datasets.push({
         label: "Mês anterior",
