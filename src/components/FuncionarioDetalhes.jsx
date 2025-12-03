@@ -105,7 +105,7 @@ export default function FuncionarioDetalhes({ idFuncionario, onClose }) {
   return (
     <div className="cliente-detalhes-overlay">
       <div className="cliente-detalhes-card">
-        {/* <button className="btn-fechar" onClick={onClose}>✖</button> */}
+        <button className="btn-fechar-detalhes-func" onClick={onClose}>✖</button>
 
         <div className="cliente-info-header">
           <img
@@ -115,9 +115,9 @@ export default function FuncionarioDetalhes({ idFuncionario, onClose }) {
             className="foto-cliente" />
           <div className="cliente-info">
             <h3 className="bold">{funcionario.nome}</h3>
-            <p>📧 {funcionario.email}</p>
-            <p>📞 {funcionario.telefone}</p>
-            <p>🆔 CPF: {funcionario.cpf}</p>
+            <div className="info"><img src="/src/assets/svg/icon_mail.svg" alt="" /> {funcionario.email}</div>
+            <div className="info"><img src="/src/assets/svg/icon_phone.svg" alt="" /> {funcionario.telefone}</div>
+            <div className="info"><img src="/src/assets/svg/icon_cpf.svg" alt="" /> {funcionario.cpf? funcionario.cpf : "CPF não informado"}</div>
           </div>
         </div>
 
@@ -148,12 +148,16 @@ export default function FuncionarioDetalhes({ idFuncionario, onClose }) {
           {agendamentos.length > 0 ? (
             agendamentos.map((ag) => (
               <div key={ag.id} className="agendamento-card">
-                <p><strong>Serviço:</strong> {ag.servico.nome}</p>
-                <p><strong>Data:</strong> {ag.data} {ag.fim}</p>
-                <p><strong>Status:</strong> {ag.statusAgendamento.status}</p>
+                <div style={{ flexDirection: "column" }}>
+                  <p><strong>Serviço:</strong> {ag.servico.nome}</p>
+                  <p><strong>Data:</strong> {ag.data} {ag.fim}</p>
+                  <p><strong>Status:</strong> {ag.statusAgendamento.status}</p>
+                </div>
 
                 <div className="botoes-agendamento">
-                  <button className="btn-rosa" onClick={() => setPopupConcluir(ag)}>Concluir</button>
+                  {ag.statusAgendamento.status === "CONCLUIDO" ? null : (
+                    <button className="btn-rosa" onClick={() => setPopupConcluir(ag)}>Concluir</button>
+                  )}
                   <button className="btn-branco" onClick={() => {
                     carregarDadosHistorico(ag.id)
                     setModalDetalhes(true);
@@ -165,8 +169,7 @@ export default function FuncionarioDetalhes({ idFuncionario, onClose }) {
             <p className="italic">Nenhum atendimento encontrado.</p>
           )}
         </div>
-
-        <button className="btn-rosa" onClick={onClose}>Sair</button>
+        {/* <button className="btn-rosa" onClick={onClose}>Sair</button> */}
       </div>
 
       {popupConcluir && (

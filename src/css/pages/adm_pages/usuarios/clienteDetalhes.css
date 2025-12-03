@@ -29,6 +29,7 @@
   gap: 15px;
   margin-bottom: 20px;
   flex-shrink: 0; /* Impede o header de sumir ao rolar */
+
 }
 
 .foto-cliente {
@@ -38,9 +39,25 @@
   object-fit: cover;
 }
 
+.cliente-info {
+  display: flex;
+  flex-direction: column;
+}
 .cliente-info h3 {
   margin: 0;
   font-size: 1.2rem;
+}
+
+.cliente-info div {
+  display: flex;
+  flex-direction: row !important;
+  align-items: center;
+  justify-content: start;
+}
+
+.cliente-info .info img {
+  width: 18px;
+  height: 18px;
 }
 
 .servicos-lista {

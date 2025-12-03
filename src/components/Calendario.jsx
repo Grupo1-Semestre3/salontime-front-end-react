@@ -99,7 +99,7 @@ const Calendario = () => {
       .catch((err) => {
         console.error("Erro ao buscar eventos:", err);
       });
-  }, []);
+  }, [usuario]);
 
   return (
     <div style={{ width: "100%", height: "100vh", padding: 20 }} className="card">

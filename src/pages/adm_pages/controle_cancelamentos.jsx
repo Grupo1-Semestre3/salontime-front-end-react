@@ -24,6 +24,7 @@ export default function Controle_cancelamentos() {
         // Transformar os dados da API para o formato esperado pelo componente
         const cancelamentosFormatados = dados.map((item) => ({
           id: item.id,
+          idCliente: item.idCliente,
           clienteNome: item.nomeCliente,
           servicoNome: item.nomeServico,
           dataHoraISO: `${item.dataServico}T00:00:00.000Z`, // Converter data para ISO
@@ -33,6 +34,7 @@ export default function Controle_cancelamentos() {
         }));
         
         setCancelamentos(cancelamentosFormatados);
+        console.log("Cancelamentos carregados com sucesso!", dados);
       } catch (error) {
         console.error("Erro ao carregar cancelamentos:", error);
       } finally {
@@ -86,7 +88,7 @@ export default function Controle_cancelamentos() {
               <ControleItemCard
                 key={c.id}
                 tipo="cancelamento"
-                fotoUrl={c.id}
+                fotoUrl={c.idCliente} // Usar ID para foto de perfil
                 clienteNome={c.clienteNome}
                 servicoNome={c.servicoNome}
                 dataHoraISO={c.dataHoraISO}

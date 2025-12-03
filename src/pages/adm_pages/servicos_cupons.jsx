@@ -519,8 +519,9 @@ export default function Servicos_cupons() {
     <>
       <MenuDash>
         <NavServicos />
-        <div className="dash_section_container">
+        <div className="dash_section_container" >
 
+          <div style={{display: "flex", flexDirection:"row", marginBottom: "24px"}}>
             <h1 className="titulo-1">Marina Points:</h1>
             <div className="dash_marina_points_line">
               <form className="paragrafo-2 semibold form_marina_p" onSubmit={handleMpSubmit}>
@@ -561,7 +562,7 @@ export default function Servicos_cupons() {
                 </button>
               </form>
             </div>
-
+          </div>
           <div className="dash_servico_section_2">
             <h1 className="titulo-1">Gerenciar CUPONS</h1>
             <button className="btn-rosa" onClick={() => setShowCriarCupom(true)}>

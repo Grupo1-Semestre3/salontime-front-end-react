@@ -5,6 +5,9 @@ import NavbarLandingPage from "/src/components/NavbarLandingPage.jsx";
 import Footer from "/src/components/Footer.jsx";
 import { buscarAvaliacoes } from "../../js/api/avaliacao.js"
 import { buscarInfoSalao } from "../../js/api/info_salao.js"
+import BotpressChat from "../../components/BotpressChat.jsx";
+
+
 
 // --- COMPONENTE ESPECIALIDADE ---
 function EspecialidadeCard({ icon, titulo, descricao }) {
@@ -61,7 +64,16 @@ function AvaliacaoCard({ nome, data, estrelas, servico, comentario, imagem }) {
   return (
     <div className="avaliacao_section_card shadow">
       <div className="avaliacao_section_card_infos">
-        <p className="paragrafo-2">{nome} • {data} •</p>
+          <img
+            className="card-foto-cliente-dashboard" 
+            src={`http://localhost:8080/usuarios/foto/${imagem}`}
+            onError={(e) => { e.target.src = "/src/assets/img/usuario_foto_def.png"; }}
+            alt="icon_perfil" 
+          />
+          <p className="semibold paragrafo-1">{nome}</p>
+      </div>
+      <div className="avaliacao_section_card_infos">
+        <p className="paragrafo-2">{data} •</p>
         <div className="estrelas">
           {Array.from({ length: 5 }).map((_, i) => (
             <img
@@ -72,9 +84,8 @@ function AvaliacaoCard({ nome, data, estrelas, servico, comentario, imagem }) {
           ))}
         </div>
       </div>
-      <p className="paragrafo-2 italic">Serviço realizado: {servico}</p>
-      <p className="paragrafo-2">{comentario}</p>
-      <img src={imagem} alt="imagem-avaliacao" className="img-avaliacao" />
+      <p className="paragrafo-2 italic"><span className="semibold"> Serviço realizado: </span> {servico}</p>
+      <p className="paragrafo-2">"{comentario}"</p>
     </div>
   );
 }
@@ -128,7 +139,6 @@ export default function Index() {
   return (
     <>
       <NavbarLandingPage />
-
       {/* Home */}
       <section className="home_section_pai">
         <div className="home_section_title">
@@ -288,7 +298,7 @@ export default function Index() {
                 estrelas={dado.notaServico}
                 servico={dado.nomeServico}
                 comentario={dado.descricaoServico}
-                imagem={dado.imagem || '/src/assets/img/mock_avaliacao/Team-member.png'}
+                imagem={dado.idUsuario}
               />
             ))}
           </div>
@@ -301,12 +311,15 @@ export default function Index() {
                 estrelas={dado.notaServico}
                 servico={dado.nomeServico}
                 comentario={dado.descricaoServico}
-                imagem={dado.imagem || '/src/assets/img/mock_avaliacao/Team-member.png'}
+                imagem={dado.idUsuario}
               />
             ))}
           </div>
         </div>
       </section>
+
+
+      <BotpressChat/>
 
       {/* Footer */}
       <Footer />

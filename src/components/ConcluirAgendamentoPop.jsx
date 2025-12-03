@@ -2,6 +2,8 @@ import { useState } from "react";
 import Popup from "../components/Popup"; // se o seu wrapper estiver em outro local, ajuste o import
 import { mensagemErro, mensagemSucesso, formatarDataBR } from "../js/utils";
 import "../css/popup/concluirAgendamento.css";
+import { concluirAgendamento } from "../js/api/agendamento";
+
 export default function ConcluirAgendamentoPop({ dados, onClose, atualizarAgendamentos }) {
   if (!dados) return null;
   const [valorPago, setValorPago] = useState("");
@@ -15,7 +17,7 @@ export default function ConcluirAgendamentoPop({ dados, onClose, atualizarAgenda
           <p className="paragrafo-1 semibold">{dados.usuario?.nome}</p>
         </div>
 
-        <div className="calendario_box_info_concluir_agendamento">
+        <div className="calendario_box_info_concluir_agendamento" >
           <p><strong>Serviço:</strong> {dados.servico?.nome}</p>
           <p>
             <img src="/src/assets/svg/time-sharp.svg" alt=""/>{dataFormatada} {dados.inicio} horas

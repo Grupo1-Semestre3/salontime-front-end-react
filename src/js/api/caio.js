@@ -60,19 +60,21 @@ export function cancelarAgendamentoJS(id) {
   return true;
 }
 
-export function enviarMotivoCancelar({ id = null, descricao, agendamento }) {
+export async function enviarMotivoCancelar({ id = null, descricao, agendamento }) {
   try {
-    api.post(`http://localhost:8080/cancelamentos`, {
+    const payload = {
       id,
       descricao,
-      agendamento
-    });
-    console.log("Motivo de cancelamento enviado com sucesso!");
+      agendamento    
+    };
+
+    const response = await api.post(`http://localhost:8080/cancelamentos`, payload);
+    console.log("Motivo de cancelamento enviado com sucesso!", response.data);
+    return response.data;
   } catch (error) {
     console.error("Erro ao enviar motivo de cancelamento:", error);
-    return false;
+    throw error;
   }
-  return true;
 }
 
 export async function buscarAtendimentosPassados(id) {
