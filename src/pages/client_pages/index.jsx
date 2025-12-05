@@ -175,9 +175,9 @@ export default function Index() {
         <p className="subtitulo portifolio_section_title"><a className="italic">Um pouco do meu trabalho!</a>😉</p>
         {/* <img src="/src/assets/img/portifolio_teste.png" alt="portifolio" /> */}
         <div className="instagram-embed-container">
-          <InstagramEmbed url="https://www.instagram.com/p/DJR2xteJD8D/?img_index=1" />
-          <InstagramEmbed url="https://www.instagram.com/p/DKPQwvDxGsr/?img_index=1" />
-          <InstagramEmbed url="https://www.instagram.com/p/DK2h471JEgA/?img_index=1" />
+          <InstagramEmbed url="https://www.instagram.com/p/DJR2xteJD8D" />
+          <InstagramEmbed url="https://www.instagram.com/p/DKPQwvDxGsr" />
+          <InstagramEmbed url="https://www.instagram.com/p/DK2h471JEgA" />
         </div>
         <a href="https://www.instagram.com/marinamotahair/" target="_blank" rel="noopener noreferrer">
           <button className="btn-rosa bold" style={{ height: "50px" }}>

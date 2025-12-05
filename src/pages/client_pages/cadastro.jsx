@@ -81,7 +81,7 @@ export default function Cadastro() {
         </button>
 
         <div className="cadastro__title">
-          <h1 className="titulo-1">Bem vinda(o)!</h1>
+          <h1 className="titulo-1">Vamos começar!</h1>
           <p className="paragrafo-1 semibold">Preencha os campos para se cadastrar.</p>
         </div>
 

@@ -310,7 +310,7 @@ export default function Servicos() {
         <section className="principal_section" id="section_proximos_atendimentos">
           <div className="home_session_pai">
             <h2 id="nomeDinamico" className="super-titulo">
-              Bem vinda de volta{usuario ? ` ${usuario.nome}` : ""}!
+              Que bom ter você de volta,{usuario ? ` ${usuario.nome}` : ""}!
             </h2>
 
             <div className="conteudo_proximo_agendamento">

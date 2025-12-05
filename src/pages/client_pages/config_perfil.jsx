@@ -1,221 +1,217 @@
-import React, { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { cadastrarCliente, login } from "../../js/api/usuario";
-import { phoneMask, onlyDigits } from "../../js/utils"; // máscaras e utilitário de dígitos
 
-// Funções auxiliares locais para caret (mantive aqui, as máscaras ficam em utils)
-function caretPosFromDigits(newStr, digitsBeforeCursor) {
-  if (digitsBeforeCursor <= 0) return 0;
-  let digitsSeen = 0;
-  for (let i = 0; i < newStr.length; i++) {
-    if (/\d/.test(newStr[i])) digitsSeen++;
-    if (digitsSeen === digitsBeforeCursor) return i + 1;
-  }
-  return newStr.length;
-}
+import { useState, useEffect } from "react";
+import MenuConfig from "/src/components/MenuConfig.jsx";
+import { infoUsuario, atualizarDadosUsuario, atualizarSenhaUsuario, atualizarFotoUsuario, buscarFotoUsuario } from "../../js/api/caio";
+import { mensagemErro, mensagemSucesso, phoneMask, cpfMask, onlyDigits } from "../../js/utils";
 
-function setCaretPosition(el, pos) {
-  try {
-    el.setSelectionRange(pos, pos);
-  } catch (e) {
-    // ignora se não suportado
-  }
-}
 
-export default function Cadastro() {
-  const navigate = useNavigate();
-  const telefoneRef = useRef(null);
-  const [form, setForm] = useState({
-    nome: "",
-    email: "",
-    telefone: "",
-    senha: "",
-    confirmar: "",
+
+export default function Config_perfil({ onUpdateDados, onUpdateSenha }) {
+
+  const usuarioFt = JSON.parse(localStorage.getItem("usuario"));
+
+
+  const [fotoPreview, setFotoPreview] = useState(() => {
+    const usuarioLocal = JSON.parse(localStorage.getItem("usuario"));
+    return usuarioLocal.foto == null ? "/src/assets/img/usuario_foto_def.png" : `${usuarioLocal.foto}`;
   });
+  const [usuario, setUsuario] = useState(null);
+  const [dados, setDados] = useState({ id: "", nome: "", email: "", telefone: "", cpf: "", dataNascimento: "" });
+  const [senha, setSenha] = useState({ senhaAtual: "", novaSenha: "", confirmar: "" });
 
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    const usuarioStr = localStorage.getItem("usuario");
+    if (usuarioStr) {
+      const usuarioObj = JSON.parse(usuarioStr);
+      setUsuario(usuarioObj);
+    }
+  }, []);
 
-  const isValidEmail = (email) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).toLowerCase());
 
-  const isValidPhone = (phone) => {
-    const d = onlyDigits(phone);
-    return d.length === 10 || d.length === 11;
+
+  // useEffect(() => {
+  //   if (usuario && usuario.id) {
+  //     buscarFotoUsuario(usuario.id)
+  //       .then(url => {
+  //         console.log("URL da foto do usuário:", url);
+  //         setFotoPreview(url);
+  //         // Atualiza localStorage
+  //         const usuarioAtual = JSON.parse(localStorage.getItem("usuario"));
+  //         if (usuarioAtual) {
+  //           usuarioAtual.foto = url;
+  //           localStorage.setItem("usuario", JSON.stringify(usuarioAtual));
+  //         }
+  //       })
+  //       .catch(() => setFotoPreview("/src/assets/img/usuario_foto_def.png"));
+  //   }
+  // }, [usuario]);
+
+  const handleFotoChange = async (e) => {
+    const file = e.target.files[0];
+    if (file && usuario && usuario.id) {
+      try {
+        await atualizarFotoUsuario(usuario.id, file);
+        mensagemSucesso("Foto atualizada com sucesso!");
+        window.location.reload();
+        const url = await buscarFotoUsuario(usuario.id);
+        setFotoPreview(url);
+        // Atualiza localStorage
+        const usuarioAtual = JSON.parse(localStorage.getItem("usuario"));
+        if (usuarioAtual) {
+          usuarioAtual.foto = url;
+          localStorage.setItem("usuario", JSON.stringify(usuarioAtual));
+        }
+      } catch (error) {
+        mensagemErro("Erro ao atualizar foto.");
+      }
+    }
   };
 
-  const isValidPassword = (pwd) => String(pwd).length >= 6;
+  useEffect(() => {
+    if (usuario && usuario.id) {
+      infoUsuario(usuario.id)
+        .then(data => {
+          if (data) {
+            // Aplica máscara inicial para exibição
+            const telefoneMasked = data.telefone ? phoneMask(data.telefone) : "";
+            const cpfMasked = data.cpf ? cpfMask(data.cpf) : "";
 
-  const handleChange = (e) => {
-    const { name, value, selectionStart } = e.target;
+            setDados({
+              id: data.id || "",
+              nome: data.nome || "",
+              email: data.email || "",
+              telefone: telefoneMasked,
+              cpf: cpfMasked,
+              dataNascimento: data.dataNascimento || ""
+            });
+          }
+        })
+        .catch(error => {
+          console.error("Erro ao carregar informações do usuário:", error);
+        });
+    }
+  }, [usuario]);
 
+  const handleChangeDados = (e) => {
+    const { name, value } = e.target;
     if (name === "telefone") {
-      // Quantos dígitos estavam antes do cursor no novo valor
-      const digitsBeforeCursor = onlyDigits(value.slice(0, selectionStart)).length;
-
-      const masked = phoneMask(value);
-      setForm((prev) => ({ ...prev, telefone: masked }));
-
-      // Ajusta caret após render
-      setTimeout(() => {
-        const newPos = caretPosFromDigits(masked, digitsBeforeCursor);
-        if (telefoneRef.current) {
-          setCaretPosition(telefoneRef.current, newPos);
-        }
-      }, 0);
-
-      setErrors((prev) => ({ ...prev, telefone: undefined }));
+      setDados((prev) => ({ ...prev, telefone: phoneMask(value) }));
       return;
     }
-
-    setForm((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: undefined }));
+    if (name === "cpf") {
+      setDados((prev) => ({ ...prev, cpf: cpfMask(value) }));
+      return;
+    }
+    setDados({ ...dados, [name]: value });
+  };
+  const handleChangeSenha = (e) => {
+    setSenha({ ...senha, [e.target.name]: e.target.value });
   };
 
-  const validateAll = () => {
-    const newErrors = {};
-    if (!form.nome || form.nome.trim().length < 2) newErrors.nome = "Informe seu nome completo.";
-    if (!form.email || !isValidEmail(form.email)) newErrors.email = "Email inválido.";
-    if (!form.telefone || !isValidPhone(form.telefone)) newErrors.telefone = "Telefone inválido. Use DDD + número (10 ou 11 dígitos).";
-    if (!form.senha || !isValidPassword(form.senha)) newErrors.senha = "A senha precisa ter ao menos 6 caracteres.";
-    if (form.senha !== form.confirmar) newErrors.confirmar = "As senhas não coincidem.";
+  // Nota: aplicamos máscaras via state controlado (phoneMask / cpfMask)
+  // para garantir que o input já exiba o formato quando os dados são carregados.
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmitDados = async (e) => {
     e.preventDefault();
-
-    if (!validateAll()) return;
-
-    setLoading(true);
-
     try {
+      // Envia telefone/cpf sem máscara para o backend
       const payload = {
-        nome: form.nome.trim(),
-        email: form.email.trim().toLowerCase(),
-        telefone: onlyDigits(form.telefone), // envia apenas dígitos
-        senha: form.senha,
+        ...dados,
+        telefone: onlyDigits(dados.telefone || ""),
+        cpf: onlyDigits(dados.cpf || ""),
       };
 
-      await cadastrarCliente(payload, navigate);
+      await atualizarDadosUsuario(usuario.id, payload);
+      mensagemSucesso("Dados atualizados com sucesso!");
+    } catch (error) {
+      mensagemErro("Erro ao atualizar dados do usuário.");
+      console.error("Erro ao atualizar dados do usuário:", error);
+    }
+  };
 
-      // Se quiser logar automaticamente:
-      // await login(payload.email, payload.senha, navigate);
-
-      navigate("/welcome"); // ajuste conforme sua rota
-    } catch (err) {
-      console.error(err);
-      const message = (err && err.message) || "Ocorreu um erro ao cadastrar.";
-      setErrors({ api: message });
-    } finally {
-      setLoading(false);
+  const handleSubmitSenha = async (e) => {
+    e.preventDefault();
+    if (!senha.senhaAtual || !senha.novaSenha || !senha.confirmar) {
+      mensagemErro("Por favor, preencha todos os campos de senha.");
+      return;
+    } else if (senha.novaSenha !== senha.confirmar) {
+      mensagemErro("A nova senha e a confirmação não coincidem.");
+      return;
+    } else if (senha.senhaAtual === senha.novaSenha) {
+      mensagemErro("A nova senha deve ser diferente da senha atual.");
+      return;
+    }
+    try {
+      const dadosSenha = {
+        senhaAtual: senha.senhaAtual,
+        novaSenha: senha.novaSenha
+      };
+      await atualizarSenhaUsuario(usuario.id, dadosSenha);
+      mensagemSucesso("Senha atualizada com sucesso!");
+      setSenha({ senhaAtual: "", novaSenha: "", confirmar: "" }); // Limpa os campos após sucesso
+    } catch (error) {
+      mensagemErro("Erro ao atualizar senha do usuário.");
+      console.error("Erro ao atualizar senha do usuário:", error);
     }
   };
 
   return (
-    <div className="cadastro">
-      <div className="cadastro__imagem">
-        <img src="/src/assets/img/logincadastro.png" className="login__img" alt="" />
+    <MenuConfig>
+      <div className="foto_perfil_div">
+        <img
+          src={`http://localhost:8080/usuarios/foto/${usuarioFt.id}`}
+          onError={(e) => { e.target.src = "/src/assets/img/usuario_foto_def.png"; }}
+          alt="user_foto"
+          className="foto_perfil_config"
+        />
+        <input type="file" accept="image/*" id="foto" style={{ display: "none" }} onChange={handleFotoChange} />
+        <label htmlFor="foto" className="btn-rosa">Alterar Foto</label>
       </div>
-
-      <div className="cadastro__form">
-        <button className="cadastro__voltar" onClick={() => navigate("/")}>
-          ← Voltar
+      <form className="config_section_container" onSubmit={handleSubmitDados} autoComplete="off">
+        <p className="titulo-1">Dados pessoais:</p>
+        <div className="input_pai">
+          <p className="paragrafo-2">Nome Completo</p>
+          <input type="text" className="input" name="nome" placeholder="Digite seu nome" value={dados.nome} onChange={handleChangeDados} />
+        </div>
+        <div className="input_pai">
+          <p className="paragrafo-2">Endereço de e-mail</p>
+          <input type="email" className="input" name="email" placeholder="Digite seu e-mail" value={dados.email} onChange={handleChangeDados} />
+        </div>
+        <div className="input_pai">
+          <p className="paragrafo-2">Número de telefone</p>
+          <input id="telefone-input" type="text" className="input" name="telefone" placeholder="Digite seu número de telefone" value={dados.telefone} onChange={handleChangeDados} />
+        </div>
+        <div className="input_pai">
+          <p className="paragrafo-2">CPF</p>
+          <input id="cpf-input" type="text" className="input" name="cpf" placeholder="Digite seu CPF" value={dados.cpf} onChange={handleChangeDados} />
+        </div>
+        <div className="input_pai">
+          <p className="paragrafo-2">Data de nascimento</p>
+          <input type="date" className="input" name="dataNascimento" placeholder="Digite sua data de nascimento" value={dados.dataNascimento} onChange={handleChangeDados} />
+        </div>
+        <button className="btn-rosa" style={{ width: "100%" }} type="submit">
+          Atualizar
         </button>
-
-        <div className="cadastro__title">
-          <h1 className="titulo-1">Bem vinda(o)!</h1>
-          <p className="paragrafo-1 semibold">Preencha os campos para se cadastrar.</p>
+      </form>
+      <div className="config_section_divisor"></div>
+      <form className="config_section_container" onSubmit={handleSubmitSenha} autoComplete="off">
+        <p className="titulo-1">Alterar senha:</p>
+        <div className="input_pai">
+          <p className="paragrafo-2">Senha atual</p>
+          <input type="password" className="input" name="senhaAtual" placeholder="Digite aqui" value={senha.senhaAtual} onChange={handleChangeSenha} />
         </div>
-
-        <form className="cadastro__formulario" onSubmit={handleSubmit}>
-          <div className="input_pai">
-            <label htmlFor="nome">Nome completo</label>
-            <input
-              type="text"
-              name="nome"
-              className="input"
-              placeholder="Digite seu nome"
-              value={form.nome}
-              onChange={handleChange}
-            />
-            {errors.nome && <small className="error">{errors.nome}</small>}
-          </div>
-
-          <div className="input_pai">
-            <label htmlFor="email">Endereço de e-mail</label>
-            <input
-              type="email"
-              name="email"
-              className="input"
-              placeholder="Digite seu e-mail"
-              value={form.email}
-              onChange={handleChange}
-            />
-            {errors.email && <small className="error">{errors.email}</small>}
-          </div>
-
-          <div className="input_pai">
-            <label htmlFor="telefone">Número de telefone</label>
-            <input
-              ref={telefoneRef}
-              type="tel"
-              name="telefone"
-              className="input"
-              placeholder="(XX) XXXXX-XXXX"
-              value={form.telefone}
-              onChange={handleChange}
-              inputMode="numeric"
-              autoComplete="tel"
-            />
-            {errors.telefone && <small className="error">{errors.telefone}</small>}
-          </div>
-
-          <div className="input_pai">
-            <label htmlFor="senha">Senha</label>
-            <input
-              type="password"
-              name="senha"
-              className="input"
-              placeholder="Digite sua senha"
-              value={form.senha}
-              onChange={handleChange}
-            />
-            {errors.senha && <small className="error">{errors.senha}</small>}
-          </div>
-
-          <div className="input_pai">
-            <label htmlFor="confirmar">Confirmar senha</label>
-            <input
-              type="password"
-              name="confirmar"
-              className="input"
-              placeholder="Digite sua senha novamente"
-              value={form.confirmar}
-              onChange={handleChange}
-            />
-            {errors.confirmar && <small className="error">{errors.confirmar}</small>}
-          </div>
-
-          {errors.api && <div className="error api-error">{errors.api}</div>}
-
-          <button type="submit" className="btn-rosa cadastro__btn" disabled={loading}>
-            {loading ? "Cadastrando..." : "Cadastrar"}
-          </button>
-          <div className="linha-horizontal"></div>
-        </form>
-
-        <div className="cadastro__login">
-          <p className="paragrafo-2">
-            Já possui uma conta?
-            <button className="cadastro__entrar" onClick={() => navigate("/login")}>
-              Entrar
-            </button>
-          </p>
+        <div className="input_pai">
+          <p className="paragrafo-2">Nova senha</p>
+          <input type="password" className="input" name="novaSenha" placeholder="Digite aqui" value={senha.novaSenha} onChange={handleChangeSenha} />
         </div>
-      </div>
-    </div>
+        <div className="input_pai">
+          <p className="paragrafo-2">Confirmar nova senha</p>
+          <input type="password" className="input" name="confirmar" placeholder="Digite aqui" value={senha.confirmar} onChange={handleChangeSenha} />
+        </div>
+        <button className="btn-rosa" style={{ width: "100%" }} type="submit" >
+          Atualizar
+        </button>
+      </form>
+    </MenuConfig>
   );
 }
