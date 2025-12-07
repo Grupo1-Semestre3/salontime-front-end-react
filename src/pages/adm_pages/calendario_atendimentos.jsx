@@ -197,6 +197,7 @@ function ConcluirAgendamentoPop({ dados, onClose, atualizarAgendamentos  }) {
                   onClose(); // fecha o modal
                   atualizarAgendamentos(); // atualiza a lista no pai
                 } catch (err) {
+                  onClose();
                   mensagemErro("Erro ao concluir agendamento");
                 }
               }}

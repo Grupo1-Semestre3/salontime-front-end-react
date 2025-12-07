@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
 import MenuDash from "../../components/MenuDash";
 import ControleMensal from "../../components/NavControleMensal";
-import { buscarKPI, 
-  buscarKPIUsuarios, 
-  buscarAtendimentoGrafico, 
+import {
+  buscarKPI,
+  buscarKPIUsuarios,
+  buscarAtendimentoGrafico,
   buscarAtendimentoServico,
   buscarKPIPersonalizado,
   buscarKPIUsuariosPersonalizado,
   buscarAtendimentoGraficoPersonalizado,
   buscarAtendimentoServicoPersonalizado
- } from "../../js/api/elerson";
+} from "../../js/api/elerson";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -290,7 +291,7 @@ export default function Controle_servicos() {
         backgroundColor: "lightgray",
         fill: false,
         pointBackgroundColor: "lightgray",
-        borderDash: [6,4],
+        borderDash: [6, 4],
         tension: 0.3,
       });
     }
@@ -420,14 +421,14 @@ export default function Controle_servicos() {
     setIaResposta("");
     try {
       // Monta um contexto resumido com alguns KPIs e top serviços
-  const contextoServicos = (atendimentoServicoData || [])
-        .sort((a,b) => b.qtdAtual - a.qtdAtual)
-        .slice(0,5)
+      const contextoServicos = (atendimentoServicoData || [])
+        .sort((a, b) => b.qtdAtual - a.qtdAtual)
+        .slice(0, 5)
         .map(s => `${s.nomeServico}: ${s.qtdAtual}`)
         .join("; ");
-  const prompt = isPersonalizado ?
-  
-`Você é um assistente que interpreta uma dashboard mensal para gestão de um salão de beleza.
+      const prompt = isPersonalizado ?
+
+        `Você é um assistente que interpreta uma dashboard mensal para gestão de um salão de beleza.
 Mes selecionado: ${mesSelecionado}/${anoSelecionado}
 Total atendimentos: ${kpiData?.totalAtendimentos ?? "0"}
 Cancelados: ${kpiData?.totalCancelados ?? "0"}
@@ -443,9 +444,9 @@ Seja breve e utilize tom profissional.
 
 Lembre-se que sua resposta será uma variavel string exibida diretamente dentro de uma div de um site, então não utilize formatações de texto (bold/italic/title/etc).`
 
-:
+        :
 
-`Você é um assistente que interpreta uma dashboard para gestão de um salão de beleza.
+        `Você é um assistente que interpreta uma dashboard para gestão de um salão de beleza.
 Período: ${dataInicio} a ${dataFim}
 Total atendimentos: ${kpiData?.totalAtendimentos ?? "0"}
 Cancelados: ${kpiData?.totalCancelados ?? "0"}
@@ -460,7 +461,7 @@ Objetivo: gere uma análise em português, com:
 Seja breve e utilize tom profissional.
 
 Lembre-se que sua resposta será uma variavel string exibida diretamente dentro de uma div de um site, então não utilize formatações de texto (bold/italic/title/etc).`
-;
+        ;
 
       const resposta = await perguntarIA(prompt);
       setIaResposta(resposta);
@@ -472,44 +473,44 @@ Lembre-se que sua resposta será uma variavel string exibida diretamente dentro 
   }
   return (
     <MenuDash>
-     
-        {/* Título + Select */}
-        <div className="section_controle_servico_title">
-          <p className="titulo-1">{isPersonalizado ? 'Período Selecionado:' : 'Mês Selecionado'}</p>
-          <select
-            name="select_mes"
-            id="select_mes"
-            className="paragrafo-2 select semibold"
-            style={{width:`${!isPersonalizado? 'auto': ''}`}}
-            value={isPersonalizado ? 'personalizado' : String(mesSelecionado)}
-            onChange={(e) => {
-              const v = e.target.value;
-              if (v === 'personalizado') {
-                setIsPersonalizado(true);
-              } else {
-                setIsPersonalizado(false);
-                setMesSelecionado(Number(v));
-              }
-            }}
-          >
-            <option value="personalizado">Personalizado</option>
-            {/* show month label with year, e.g. "Jan/2025" */}
-            <option value="1">Janeiro/{anoSelecionado}</option>
-            <option value="2">Fevereiro/{anoSelecionado}</option>
-            <option value="3">Março/{anoSelecionado}</option>
-            <option value="4">Abril/{anoSelecionado}</option>
-            <option value="5">Maio/{anoSelecionado}</option>
-            <option value="6">Junho/{anoSelecionado}</option>
-            <option value="7">Julho/{anoSelecionado}</option>
-            <option value="8">Agosto/{anoSelecionado}</option>
-            <option value="9">Setembro/{anoSelecionado}</option>
-            <option value="10">Outubro/{anoSelecionado}</option>
-            <option value="11">Novembro/{anoSelecionado}</option>
-            <option value="12">Dezembro/{anoSelecionado}</option>
-          </select>
-          {isPersonalizado && (
+
+      {/* Título + Select */}
+      <div className="section_controle_servico_title">
+        <p className="titulo-1">{isPersonalizado ? 'Período Selecionado:' : 'Mês Selecionado'}</p>
+        <select
+          name="select_mes"
+          id="select_mes"
+          className="paragrafo-2 select semibold"
+          style={{ width: `${!isPersonalizado ? 'auto' : ''}` }}
+          value={isPersonalizado ? 'personalizado' : String(mesSelecionado)}
+          onChange={(e) => {
+            const v = e.target.value;
+            if (v === 'personalizado') {
+              setIsPersonalizado(true);
+            } else {
+              setIsPersonalizado(false);
+              setMesSelecionado(Number(v));
+            }
+          }}
+        >
+          <option value="personalizado">Personalizado</option>
+          {/* show month label with year, e.g. "Jan/2025" */}
+          <option value="1">Janeiro/{anoSelecionado}</option>
+          <option value="2">Fevereiro/{anoSelecionado}</option>
+          <option value="3">Março/{anoSelecionado}</option>
+          <option value="4">Abril/{anoSelecionado}</option>
+          <option value="5">Maio/{anoSelecionado}</option>
+          <option value="6">Junho/{anoSelecionado}</option>
+          <option value="7">Julho/{anoSelecionado}</option>
+          <option value="8">Agosto/{anoSelecionado}</option>
+          <option value="9">Setembro/{anoSelecionado}</option>
+          <option value="10">Outubro/{anoSelecionado}</option>
+          <option value="11">Novembro/{anoSelecionado}</option>
+          <option value="12">Dezembro/{anoSelecionado}</option>
+        </select>
+        {isPersonalizado && (
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginLeft: '24px' }}>
-            <label className="paragrafo-1" style={{marginTop:"4px"}} htmlFor="dataInicio_input">De</label>
+            <label className="paragrafo-1" style={{ marginTop: "4px" }} htmlFor="dataInicio_input">De</label>
             <input
               id="dataInicio_input"
               type="date"
@@ -519,7 +520,7 @@ Lembre-se que sua resposta será uma variavel string exibida diretamente dentro 
               onFocus={() => setErro(null)}
             />
 
-            <label className="paragrafo-1" style={{marginTop:"4px"}} htmlFor="dataFim_input">Até</label>
+            <label className="paragrafo-1" style={{ marginTop: "4px" }} htmlFor="dataFim_input">Até</label>
             <input
               id="dataFim_input"
               type="date"
@@ -529,132 +530,156 @@ Lembre-se que sua resposta será uma variavel string exibida diretamente dentro 
               onFocus={() => setErro(null)}
             />
           </div>
-          )}
-        </div>
+        )}
+      </div>
 
-        {/* Mini Nav */}
-       <ControleMensal />
+      {/* Mini Nav */}
+      <ControleMensal />
 
-        {/* KPIs */}
-        <div className="section_controle_servico_kpis_pai">
-          <div className="section_controle_servico_kpis card">
-            <p className="paragrafo-2 italic">Total de Atendimentos</p>
-            <div className="section_controle_servico_kpis_card_column">
-              <p className="paragrafo-1 semibold">{kpiData?.totalAtendimentos ?? "0"}</p>
-              {!isPersonalizado && (
-              <p className="paragrafo-2 section_controle_servico_kpis_card_value">
-                {kpiData?.totalAtendimentosTaxa 
-                  ? `${kpiData.totalAtendimentosTaxa > 0 ? '+' : ''}${kpiData.totalAtendimentosTaxa}%` 
+      {/* KPIs */}
+      <div className="section_controle_servico_kpis_pai">
+        <div className="section_controle_servico_kpis card">
+          <p className="paragrafo-2 italic">Total de Atendimentos</p>
+          <div className="section_controle_servico_kpis_card_column">
+            <p className="paragrafo-1 semibold">{kpiData?.totalAtendimentos ?? "0"}</p>
+            {!isPersonalizado && (
+              <p className="paragrafo-2 section_controle_servico_kpis_card_value"
+                style={{
+                  backgroundColor:
+                    kpiData?.totalAtendimentosTaxa < 0
+                      ? "var(--vermelho)"
+                      : "var(--verde)"
+                }}>
+                {kpiData?.totalAtendimentosTaxa
+                  ? `${kpiData.totalAtendimentosTaxa > 0 ? '+' : ''}${kpiData.totalAtendimentosTaxa}%`
                   : "—"}
               </p>
-              )}
-            </div>
+            )}
           </div>
+        </div>
 
-          <div className="section_controle_servico_kpis card">
-            <p className="paragrafo-2 italic">Atendimentos Cancelados</p>
-            <div className="section_controle_servico_kpis_card_column">
-              <p className="paragrafo-1 semibold">{kpiData?.totalCancelados ?? "0"}</p>
-              
-              {!isPersonalizado && (
+        <div className="section_controle_servico_kpis card">
+          <p className="paragrafo-2 italic">Atendimentos Cancelados</p>
+          <div className="section_controle_servico_kpis_card_column">
+            <p className="paragrafo-1 semibold">{kpiData?.totalCancelados ?? "0"}</p>
+
+            {!isPersonalizado && (
               <p
                 className="paragrafo-2 section_controle_servico_kpis_card_value"
-                style={{ backgroundColor: "var(--vermelho)" }}
-              >
-                {kpiData?.totalCanceladosTaxa 
-                  ? `${kpiData.totalCanceladosTaxa > 0 ? '+' : ''}${kpiData.totalCanceladosTaxa}%` 
-                  : "—"}
-              </p>
-              )}
-            </div>
-          </div>
-
-          <div className="section_controle_servico_kpis card">
-            <p className="paragrafo-2 italic">Clientes Cadastrados</p>
-            <div className="section_controle_servico_kpis_card_column">
-              <p className="paragrafo-1 semibold">{kpiUsuariosData?.totalCadastros ?? "0"}</p>
-              
-              {!isPersonalizado && (
-              <p className="paragrafo-2 section_controle_servico_kpis_card_value">
-                {kpiUsuariosData?.variacaoPercentual 
-                  ? `${kpiUsuariosData.variacaoPercentual > 0 ? '+' : ''}${kpiUsuariosData.variacaoPercentual}%` 
-                  : "—"}
-              </p>
-              )}
-            </div>
-          </div>
-
-          <div className="section_controle_servico_kpis card">
-            <p className="paragrafo-2 italic">Faturamento Total</p>
-            <div className="section_controle_servico_kpis_card_column">
-              <p className="paragrafo-1 semibold">
-                {kpiData?.faturamentoTotal ? `R$${kpiData.faturamentoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "R$0"}
-              </p>
-              {!isPersonalizado && (
-              <p className="paragrafo-2 section_controle_servico_kpis_card_value">
-                {kpiData?.faturamentoTotalTaxa 
-                  ? `${kpiData.faturamentoTotalTaxa > 0 ? '+' : ''}${kpiData.faturamentoTotalTaxa}%` 
-                  : "—"}
-              </p>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Gráfico de Atendimentos por Dia */}
-        <div className="section_controle_servico_grafico card" style={{ width: "100%" }}>
-          <p className="paragrafo-2 semibold" style={{ alignSelf: "flex-start", textAlign: "start" }}>Atendimentos por Dia</p>
-          <Line data={atendimentosData} options={atendimentosOptions} style={{ width: "100%", justifyContent: "center"}} />
-        </div>
-
-        {/* Linha com gráfico e análise IA */}
-        <div className="section_controle_servico_line2">
-          <div className="section_controle_servico_column_pai card">
-            <p className="paragrafo-2 semibold">Atendimentos por Serviço</p>
-            <Bar data={servicosData} options={servicosOptions} />
-          </div>
-
-          <div className="section_controle_servico_column_pai card" style={{ gap: "16px" }}>
-            <p className="paragrafo-2 semibold" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <img src="/src/assets/svg/icon_ia.svg" alt="icon-ia" />
-              Análise de Desempenho
-            </p>
-            <div style={{ display:"flex", flexDirection:"column", gap:"8px" }}>
-              <p className="paragrafo-2">Gere resumos automáticos com base nos dados apresentados.</p>
-              <button 
-                onClick={gerarAnaliseIA} 
-                disabled={iaLoading} 
-                className="paragrafo-2 semibold" 
                 style={{
-                  padding:"8px 12px",
-                  background:"black",
-                  color:"white",
-                  borderRadius:"6px",
-                  width:"fit-content",
-                  cursor: iaLoading?"not-allowed":"pointer",
-                  opacity: iaLoading?0.7:1
-                }}>
-                {iaLoading ? "Gerando análise..." : "Gerar análise IA"}
-              </button>
-              {iaErro && <p style={{ color:"var(--vermelho)", whiteSpace:"pre-wrap" }}>{iaErro}</p>}
-              {iaResposta && (
-                <div style={{
-                  maxHeight:"180px",
-                  overflowY:"auto",
-                  padding:"8px 12px",
-                  border:"1px solid #ddd",
-                  borderRadius:"6px",
-                  background:"#fafafa",
-                  whiteSpace:"pre-wrap",
-                  fontSize:"0.85rem"
-                }}>
-                  {iaResposta}
-                </div>
-              )}
-            </div>
+                  backgroundColor:
+                    kpiData?.totalCanceladosTaxa < 0
+                      ? "var(--vermelho)"
+                      : "var(--verde)"
+                }}
+              >
+                {kpiData?.totalCanceladosTaxa
+                  ? `${kpiData.totalCanceladosTaxa > 0 ? '+' : ''}${kpiData.totalCanceladosTaxa}%`
+                  : "—"}
+              </p>
+            )}
           </div>
         </div>
-      
+
+        <div className="section_controle_servico_kpis card">
+          <p className="paragrafo-2 italic">Clientes Cadastrados</p>
+          <div className="section_controle_servico_kpis_card_column">
+            <p className="paragrafo-1 semibold">{kpiUsuariosData?.totalCadastros ?? "0"}</p>
+
+            {!isPersonalizado && (
+              <p className="paragrafo-2 section_controle_servico_kpis_card_value"
+              style={{
+                  backgroundColor:
+                    kpiData?.variacaoPercentual < 0
+                      ? "var(--vermelho)"
+                      : "var(--verde)"
+                }}
+              >
+                {kpiUsuariosData?.variacaoPercentual
+                  ? `${kpiUsuariosData.variacaoPercentual > 0 ? '+' : ''}${kpiUsuariosData.variacaoPercentual}%`
+                  : "—"}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="section_controle_servico_kpis card">
+          <p className="paragrafo-2 italic">Faturamento Total</p>
+          <div className="section_controle_servico_kpis_card_column">
+            <p className="paragrafo-1 semibold">
+              {kpiData?.faturamentoTotal ? `R$${kpiData.faturamentoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "R$0"}
+            </p>
+            {!isPersonalizado && (
+              <p className="paragrafo-2 section_controle_servico_kpis_card_value"
+              style={{
+                  backgroundColor:
+                    kpiData?.faturamentoTotalTaxa < 0
+                      ? "var(--vermelho)"
+                      : "var(--verde)"
+                }}>
+                {kpiData?.faturamentoTotalTaxa
+                  ? `${kpiData.faturamentoTotalTaxa > 0 ? '+' : ''}${kpiData.faturamentoTotalTaxa}%`
+                  : "—"}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Gráfico de Atendimentos por Dia */}
+      <div className="section_controle_servico_grafico card" style={{ width: "100%" }}>
+        <p className="paragrafo-2 semibold" style={{ alignSelf: "flex-start", textAlign: "start" }}>Atendimentos por Dia</p>
+        <Line data={atendimentosData} options={atendimentosOptions} style={{ width: "100%", justifyContent: "center" }} />
+      </div>
+
+      {/* Linha com gráfico e análise IA */}
+      <div className="section_controle_servico_line2">
+        <div className="section_controle_servico_column_pai card">
+          <p className="paragrafo-2 semibold">Atendimentos por Serviço</p>
+          <Bar data={servicosData} options={servicosOptions} />
+        </div>
+
+        <div className="section_controle_servico_column_pai card" style={{ gap: "16px" }}>
+          <p className="paragrafo-2 semibold" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <img src="/src/assets/svg/icon_ia.svg" alt="icon-ia" />
+            Análise de Desempenho
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            <p className="paragrafo-2">Gere resumos automáticos com base nos dados apresentados.</p>
+            <button
+              onClick={gerarAnaliseIA}
+              disabled={iaLoading}
+              className="paragrafo-2 semibold"
+              style={{
+                padding: "8px 12px",
+                background: "black",
+                color: "white",
+                borderRadius: "6px",
+                width: "fit-content",
+                cursor: iaLoading ? "not-allowed" : "pointer",
+                opacity: iaLoading ? 0.7 : 1
+              }}>
+              {iaLoading ? "Gerando análise..." : "Gerar análise IA"}
+            </button>
+            {iaErro && <p style={{ color: "var(--vermelho)", whiteSpace: "pre-wrap" }}>{iaErro}</p>}
+            {iaResposta && (
+              <div style={{
+                maxHeight: "180px",
+                overflowY: "auto",
+                padding: "8px 12px",
+                border: "1px solid #ddd",
+                borderRadius: "6px",
+                background: "#fafafa",
+                whiteSpace: "pre-wrap",
+                fontSize: "0.85rem"
+              }}>
+                {iaResposta}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
     </MenuDash>
   );
 }
