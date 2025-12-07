@@ -544,8 +544,15 @@ function RealizarReagendamento({ onClose, dadosAgendamento, onAgendamentoSalvo }
           <select
             value={horarioSelecionado}
             onChange={(e) => setHorarioSelecionado(e.target.value)}
-          >
-            <option value="" disabled hidden>Selecione o horário</option>
+            disabled={!horarios.length}
+          >        
+            <option value="" disabled hidden>
+              {dataSelecionada
+                ? horarios.length
+                  ? "Selecione um horário"
+                  : "Nenhum horário disponível"
+                : "Selecione uma data"}
+            </option>
             {horarios.map((hora, i) => (
               <option key={i} value={hora.horario}>
                 {hora.horario}
