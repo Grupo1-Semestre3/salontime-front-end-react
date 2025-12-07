@@ -289,6 +289,7 @@ export default function Perfil() {
       </div>
 
       {/* INFORMAÇÕES DO SALÃO */}
+      {usuario?.tipoUsuario?.id === 1 && (
       <div className="w-full flex justify-center py-8">
         <div className="w-full max-w-4xl p-0 px-[10%] flex flex-col gap-4">
           <h1 className="text-3xl font-bold mb-2 text-gray-800">Informações do Salão</h1>
@@ -392,6 +393,7 @@ export default function Perfil() {
           </div>
         </div>
       </div>
+      )}
     </MenuDash>
   );
 }

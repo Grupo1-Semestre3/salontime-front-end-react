@@ -375,7 +375,7 @@ function EditarServico({ servico, onClose, onSave }) {
               onChange={handleChange}
               required
               className="input"
-              style={{ width: '416px' }}
+              style={{ width: '416px', height: '100px', resize: 'vertical' }}
             />
           </div>
           <div className="btn-juntos">
@@ -443,7 +443,7 @@ function EditarServico({ servico, onClose, onSave }) {
             </div>
           </div>
 
-          <div className="form-group">
+          {/* <div className="form-group">
             <label>Adicione uma foto</label>
             <div className="file-upload">
               <label htmlFor="foto" className="file-upload-label">
@@ -465,7 +465,7 @@ function EditarServico({ servico, onClose, onSave }) {
                 </div>
               </label>
             </div>
-          </div>
+          </div> */}
 
           <div className="form-group">
             <label>Profissionais capacitados</label>
@@ -499,7 +499,7 @@ function EditarServico({ servico, onClose, onSave }) {
 
           <div className="btn-juntos">
             <button type="submit" className="btn-verde">Atualizar</button>
-            <button className="btn-vermelho">Remover</button>
+            {/* <button className="btn-vermelho">Remover</button> */}
             <button type="button" className="btn-branco" onClick={onClose}>Cancelar</button>
           </div>
         </form>
@@ -656,7 +656,7 @@ function CriarServico({ onClose, onSave }) {
             </div>
           </div>
 
-          <div className="form-group">
+          {/* <div className="form-group">
             <label>Adicione uma foto</label>
             <div className="file-upload">
               <label htmlFor="foto-criar" className="file-upload-label">
@@ -678,7 +678,7 @@ function CriarServico({ onClose, onSave }) {
                 </div>
               </label>
             </div>
-          </div>
+          </div> */}
 
           <div className="btn-juntos" style={{ marginTop: '20px' }}>
             <button type="submit" className="btn-verde" disabled={loading} style={{ minWidth: '50%' }}>

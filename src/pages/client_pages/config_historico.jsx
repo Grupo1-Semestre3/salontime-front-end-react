@@ -18,7 +18,7 @@ function Card_historico({ idAgendamento, servico, statusAgendamento, preco, data
         <div className="campos" style={{ gap: "16px" }}>
           <p className="data" style={{ gap: "5px" }}>
             <img style={{ maxWidth: 24 }} src={"/src/assets/svg/time-sharp.svg"} alt="" />
-            <span>{data}</span>
+            <span>{formatarDataBR(data)}</span>
           </p>
           <p> {inicio}h</p>
         </div>
@@ -181,7 +181,20 @@ export default function ConfigHistorico() {
 }
 
 function formatarDataBR(dataISO) {
-  const [ano, mes, dia] = dataISO.split("-");
+  if (!dataISO) return "—";
+
+  // Se já estiver no formato BR (contém '/'), assume que está ok
+  if (typeof dataISO === 'string' && dataISO.includes('/')) return dataISO;
+
+  // Se vier com hora (ISO 2023-01-01T12:00:00), pega a parte da data
+  const datePart = (typeof dataISO === 'string' && dataISO.includes('T')) ? dataISO.split('T')[0] : dataISO;
+
+  // Protege contra formatos inesperados
+  if (typeof datePart !== 'string' || !datePart.includes('-')) return String(dataISO);
+
+  const parts = datePart.split('-');
+  if (parts.length < 3) return String(dataISO);
+  const [ano, mes, dia] = parts;
   return `${dia}/${mes}/${ano}`;
 }
 
@@ -194,7 +207,7 @@ function VerDetalhesPop({ dados, onClose }) {
   return (
     <Popup onClose={onClose}>
       <div className="calendario_box_popup_concluir_agendamento">
-        <h1>Detalhes do atendimento</h1>
+        <p className="paragrafo-2 semibold">Detalhes do atendimento</p>
 
         {items.map((item, index) => {
           // status pode vir em formatos distintos:

@@ -310,13 +310,13 @@ export default function Servicos() {
         <section className="principal_section" id="section_proximos_atendimentos">
           <div className="home_session_pai">
             <h2 id="nomeDinamico" className="super-titulo">
-              Que bom ter você de volta,{usuario ? ` ${usuario.nome}` : ""}!
+              Que bom ter você de volta,{usuario && usuario.nome ? ` ${usuario.nome.split(' ')[0]}` : ""}!
             </h2>
 
             <div className="conteudo_proximo_agendamento">
               <span className="paragrafo-1">{
                 proximoAgendamento && proximoAgendamento.statusAgendamento?.id === 1
-                  ? `Você tem 1 horário marcado:`
+                  ? `Próximo agendamento:`
                   : "Você não tem horários marcados 😢"
               }</span>
 
@@ -489,7 +489,7 @@ export default function Servicos() {
                   </p>
                 </div>
                 <div className="catalogo_section_conteudo">
-                  <p className="paragrafo-2">{dado.descricao}</p>
+                  <p className="paragrafo-2 catalogo_section_card_descricao">{dado.descricao}</p>
                   <div className="catalogo_section_infos">
                     <div className="estrelas">{estrelas}</div>
                     <div className="info">

@@ -34,7 +34,7 @@ export default function MenuDash({ children }) {
               style={{ maxWidth: "169px" }}
             />
             {/* show first name (or fallback) */}
-            <p className="paragrafo-e bold">Bem vinda(o) {usuario?.nome ? usuario.nome.split(' ')[0] : ''}!</p>
+            <p className="paragrafo-e bold">Boas-vindas, {usuario?.nome ? usuario.nome.split(' ')[0] : ''}!</p>
             <div className="dash_navbar_column">
               <button
                 className={
@@ -58,6 +58,8 @@ export default function MenuDash({ children }) {
                 />
                 Calendário
               </button>
+              {usuario?.tipoUsuario?.id === 1 && (
+                <>
               <button
                 className={
                   isActive("/adm/servicos-servicos") ||
@@ -118,6 +120,8 @@ export default function MenuDash({ children }) {
                 />
                 Controle Mensal
               </button>
+              </>
+              )}
               <button
                 className={isActive("/adm/perfil") ? "btn-navbar-ativo" : "btn-navbar"}
                 onClick={() => navigate("/adm/perfil")}

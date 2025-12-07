@@ -87,18 +87,20 @@ const Calendario = () => {
 
 
   useEffect(() => {
-    fetch(`http://localhost:8080/agendamento/calendario/${Number(usuario.id)}`)
-      .then((res) => {
-        if (!res.ok) throw new Error(`Erro na resposta da API: ${res.status}`);
-        return res.json();
-      })
-      .then((data) => {
-        const eventosConvertidos = converterEventos(data);
-        setEvents(eventosConvertidos);
-      })
-      .catch((err) => {
-        console.error("Erro ao buscar eventos:", err);
-      });
+    setTimeout(() => {
+      fetch(`http://localhost:8080/agendamento/calendario/${Number(usuario.id)}`)
+        .then((res) => {
+          if (!res.ok) throw new Error(`Erro na resposta da API: ${res.status}`);
+          return res.json();
+        })
+        .then((data) => {
+          const eventosConvertidos = converterEventos(data);
+          setEvents(eventosConvertidos);
+        })
+        .catch((err) => {
+          console.error("Erro ao buscar eventos:", err);
+        });
+    }, 500);
   }, [usuario]);
 
   return (

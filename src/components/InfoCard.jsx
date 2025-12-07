@@ -41,14 +41,18 @@ export default function InfoCard({
           <h1 className="paragrafo-1 branco semibold">{title}</h1>
         </div>
         <div className="dash_servico_servico_util">
+
+          <div className="dash_servico_servico_info_filho_descricao">
           {description && (
             <div className="dash_servico_servico_descricao">
               {typeof description === 'string' ? <p>{description}</p> : description}
             </div>
           )}
+          </div>
           
           {customContent && customContent}
-          
+          <div className="dash_servico_servico_separar">
+          <div className="dash_servico_servico_info_filho_grupo">
           {infoItems.map((item, index) => (
             <div key={index} className="dash_servico_servico_info_filho">
               {item.icon && <img src={item.icon} alt="" />}
@@ -56,6 +60,7 @@ export default function InfoCard({
               {item.value && <p>{item.value}</p>}
             </div>
           ))}
+          </div>
           
           <div className="dash_servico_servico_button btn-juntos">
             {primary && (
@@ -77,6 +82,7 @@ export default function InfoCard({
                 {getSecondaryButtonText()}
               </button>
             )}
+          </div>
           </div>
         </div>
       </div>

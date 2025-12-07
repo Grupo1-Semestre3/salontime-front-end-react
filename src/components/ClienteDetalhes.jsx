@@ -110,7 +110,7 @@ export default function ClienteDetalhes({ idCliente, onClose }) {
           )}
         </div>
 
-        <button className="btn-rosa" onClick={onClose}>Sair</button>
+        <button className="btn-rosa" onClick={onClose}>Fechar</button>
       </div>
 
       {popupConcluir && (
